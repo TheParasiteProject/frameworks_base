@@ -103,5 +103,6 @@ public class SystemSettings {
         Settings.System.SCREEN_FLASH_NOTIFICATION_COLOR,
         Settings.System.NAVIGATION_BAR_IME_SPACE,
         Settings.System.ENABLE_FLOATING_ROTATION_BUTTON,
+        Settings.System.LOCKSCREEN_ROTATION,
     };
 }
