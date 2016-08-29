@@ -2049,15 +2049,6 @@ final class DefaultPermissionGrantPolicy {
                 userId,
                 STORAGE_PERMISSIONS);
 
-        // Google App
-        grantPermissionsToPackage(
-                pm,
-                "com.google.android.googlequicksearchbox",
-                userId,
-                false /* ignoreSystemPackage */,
-                true /*whitelistRestrictedPermissions*/,
-                PHONE_PERMISSIONS);
-
         // Google Chrome
         grantPermissionsToSystemPackage(
                 pm,
@@ -2069,6 +2060,99 @@ final class DefaultPermissionGrantPolicy {
                 MICROPHONE_PERMISSIONS,
                 NEARBY_DEVICES_PERMISSIONS,
                 STORAGE_PERMISSIONS);
+
+        // Google Play Store
+        grantPermissionsToSystemPackage(
+                pm,
+                "com.android.vending",
+                userId,
+                CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                NEARBY_DEVICES_PERMISSIONS,
+                PHONE_PERMISSIONS,
+                SMS_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
+        // Google Connectivity Services
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.google.android.apps.gcs", userId, ALWAYS_LOCATION_PERMISSIONS);
+
+        // Google Backup Transport
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.google.android.backuptransport", userId, CONTACTS_PERMISSIONS);
+
+        // Google App
+        grantPermissionsToSystemPackage(
+                pm,
+                "com.google.android.googlequicksearchbox",
+                userId,
+                ACTIVITY_RECOGNITION_PERMISSIONS,
+                CALENDAR_PERMISSIONS,
+                CAMERA_PERMISSIONS,
+                CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                MICROPHONE_PERMISSIONS,
+                PHONE_PERMISSIONS,
+                SMS_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
+        // Google Play Services
+        grantPermissionsToSystemPackage(
+                pm,
+                "com.google.android.gms",
+                userId,
+                SENSORS_PERMISSIONS,
+                CALENDAR_PERMISSIONS,
+                CAMERA_PERMISSIONS,
+                CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                MICROPHONE_PERMISSIONS,
+                NEARBY_DEVICES_PERMISSIONS,
+                PHONE_PERMISSIONS,
+                SMS_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
+        // Persistent Google Play Services
+        grantPermissionsToSystemPackage(
+                pm,
+                "com.google.android.gms.persistent",
+                userId,
+                SENSORS_PERMISSIONS,
+                CALENDAR_PERMISSIONS,
+                CAMERA_PERMISSIONS,
+                CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                MICROPHONE_PERMISSIONS,
+                NEARBY_DEVICES_PERMISSIONS,
+                PHONE_PERMISSIONS,
+                SMS_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
+        // Google Play Framework
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.google.android.gsf", userId, CONTACTS_PERMISSIONS, PHONE_PERMISSIONS);
+
+        // Google Account
+        grantSystemFixedPermissionsToSystemPackage(
+                pm,
+                "com.google.android.gsf.login",
+                userId,
+                CONTACTS_PERMISSIONS,
+                PHONE_PERMISSIONS);
+
+        // Google Setup Wizard
+        grantSystemFixedPermissionsToSystemPackage(
+                pm,
+                "com.google.android.setupwizard",
+                userId,
+                CONTACTS_PERMISSIONS,
+                PHONE_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                CAMERA_PERMISSIONS);
+
+        // Google Contacts Sync
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.google.android.syncadapters.contacts", userId, CONTACTS_PERMISSIONS);
 
     }
 
