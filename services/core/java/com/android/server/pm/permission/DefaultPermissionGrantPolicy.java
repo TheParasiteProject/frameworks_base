@@ -2101,6 +2101,16 @@ final class DefaultPermissionGrantPolicy {
         grantSystemFixedPermissionsToSystemPackage(
                 pm, "com.google.android.backuptransport", userId, CONTACTS_PERMISSIONS);
 
+        // Google Calendar
+        grantSystemFixedPermissionsToSystemPackage(
+                pm,
+                "com.google.android.calendar",
+                userId,
+                CALENDAR_PERMISSIONS,
+                CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                PHONE_PERMISSIONS);
+
         // Google App
         grantPermissionsToSystemPackage(
                 pm,
