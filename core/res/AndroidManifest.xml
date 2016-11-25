@@ -835,6 +835,11 @@
     <protected-broadcast android:name="android.intent.action.PROFILE_AVAILABLE" />
     <protected-broadcast android:name="android.intent.action.PROFILE_UNAVAILABLE" />
 
+    <!-- LineageOS additions -->
+
+    <!-- Used to launch a common app (FlipFlap) for devices with flip cover. -->
+    <protected-broadcast android:name="lineageos.intent.action.LID_STATE_CHANGED" />
+
     <!-- ====================================================================== -->
     <!--                          RUNTIME PERMISSIONS                           -->
     <!-- ====================================================================== -->
