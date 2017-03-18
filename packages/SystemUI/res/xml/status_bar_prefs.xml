@@ -52,6 +52,13 @@
         android:key="bluetooth"
         android:title="@string/quick_settings_bluetooth_label" />
 
+    <lineageos.preference.SystemSettingSwitchPreference
+        android:key="bluetooth_show_battery"
+        android:icon="@drawable/ic_statusbar_battery_bluetooth"
+        android:title="@string/bluetooth_battery_title"
+        android:summary="@string/bluetooth_battery_summary"
+        android:defaultValue="false"/>
+
     <!-- nfc -->
     <!-- tty -->
     <!-- speakerphone -->
