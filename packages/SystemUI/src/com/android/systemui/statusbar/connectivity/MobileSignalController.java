@@ -76,6 +76,8 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
 
     private static final String DATA_DISABLED_ICON =
             "system:" + Settings.System.DATA_DISABLED_ICON;
+    private static final String SHOW_FOURG_ICON =
+            "system:" + Settings.System.SHOW_FOURG_ICON;
 
     private boolean mDataDisabledIcon;
 
@@ -180,6 +182,11 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
                     TunerService.parseIntegerSwitch(newValue, true);
                 updateTelephony();
                 break;
+            case SHOW_FOURG_ICON:
+                mConfig = Config.readConfig(mContext);
+                setConfiguration(mConfig);
+                notifyListeners();
+                break;
             default:
                 break;
         }
@@ -228,6 +235,7 @@ public class MobileSignalController extends SignalController<MobileState, Mobile
                 Global.MOBILE_DATA + mSubscriptionInfo.getSubscriptionId()),
                 true, mObserver);
         mTunerService.addTunable(this, DATA_DISABLED_ICON);
+        mTunerService.addTunable(this, SHOW_FOURG_ICON);
     }
 
     /**
