@@ -170,6 +170,8 @@ class NotificationShadeWindowViewControllerTest : SysuiTestCase() {
     private val notificationLaunchAnimationInteractor =
         NotificationLaunchAnimationInteractor(notificationLaunchAnimationRepository)
 
+    @Mock private lateinit var qqsGestureListener: QQSGestureListener
+
     private lateinit var fakeClock: FakeSystemClock
     private lateinit var interactionEventHandlerCaptor: ArgumentCaptor<InteractionEventHandler>
     private lateinit var interactionEventHandler: InteractionEventHandler
@@ -280,6 +282,7 @@ class NotificationShadeWindowViewControllerTest : SysuiTestCase() {
                 primaryBouncerInteractor,
                 alternateBouncerInteractor,
                 mSelectedUserInteractor,
+                qqsGestureListener,
             )
         underTest.setupExpandedStatusBar()
         underTest.setDragDownHelper(dragDownHelper)
