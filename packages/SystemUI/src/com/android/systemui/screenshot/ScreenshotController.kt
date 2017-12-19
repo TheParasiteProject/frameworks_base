@@ -16,17 +16,21 @@
 package com.android.systemui.screenshot
 
 import android.animation.Animator
+import android.app.ActivityTaskManager
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Insets
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Process
+import android.os.RemoteException
 import android.os.UserHandle
 import android.os.UserManager
 import android.provider.Settings
@@ -51,6 +55,8 @@ import com.android.systemui.screenshot.ActionIntentCreator.createLongScreenshotI
 import com.android.systemui.screenshot.ScreenshotShelfViewProxy.ScreenshotViewCallback
 import com.android.systemui.screenshot.scroll.ScrollCaptureController.LongScreenshot
 import com.android.systemui.screenshot.scroll.ScrollCaptureExecutor
+import com.android.systemui.shared.system.TaskStackChangeListener
+import com.android.systemui.shared.system.TaskStackChangeListeners
 import com.android.systemui.util.Assert
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -59,6 +65,7 @@ import java.util.UUID
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.function.Consumer
 import javax.inject.Provider
 import kotlin.math.abs
@@ -116,6 +123,43 @@ internal constructor(
                 ActivityInfo.CONFIG_ASSETS_PATHS
         )
 
+    private var taskComponentName: ComponentName? = null
+    private val pm: PackageManager
+
+    private val taskListener: TaskStackChangeListener =
+        object : TaskStackChangeListener {
+            override fun onTaskStackChanged() {
+                try {
+                    bgExecutor.execute {
+                        updateForegroundTaskSync()
+                    }
+                } catch (e: RejectedExecutionException) {
+                }
+            }
+        }
+
+    private fun updateForegroundTaskSync() {
+        try {
+            val focusedStack: ActivityTaskManager.RootTaskInfo? =
+                    ActivityTaskManager.getService().getFocusedRootTaskInfo()
+            if (focusedStack != null && focusedStack.topActivity != null) {
+                taskComponentName = focusedStack.topActivity as ComponentName
+            }
+        } catch (e: RemoteException) {
+            Log.e(TAG, "Failed to get foreground task component", e)
+        }
+    }
+
+    private fun getForegroundAppLabel(): String {
+        if (taskComponentName == null || pm == null) return packageName
+        try {
+            val ai: ActivityInfo = pm.getActivityInfo(taskComponentName as ComponentName, 0)
+            return ai.applicationInfo.loadLabel(pm).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+             return packageName
+        }
+    }
+
     init {
         screenshotHandler.defaultTimeoutMillis = SCREENSHOT_CORNER_DEFAULT_TIMEOUT_MILLIS
 
@@ -161,6 +205,15 @@ internal constructor(
             Context.RECEIVER_NOT_EXPORTED,
             ClipboardOverlayController.SELF_PERMISSION,
         )
+
+        // Grab PackageManager
+        pm = context.getPackageManager()
+
+        // Register task stack listener
+        TaskStackChangeListeners.getInstance().registerTaskStackListener(taskListener)
+
+        // Initialize current foreground package name
+        updateForegroundTaskSync()
     }
 
     override fun handleScreenshot(
@@ -308,6 +361,7 @@ internal constructor(
         removeWindow()
         releaseMediaPlayer()
         releaseContext()
+        TaskStackChangeListeners.getInstance().unregisterTaskStackListener(taskListener)
         bgExecutor.shutdown()
     }
 
@@ -519,6 +573,7 @@ internal constructor(
                 screenshot.bitmap,
                 screenshot.getUserOrDefault(),
                 display.displayId,
+                getForegroundAppLabel(),
             )
         future.addListener(
             {
