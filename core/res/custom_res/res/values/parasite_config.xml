@@ -39,4 +39,7 @@
 
     <!-- Whether device has Google Tensor SoC -->
     <bool name="config_hasTensorSoC">false</bool>
+
+    <!-- Whether the device supports Smart Pixels -->
+    <bool name="config_supportSmartPixels">false</bool>
 </resources>
