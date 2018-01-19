@@ -2111,6 +2111,20 @@ final class DefaultPermissionGrantPolicy {
                 ALWAYS_LOCATION_PERMISSIONS,
                 PHONE_PERMISSIONS);
 
+        // Google Dialer
+        grantSystemFixedPermissionsToSystemPackage(
+                pm,
+                "com.google.android.dialer",
+                userId,
+                PHONE_PERMISSIONS,
+                CAMERA_PERMISSIONS,
+                CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                MICROPHONE_PERMISSIONS,
+                NEARBY_DEVICES_PERMISSIONS,
+                SMS_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
         // Google App
         grantPermissionsToSystemPackage(
                 pm,
