@@ -26,6 +26,8 @@ import com.android.systemui.qs.tiles.ReadingModeTile
 import com.android.systemui.qs.tiles.SyncTile
 import com.android.systemui.qs.tiles.UsbTetherTile
 
+import com.android.systemui.qs.tiles.SoundSearchTile
+
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -80,4 +82,10 @@ interface LineageModule {
     @IntoMap
     @StringKey(UsbTetherTile.TILE_SPEC)
     fun bindUsbTetherTile(usbTetherTile: UsbTetherTile): QSTileImpl<*>
+
+    /** Inject SoundSearchTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(SoundSearchTile.TILE_SPEC)
+    fun bindSoundSearchTile(soundSearchTile: SoundSearchTile): QSTileImpl<*>
 }
