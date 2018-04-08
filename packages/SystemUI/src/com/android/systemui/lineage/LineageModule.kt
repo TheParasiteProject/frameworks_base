@@ -27,6 +27,7 @@ import com.android.systemui.qs.tiles.SyncTile
 import com.android.systemui.qs.tiles.UsbTetherTile
 
 import com.android.systemui.qs.tiles.SoundSearchTile
+import com.android.systemui.qs.tiles.SmartPixelsTile
 
 import dagger.Binds
 import dagger.Module
@@ -82,6 +83,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(UsbTetherTile.TILE_SPEC)
     fun bindUsbTetherTile(usbTetherTile: UsbTetherTile): QSTileImpl<*>
+
+    /** Inject SmartPixelsTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(SmartPixelsTile.TILE_SPEC)
+    fun bindSmartPixelsTile(smartPixelsTile: SmartPixelsTile): QSTileImpl<*>
 
     /** Inject SoundSearchTile into tileMap in QSModule */
     @Binds
