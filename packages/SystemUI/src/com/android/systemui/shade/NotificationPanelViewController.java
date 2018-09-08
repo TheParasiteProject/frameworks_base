@@ -4046,7 +4046,11 @@ public final class NotificationPanelViewController implements
                 return false;
             }
 
-            if (mDoubleTapToSleepEnabled && !mPulsing && !mDozing) {
+            if (mDoubleTapToSleepEnabled
+                    && ((!mPulsing && !mDozing && mBarState == StatusBarState.KEYGUARD)
+                            || (!mQsController.getExpanded()
+                                    && mDoubleTapToSleepEnabled
+                                    && event.getY() < mStatusBarHeaderHeightKeyguard))) {
                 mDoubleTapGesture.onTouchEvent(event);
             }
 
