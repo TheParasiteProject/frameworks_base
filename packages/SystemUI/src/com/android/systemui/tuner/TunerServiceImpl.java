@@ -389,7 +389,7 @@ public class TunerServiceImpl extends TunerService {
 
     private void reloadAll() {
         for (String key : mTunableLookup.keySet()) {
-            if (ArrayUtils.contains(RESET_EXCEPTION_LIST, key) || isLineageSetting(key)) {
+            if (ArrayUtils.contains(RESET_EXCEPTION_LIST, key) || isLineageSetting(key) || isInternalSetting(key)) {
                 continue;
             }
             String value = getValue(key);
