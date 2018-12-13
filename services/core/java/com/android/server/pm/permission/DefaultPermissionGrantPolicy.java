@@ -2054,6 +2054,15 @@ final class DefaultPermissionGrantPolicy {
                 ALWAYS_LOCATION_PERMISSIONS,
                 MICROPHONE_PERMISSIONS,
                 PHONE_PERMISSIONS);
+
+        // Mediascanner
+        grantSystemFixedPermissionsToSystemPackage(
+                pm,
+                getDefaultProviderAuthorityPackage(
+                        "com.android.providers.media.MediaProvider", userId),
+                userId,
+                STORAGE_PERMISSIONS);
+
     }
 
 }
