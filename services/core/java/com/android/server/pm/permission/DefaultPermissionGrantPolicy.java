@@ -2223,6 +2223,10 @@ final class DefaultPermissionGrantPolicy {
                 ALWAYS_LOCATION_PERMISSIONS,
                 CAMERA_PERMISSIONS);
 
+        // Google Sounds
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.google.android.soundpicker", userId, STORAGE_PERMISSIONS);
+
         // Google Contacts Sync
         grantSystemFixedPermissionsToSystemPackage(
                 pm, "com.google.android.syncadapters.contacts", userId, CONTACTS_PERMISSIONS);
