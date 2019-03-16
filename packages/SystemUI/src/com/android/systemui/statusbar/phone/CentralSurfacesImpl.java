@@ -275,6 +275,9 @@ import javax.inject.Provider;
 @SysUISingleton
 public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, TunerService.Tunable {
 
+    private static final String DISPLAY_CUTOUT_HIDDEN =
+            "system:" + Settings.System.DISPLAY_CUTOUT_HIDDEN;
+
     private static final String BANNER_ACTION_CANCEL =
             "com.android.systemui.statusbar.banner_action_cancel";
     private static final String BANNER_ACTION_SETUP =
@@ -593,6 +596,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
 
     private final SceneContainerFlags mSceneContainerFlags;
 
+    private boolean mDisplayCutoutHidden;
+    private Handler mRefreshNavbarHandler;
+
     /**
      * Public constructor for CentralSurfaces.
      *
@@ -708,7 +714,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
             Provider<FingerprintManager> fingerprintManager,
             ActivityStarter activityStarter,
             SceneContainerFlags sceneContainerFlags,
-            TunerService tunerService
+            TunerService tunerService,
+            @Main Handler refreshNavbarHandler
     ) {
         mContext = context;
         mNotificationsController = notificationsController;
@@ -811,6 +818,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
         mStartingSurfaceOptional = startingSurfaceOptional;
         mDreamManager = dreamManager;
         mTunerService = tunerService;
+        mRefreshNavbarHandler = refreshNavbarHandler;
         lockscreenShadeTransitionController.setCentralSurfaces(this);
         statusBarWindowStateController.addListener(this::onStatusBarWindowStateChanged);
 
@@ -907,6 +915,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
                 LineageSettings.System.getUriFor(LineageSettings.System.FORCE_SHOW_NAVBAR), false,
                 contentObserver);
         contentObserver.onChange(true);
+
+        mTunerService.addTunable(this, DISPLAY_CUTOUT_HIDDEN);
 
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 
@@ -1616,6 +1626,36 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
     @Override
     public void setBarStateForTest(int state) {
         mState = state;
+    }
+
+    private void updateCutoutOverlay(boolean displayCutoutHidden) {
+        boolean needsRefresh = mDisplayCutoutHidden != displayCutoutHidden;
+        mDisplayCutoutHidden = displayCutoutHidden;
+        try {
+            mOverlayManager.setEnabled("org.pixelexperience.overlay.hidecutout",
+                        mDisplayCutoutHidden, mLockscreenUserManager.getCurrentUserId());
+        } catch (RemoteException ignored) {
+        }
+        if (needsRefresh){
+            refreshNavbarOverlay();
+        }
+    }
+
+    private void refreshNavbarOverlay() {
+        final String overlayPackageName = "org.pixelexperience.overlay.dummycutout";
+        try{
+            mOverlayManager.setEnabled(overlayPackageName,
+                false, UserHandle.USER_CURRENT);
+        } catch (RemoteException ignored) {
+        }
+        mRefreshNavbarHandler.removeCallbacksAndMessages(null);
+        mRefreshNavbarHandler.postDelayed(() -> {
+            try{
+                mOverlayManager.setEnabled(overlayPackageName,
+                    true, UserHandle.USER_CURRENT);
+            } catch (RemoteException ignored) {
+            }
+        }, 1000);
     }
 
     static class AnimateExpandSettingsPanelMessage {
@@ -3017,6 +3057,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
     @Override
     public void onTuningChanged(String key, String newValue) {
         switch (key) {
+            case DISPLAY_CUTOUT_HIDDEN:
+                updateCutoutOverlay(TunerService.parseIntegerSwitch(newValue, false));
+                break;
             default:
                 break;
         }
