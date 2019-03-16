@@ -294,6 +294,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
     private static final String NAVIGATION_BAR_SHOW =
             "customsystem:" + Settings.System.NAVIGATION_BAR_SHOW;
 
+    private static final String DISPLAY_CUTOUT_HIDDEN =
+            "customsystem:" + Settings.System.DISPLAY_CUTOUT_HIDDEN;
+
     private static final String BANNER_ACTION_CANCEL =
             "com.android.systemui.statusbar.banner_action_cancel";
     private static final String BANNER_ACTION_SETUP =
@@ -675,6 +678,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
         }
     };
 
+    private boolean mDisplayCutoutHidden;
+    private Handler mRefreshNavbarHandler;
+
     /**
      * Public constructor for CentralSurfaces.
      *
@@ -790,7 +796,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
             UserTracker userTracker,
             Provider<FingerprintManager> fingerprintManager,
             ActivityStarter activityStarter,
-            TunerService tunerService
+            TunerService tunerService,
+            @Main Handler refreshNavbarHandler
     ) {
         mContext = context;
         mNotificationsController = notificationsController;
@@ -893,6 +900,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
         mStartingSurfaceOptional = startingSurfaceOptional;
         mDreamManager = dreamManager;
         mTunerService = tunerService;
+        mRefreshNavbarHandler = refreshNavbarHandler;
         lockscreenShadeTransitionController.setCentralSurfaces(this);
         statusBarWindowStateController.addListener(this::onStatusBarWindowStateChanged);
 
@@ -967,6 +975,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
 
         mTunerService.addTunable(this, NAVIGATION_BAR_SHOW);
+        mTunerService.addTunable(this, DISPLAY_CUTOUT_HIDDEN);
 
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         mDisplay = mContext.getDisplay();
@@ -1774,6 +1783,36 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
     @Override
     public void setBarStateForTest(int state) {
         mState = state;
+    }
+
+    private void updateCutoutOverlay(boolean displayCutoutHidden) {
+        boolean needsRefresh = mDisplayCutoutHidden != displayCutoutHidden;
+        mDisplayCutoutHidden = displayCutoutHidden;
+        try {
+            mOverlayManager.setEnabled("org.pixelexperience.overlay.hidecutout",
+                        mDisplayCutoutHidden, mLockscreenUserManager.getCurrentUserId());
+        } catch (RemoteException ignored) {
+        }
+        if (needsRefresh){
+            refreshNavbarOverlay();
+        }
+    }
+
+    private void refreshNavbarOverlay() {
+        final String overlayPackageName = "org.pixelexperience.overlay.dummycutout";
+        try{
+            mOverlayManager.setEnabled(overlayPackageName,
+                false, UserHandle.USER_CURRENT);
+        } catch (RemoteException ignored) {
+        }
+        mRefreshNavbarHandler.removeCallbacksAndMessages(null);
+        mRefreshNavbarHandler.postDelayed(() -> {
+            try{
+                mOverlayManager.setEnabled(overlayPackageName,
+                    true, UserHandle.USER_CURRENT);
+            } catch (RemoteException ignored) {
+            }
+        }, 1000);
     }
 
     static class AnimateExpandSettingsPanelMessage {
@@ -3486,6 +3525,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
                     mNavigationBarController.onDisplayRemoved(mDisplayId);
                 }
             }
+        } else if (DISPLAY_CUTOUT_HIDDEN.equals(key)) {
+            updateCutoutOverlay(TunerService.parseIntegerSwitch(newValue, false));
         }
     }
 
