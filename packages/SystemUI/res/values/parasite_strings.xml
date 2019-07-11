@@ -17,4 +17,9 @@
     <string name="app_picker_dialog_title">Select an app</string>
     <string name="active_edge_app_select_title">Select app</string>
     <string name="active_edge_activity_select_title">Select activity</string>
+
+    <!-- Data disabled icon -->
+    <string name="data_disabled_icon_title">Mobile data disabled indicator</string>
+    <string name="data_disabled_icon_summary">Display an indicator next to signal icon when data is disabled</string>
+
 </resources>

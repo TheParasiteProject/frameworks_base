@@ -6343,6 +6343,12 @@ public final class Settings {
          */
 
         /**
+         * Whether to display cross sign for a data disabled connection
+         * @hide
+         */
+        public static final String DATA_DISABLED_ICON = "data_disabled_icon";
+
+        /**
          * Gestures nav: left long back swipe action
          * @hide
          */
