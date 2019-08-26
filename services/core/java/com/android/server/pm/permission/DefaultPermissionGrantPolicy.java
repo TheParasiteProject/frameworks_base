@@ -2416,6 +2416,10 @@ final class DefaultPermissionGrantPolicy {
                 PHONE_PERMISSIONS,
                 ALWAYS_LOCATION_PERMISSIONS);
 
+        // Google Markup
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.google.android.markup", userId, STORAGE_PERMISSIONS);
+
     }
 
 }
