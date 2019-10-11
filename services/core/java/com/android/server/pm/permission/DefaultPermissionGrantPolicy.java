@@ -2103,6 +2103,10 @@ final class DefaultPermissionGrantPolicy {
                 SMS_PERMISSIONS,
                 STORAGE_PERMISSIONS);
 
+        // ThemePicker
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.android.wallpaper", userId, STORAGE_PERMISSIONS);
+
         // Google Connectivity Services
         grantSystemFixedPermissionsToSystemPackage(
                 pm, "com.google.android.apps.gcs", userId, ALWAYS_LOCATION_PERMISSIONS);
