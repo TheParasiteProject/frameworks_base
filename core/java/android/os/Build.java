@@ -1730,6 +1730,7 @@ public class Build {
      */
     public static boolean isBuildConsistent() {
         // Don't care on eng builds.  Incremental build may trigger false negative.
+        /*
         if (IS_ENG) return true;
 
         int result = VintfObject.verifyBuildAtBoot();
@@ -1737,7 +1738,7 @@ public class Build {
             Slog.e(TAG, "Vendor interface is incompatible, error=" + result);
            return false;
         }
-
+        */
         return true;
     }
 
