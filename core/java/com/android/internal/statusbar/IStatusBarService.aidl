@@ -235,4 +235,6 @@ interface IStatusBarService
     void setBlockedGesturalNavigation(boolean blocked);
 
     void toggleCameraFlash();
+
+    void killForegroundApp();
 }
