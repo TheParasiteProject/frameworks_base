@@ -66,6 +66,7 @@ public class NavigationBarInflaterView extends FrameLayout {
     public static final String NAV_BAR_LEFT = "sysui_nav_bar_left";
     public static final String NAV_BAR_RIGHT = "sysui_nav_bar_right";
     public static final String NAV_BAR_INVERSE = "sysui_nav_bar_inverse";
+    public static final String NAV_BAR_COMPACT = "sysui_nav_bar_compact";
 
     public static final String MENU_IME_ROTATE = "menu_ime";
     public static final String BACK = "back";
@@ -135,6 +136,7 @@ public class NavigationBarInflaterView extends FrameLayout {
     private int mNavBarMode = NAV_BAR_MODE_3BUTTON;
 
     private boolean mInverseLayout;
+    private boolean mCompactLayout;
     private boolean mIsHintEnabled;
 
     private final ContentObserver mContentObserver;
@@ -157,6 +159,12 @@ public class NavigationBarInflaterView extends FrameLayout {
                     mIsHintEnabled = LineageSettings.System.getInt(mContext.getContentResolver(),
                             LineageSettings.System.NAVIGATION_BAR_HINT, 0) != 0;
                     updateHint();
+                    mContext.getMainExecutor().execute(() -> {
+                        onLikelyDefaultLayoutChange();
+                    });
+                } else if (Settings.Secure.getUriFor(NAV_BAR_COMPACT).equals(uri)) {
+                    mCompactLayout = Settings.Secure.getInt(mContext.getContentResolver(),
+                            NAV_BAR_COMPACT, 0) != 0;
                     mContext.getMainExecutor().execute(() -> {
                         onLikelyDefaultLayoutChange();
                     });
@@ -202,6 +210,10 @@ public class NavigationBarInflaterView extends FrameLayout {
         if (!mIsHintEnabled && defaultResource == R.string.config_navBarLayoutHandle) {
             return getContext().getString(defaultResource).replace(HOME_HANDLE, "");
         }
+        if (mCompactLayout && (defaultResource == R.string.config_navBarLayout ||
+                defaultResource == R.string.config_navBarLayoutQuickstep)){
+            return "left;back,home,recent;right";
+        }
         return getContext().getString(defaultResource);
     }
 
@@ -214,13 +226,17 @@ public class NavigationBarInflaterView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         Uri navBarInverse = Settings.Secure.getUriFor(NAV_BAR_INVERSE);
+        Uri navBarCompact = Settings.Secure.getUriFor(NAV_BAR_COMPACT);
         Uri navigationBarHint = LineageSettings.System.getUriFor(
                 LineageSettings.System.NAVIGATION_BAR_HINT);
         mContext.getContentResolver().registerContentObserver(navBarInverse, false,
                 mContentObserver);
+        mContext.getContentResolver().registerContentObserver(navBarCompact, false,
+                mContentObserver);
         mContext.getContentResolver().registerContentObserver(navigationBarHint, false,
                 mContentObserver);
         mContentObserver.onChange(true, navBarInverse);
+        mContentObserver.onChange(true, navBarCompact);
         mContentObserver.onChange(true, navigationBarHint);
     }
 
