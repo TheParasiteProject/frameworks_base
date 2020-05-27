@@ -28,11 +28,20 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Insets
 import android.graphics.Rect
+import android.hardware.camera2.CameraManager
+import android.media.AudioManager
+import android.media.MediaActionSound
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.os.Process
 import android.os.RemoteException
+import android.os.SystemProperties
 import android.os.UserHandle
 import android.os.UserManager
+import android.os.VibrationAttributes
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -110,6 +119,9 @@ internal constructor(
     private val copyBroadcastReceiver: BroadcastReceiver
 
     private var screenshotSoundController: ScreenshotSoundController? = null
+    private val audioManager: AudioManager 
+    private val vibrator: Vibrator
+    private var camsInUse = 0
     private var screenBitmap: Bitmap? = null
     private var screenshotTakenInPortrait = false
     private var screenshotAnimation: Animator? = null
@@ -126,6 +138,17 @@ internal constructor(
                 ActivityInfo.CONFIG_SCREEN_LAYOUT or
                 ActivityInfo.CONFIG_ASSETS_PATHS
         )
+
+    private val camCallback: CameraManager.AvailabilityCallback =
+        object : CameraManager.AvailabilityCallback() {
+            override fun onCameraOpened(cameraId: String, packageId: String) {
+                camsInUse++
+            }
+
+            override fun onCameraClosed(cameraId: String) {
+                camsInUse--
+            }
+        }
 
     private var taskComponentName: ComponentName? = null
     private val pm: PackageManager
@@ -192,6 +215,16 @@ internal constructor(
             } else {
                 null
             }
+
+        // Grab system services needed for screenshot sound
+        audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (SystemProperties.getBoolean("audio.camerasound.force", false)
+                || context.getResources().getBoolean(
+                        com.android.internal.R.bool.config_camera_sound_forced)) {
+            context.getSystemService(CameraManager::class.java).registerAvailabilityCallback(
+                    camCallback, Handler(Looper.getMainLooper()))
+        }
 
         copyBroadcastReceiver =
             object : BroadcastReceiver() {
@@ -549,7 +582,7 @@ internal constructor(
      */
     private fun saveScreenshotAndToast(screenshot: ScreenshotData, finisher: Consumer<Uri?>) {
         // Play the shutter sound to notify that we've taken a screenshot
-        playCameraSoundIfNeeded()
+        playShutterSound()
 
         saveScreenshotInBackground(screenshot, UUID.randomUUID(), finisher) {
             result: ImageExporter.Result ->
@@ -578,7 +611,7 @@ internal constructor(
             viewProxy.createScreenshotDropInAnimation(screenRect, showFlash).apply {
                 doOnEnd { onAnimationComplete?.run() }
                 // Play the shutter sound to notify that we've taken a screenshot
-                playCameraSoundIfNeeded()
+                playShutterSound()
                 if (LogConfig.DEBUG_ANIM) {
                     Log.d(TAG, "starting post-screenshot animation")
                 }
@@ -678,6 +711,11 @@ internal constructor(
     companion object {
         private val TAG: String = LogConfig.logTag(ScreenshotController::class.java)
 
+        private val VIBRATION_EFFECT: VibrationEffect =
+                VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
+        private val VIBRATION_ATTRS: VibrationAttributes =
+                VibrationAttributes.createForUsage(VibrationAttributes.USAGE_TOUCH)
+
         // From WizardManagerHelper.java
         private const val SETTINGS_SECURE_USER_SETUP_COMPLETE = "user_setup_complete"
 
@@ -722,4 +760,17 @@ internal constructor(
             return matchWithinTolerance
         }
     }
+
+    private fun playShutterSound() {
+        val playSound: Boolean = Settings.System.getIntForUser(context.getContentResolver(),
+                Settings.System.SCREENSHOT_SHUTTER_SOUND, 1, UserHandle.USER_CURRENT) == 1
+                && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL
+        val playSoundForced: Boolean = camsInUse > 0
+        if (playSoundForced || playSound) {
+            playCameraSoundIfNeeded()
+        } else if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.vibrate(VIBRATION_EFFECT, VIBRATION_ATTRS)
+        }
+    }
+
 }
