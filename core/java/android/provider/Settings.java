@@ -6341,6 +6341,22 @@ public final class Settings {
         public static final String LEFT_LONG_BACK_SWIPE_ACTION = "left_long_back_swipe_action";
 
         /**
+         * Adaptive playback
+         * Automatically pause media when the volume is muted and
+         * will resume automatically when volume is restored.
+         *   0 = disabled
+         *   1 = enabled
+         * @hide
+         */
+        public static final String ADAPTIVE_PLAYBACK_ENABLED = "adaptive_playback_enabled";
+
+        /**
+         * Adaptive playback's timeout in ms
+         * @hide
+         */
+        public static final String ADAPTIVE_PLAYBACK_TIMEOUT = "adaptive_playback_timeout";
+
+        /**
          * Gestures nav: left long back swipe app action
          * @hide
          */
@@ -6618,6 +6634,8 @@ public final class Settings {
             PRIVATE_SETTINGS.add(SCREEN_FLASH_NOTIFICATION);
             PRIVATE_SETTINGS.add(SCREEN_FLASH_NOTIFICATION_COLOR);
             PRIVATE_SETTINGS.add(DEFAULT_DEVICE_FONT_SCALE);
+            PRIVATE_SETTINGS.add(ADAPTIVE_PLAYBACK_ENABLED);
+            PRIVATE_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
         }
 
         /**
