@@ -247,6 +247,7 @@ import com.android.systemui.statusbar.policy.DeviceProvisionedController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController.DeviceProvisionedListener;
 import com.android.systemui.statusbar.policy.ExtensionController;
 import com.android.systemui.statusbar.policy.GameSpaceManager;
+import com.android.systemui.statusbar.policy.FlashlightController;
 import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.statusbar.policy.UserInfoControllerImpl;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
@@ -411,6 +412,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
         return mQSPanelController;
     }
 
+    /** */
+    public void toggleCameraFlash() {
+        mCommandQueueCallbacks.toggleCameraFlash();
+    }
     /**
      * The {@link StatusBarState} of the status bar.
      */
@@ -634,6 +639,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
     private int mLastLoggedStateFingerprint;
     private boolean mIsLaunchingActivityOverLockscreen;
 
+    private FlashlightController mFlashlightController;
     private final UserSwitcherController mUserSwitcherController;
     private final LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
     protected final BatteryController mBatteryController;
@@ -754,6 +760,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
             NavigationBarController navigationBarController,
             AccessibilityFloatingMenuController accessibilityFloatingMenuController,
             Lazy<AssistManager> assistManagerLazy,
+            FlashlightController flashlightController,
             ConfigurationController configurationController,
             NotificationShadeWindowController notificationShadeWindowController,
             Lazy<NotificationShadeWindowViewController> notificationShadeWindowViewControllerLazy,
@@ -865,6 +872,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
         mNavigationBarController = navigationBarController;
         mAccessibilityFloatingMenuController = accessibilityFloatingMenuController;
         mAssistManagerLazy = assistManagerLazy;
+        mFlashlightController = flashlightController;
         mConfigurationController = configurationController;
         mNotificationShadeWindowController = notificationShadeWindowController;
         mNotificationShadeWindowViewControllerLazy = notificationShadeWindowViewControllerLazy;
@@ -2144,6 +2152,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
 
         if (mLightBarController != null) {
             mLightBarController.dump(pw, args);
+        }
+
+        if (mFlashlightController != null) {
+            mFlashlightController.dump(pw, args);
         }
 
         pw.println("SharedPreferences:");
