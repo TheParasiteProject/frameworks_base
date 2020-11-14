@@ -2023,7 +2023,16 @@ final class DefaultPermissionGrantPolicy {
     }
 
     private void grantDefaultPermissionsToCustomPackages(PackageManagerWrapper pm, int userId) {
-        
+        // SafetyHub
+        grantSystemFixedPermissionsToSystemPackage(
+                pm,
+                "com.google.android.apps.safetyhub",
+                userId,
+                SENSORS_PERMISSIONS,
+                CONTACTS_PERMISSIONS,
+                ALWAYS_LOCATION_PERMISSIONS,
+                MICROPHONE_PERMISSIONS,
+                PHONE_PERMISSIONS);
     }
 
 }
