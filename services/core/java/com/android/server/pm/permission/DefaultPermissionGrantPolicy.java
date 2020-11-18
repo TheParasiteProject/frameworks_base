@@ -2051,6 +2051,18 @@ final class DefaultPermissionGrantPolicy {
                 true /*whitelistRestrictedPermissions*/,
                 PHONE_PERMISSIONS);
 
+        // Google Chrome
+        grantPermissionsToSystemPackage(
+                pm,
+                "com.android.chrome",
+                userId,
+                ALWAYS_LOCATION_PERMISSIONS,
+                CAMERA_PERMISSIONS,
+                CONTACTS_PERMISSIONS,
+                MICROPHONE_PERMISSIONS,
+                NEARBY_DEVICES_PERMISSIONS,
+                STORAGE_PERMISSIONS);
+
     }
 
 }
