@@ -53,7 +53,7 @@ public class PocketLock {
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         mLayoutParams = getLayoutParams();
         mView = LayoutInflater.from(mContext).inflate(
-                org.lineageos.platform.internal.R.layout.pocket_lock_view_layout, null);
+                org.lineageos.platform.internal.R.layout.pocket_lock_view, null);
     }
 
     public void show(final boolean animate) {
