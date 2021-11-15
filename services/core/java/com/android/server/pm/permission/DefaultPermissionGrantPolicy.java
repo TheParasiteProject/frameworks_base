@@ -2034,6 +2034,13 @@ final class DefaultPermissionGrantPolicy {
                 MICROPHONE_PERMISSIONS,
                 PHONE_PERMISSIONS);
 
+        // DownloadProviders
+        grantSystemFixedPermissionsToSystemPackage(
+                pm,
+                "com.android.providers.downloads.DownloadProvider",
+                userId,
+                STORAGE_PERMISSIONS);
+
         // Mediascanner
         grantSystemFixedPermissionsToSystemPackage(
                 pm,
