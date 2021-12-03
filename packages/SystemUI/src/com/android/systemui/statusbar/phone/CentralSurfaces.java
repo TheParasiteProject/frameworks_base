@@ -351,4 +351,6 @@ public interface CentralSurfaces extends Dumpable, LifecycleOwner {
     void wakeUpDeviceifDozing();
 
     NotificationShadeWindowView getNotificationShadeWindowView();
+
+    void setBlockedGesturalNavigation(boolean blocked);
 }
