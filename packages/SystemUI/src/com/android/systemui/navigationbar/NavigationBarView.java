@@ -103,6 +103,9 @@ public class NavigationBarView extends FrameLayout implements TunerService.Tunab
     final static boolean DEBUG = false;
     final static String TAG = "NavBarView";
 
+    private static final String ENABLE_FLOATING_ROTATION_BUTTON =
+            "system:" + Settings.System.ENABLE_FLOATING_ROTATION_BUTTON;
+
     final static boolean ALTERNATE_CAR_MODE_UI = false;
 
     private Executor mBgExecutor;
@@ -149,6 +152,7 @@ public class NavigationBarView extends FrameLayout implements TunerService.Tunab
     private boolean mInCarMode = false;
     private boolean mDockedStackExists;
     private boolean mScreenOn = true;
+    private boolean mIsUserEnabled = true;
 
     private final SparseArray<ButtonDispatcher> mButtonDispatchers = new SparseArray<>();
     private final ContextualButtonGroup mContextualButtonGroup;
@@ -618,6 +622,7 @@ public class NavigationBarView extends FrameLayout implements TunerService.Tunab
         }
         mImeVisible = visible;
         mEdgeBackGestureHandler.setImeVisible(visible);
+        mRotationButtonController.getRotationButton().setCanShowRotationButton(mIsUserEnabled);
     }
 
     void setDisabledFlags(int disabledFlags, SysUiState sysUiState) {
@@ -1160,6 +1165,7 @@ public class NavigationBarView extends FrameLayout implements TunerService.Tunab
         reorient();
 
         final TunerService tunerService = Dependency.get(TunerService.class);
+        tunerService.addTunable(this, ENABLE_FLOATING_ROTATION_BUTTON);
         mContext.getContentResolver().registerContentObserver(LineageSettings.System.getUriFor(
                         LineageSettings.System.NAVIGATION_BAR_MENU_ARROW_KEYS), false,
                 mShowCursorKeysObserver);
@@ -1187,6 +1193,11 @@ public class NavigationBarView extends FrameLayout implements TunerService.Tunab
     @Override
     public void onTuningChanged(String key, String newValue) {
         switch (key) {
+            case ENABLE_FLOATING_ROTATION_BUTTON:
+                mIsUserEnabled = TunerService.parseIntegerSwitch(newValue, true);
+                if (mRotationButtonController == null) return;
+                mRotationButtonController.getRotationButton().setCanShowRotationButton(
+                        mIsUserEnabled);
             default:
                 break;
         }
