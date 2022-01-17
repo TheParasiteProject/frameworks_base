@@ -79,9 +79,6 @@ constructor(
     private var locationIndicatorsEnabled = false
     private var privacyChipLogged = false
     private var safetyCenterEnabled = false
-    private val cameraSlot = privacyChip.resources.getString(R.string.status_bar_camera)
-    private val micSlot = privacyChip.resources.getString(R.string.status_bar_microphone)
-    private val locationSlot = privacyChip.resources.getString(R.string.status_bar_location)
     private val dialogContext: Context
         get() = shadeDialogContextInteractor.context
 
@@ -171,9 +168,6 @@ constructor(
         micCameraIndicatorsEnabled = privacyItemController.micCameraAvailable
         locationIndicatorsEnabled = privacyItemController.locationAvailable
         setChipVisibility(privacyChip.visibility == View.VISIBLE)
-
-        // Ignore privacy icons because they show in the space above QQS
-        updatePrivacyIconSlots()
     }
 
     private fun showSafetyCenter() {
@@ -249,26 +243,5 @@ constructor(
 
         privacyChip.visibility = if (visible) View.VISIBLE else View.GONE
         chipVisibilityListener?.onChipVisibilityRefreshed(visible)
-    }
-
-    private fun updatePrivacyIconSlots() {
-        if (getChipEnabled()) {
-            if (micCameraIndicatorsEnabled) {
-                iconContainer.addIgnoredSlot(cameraSlot)
-                iconContainer.addIgnoredSlot(micSlot)
-            } else {
-                iconContainer.removeIgnoredSlot(cameraSlot)
-                iconContainer.removeIgnoredSlot(micSlot)
-            }
-            if (locationIndicatorsEnabled) {
-                iconContainer.addIgnoredSlot(locationSlot)
-            } else {
-                iconContainer.removeIgnoredSlot(locationSlot)
-            }
-        } else {
-            iconContainer.removeIgnoredSlot(cameraSlot)
-            iconContainer.removeIgnoredSlot(micSlot)
-            iconContainer.removeIgnoredSlot(locationSlot)
-        }
     }
 }
