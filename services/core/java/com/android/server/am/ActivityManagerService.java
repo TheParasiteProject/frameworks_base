@@ -19918,4 +19918,10 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
         r.getWindowProcessController().setOptimizationInfo(compilerFilter, compilationReason);
     }
+
+    @Override
+    public boolean shouldForceLongScreen(String packageName) {
+        return mActivityTaskManager.shouldForceLongScreen(packageName);
+    }
+
 }
