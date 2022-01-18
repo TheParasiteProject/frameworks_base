@@ -19084,4 +19084,8 @@ public class ActivityManagerService extends IActivityManager.Stub
     Freezer getFreezer() {
         return mFreezer;
     }
+
+    public boolean shouldForceLongScreen(String packageName) {
+        return mActivityTaskManager.shouldForceLongScreen(packageName);
+    }
 }
