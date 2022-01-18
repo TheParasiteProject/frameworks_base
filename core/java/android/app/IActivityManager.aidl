@@ -1038,4 +1038,9 @@ interface IActivityManager {
      */
     @EnforcePermission("INTERACT_ACROSS_USERS_FULL")
     IBinder refreshIntentCreatorToken(in Intent intent);
+
+    /**
+     * Force full screen for devices with long screen
+     */
+    boolean shouldForceLongScreen(in String packageName);
 }
