@@ -28,6 +28,7 @@ import android.content.ClipDescription;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import android.util.Log;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.systemui.flags.FeatureFlags;
+import com.android.systemui.res.R;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -163,6 +165,8 @@ class SaveImageInBackgroundTask extends AsyncTask<String, Void, Void> {
             mImageData.smartActions = smartActions;
             mImageData.deleteAction = createDeleteAction(mContext, uri,
                     smartActionsEnabled);
+            mImageData.lensAction = createLensAction(mContext, uri,
+                    smartActionsEnabled);
             mImageData.quickShareAction = createQuickShareAction(
                     mQuickShareData.quickShareAction, mScreenshotId, uri, mImageTime, image,
                     mParams.owner);
@@ -238,6 +242,31 @@ class SaveImageInBackgroundTask extends AsyncTask<String, Void, Void> {
                 mContext.getResources().getString(com.android.internal.R.string.delete), deleteAction);
 
         return deleteActionBuilder.build();
+    }
+
+    @VisibleForTesting
+    Notification.Action createLensAction(Context context, Uri uri,
+            boolean smartActionsEnabled) {
+        // Make sure pending intents for the system user are still unique across users
+        // by setting the (otherwise unused) request code to the current user id.
+        int requestCode = mContext.getUserId();
+
+        // Create a lens action for the notification
+        PendingIntent lensAction = PendingIntent.getBroadcast(context, requestCode,
+                new Intent(context, LensScreenshotReceiver.class)
+                        .putExtra(ScreenshotController.SCREENSHOT_URI_ID, uri.toString())
+                        .putExtra(ScreenshotController.EXTRA_ID, mScreenshotId)
+                        .putExtra(ScreenshotController.EXTRA_SMART_ACTIONS_ENABLED,
+                                smartActionsEnabled)
+                        .addFlags(Intent.FLAG_RECEIVER_FOREGROUND),
+                PendingIntent.FLAG_CANCEL_CURRENT
+                        | PendingIntent.FLAG_ONE_SHOT
+                        | PendingIntent.FLAG_IMMUTABLE);
+        Notification.Action.Builder lensActionBuilder = new Notification.Action.Builder(
+                Icon.createWithResource(mContext.getResources(), R.drawable.ic_screenshot_lens),
+                mContext.getResources().getString(R.string.lens), lensAction);
+
+        return lensActionBuilder.build();
     }
 
     private List<Notification.Action> buildSmartActions(
