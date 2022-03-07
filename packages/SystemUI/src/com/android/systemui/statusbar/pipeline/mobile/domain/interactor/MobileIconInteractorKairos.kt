@@ -129,6 +129,9 @@ interface MobileIconInteractorKairos {
     /** See [MobileIconsInteractor.isForceHidden]. */
     val isForceHidden: State<Boolean>
 
+    /** See [MobileIconsInteractor.isRoamingForceHidden]. */
+    val isRoamingForceHidden: State<Boolean>
+
     /** See [MobileConnectionRepository.isAllowedDuringAirplaneMode]. */
     val isAllowedDuringAirplaneMode: State<Boolean>
 
@@ -154,6 +157,7 @@ class MobileIconInteractorKairosImpl(
     defaultMobileIconGroup: State<MobileIconGroup>,
     isDefaultConnectionFailed: State<Boolean>,
     override val isForceHidden: State<Boolean>,
+    override val isRoamingForceHidden: State<Boolean>,
     private val connectionRepository: MobileConnectionRepositoryKairos,
     private val context: Context,
     private val carrierIdOverrides: MobileIconCarrierIdOverrides =
