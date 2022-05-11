@@ -231,6 +231,7 @@ public final class PermissionManager {
 
     private static String[] sLocationProviderPkgNames;
     private static String[] sLocationExtraPkgNames;
+    private static String[] sExemptedPkgNames;
 
     /**
      * Creates a new instance.
@@ -1190,6 +1191,11 @@ public final class PermissionManager {
                 pkgNames.add(pkgName);
             }
         }
+        for (String pkgName: sExemptedPkgNames) {
+            if (pkgName != null) {
+                pkgNames.add(pkgName);
+            }
+        }
         return pkgNames;
     }
 
@@ -1206,9 +1212,11 @@ public final class PermissionManager {
                 INDICATOR_EXEMPTED_PACKAGES[i] = context.getString(EXEMPTED_ROLES[i]);
             }
             sLocationProviderPkgNames = context.getResources().getStringArray(
-                    com.android.internal.R.array.config_locationProviderPackageNames);
+                    R.array.config_locationProviderPackageNames);
             sLocationExtraPkgNames = context.getResources().getStringArray(
-                    com.android.internal.R.array.config_locationExtraPackageNames);
+                    R.array.config_locationExtraPackageNames);
+            sExemptedPkgNames = context.getResources().getStringArray(
+                    org.lineageos.platform.internal.R.array.config_indicatorExemptedPackageNames);
         }
     }
     /**
