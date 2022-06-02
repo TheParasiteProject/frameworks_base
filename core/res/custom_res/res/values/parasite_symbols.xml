@@ -70,4 +70,7 @@
     <java-symbol type="array" name="config_cfHookPackagesFeaturesPixelTensor" />
     <java-symbol type="array" name="config_cfHookFeaturesNexus" />
     <java-symbol type="array" name="config_cfHookFeaturesAndroid" />
+
+    <!-- Lock gesture -->
+    <java-symbol type="string" name="gesture_locked_warning" />
 </resources>
