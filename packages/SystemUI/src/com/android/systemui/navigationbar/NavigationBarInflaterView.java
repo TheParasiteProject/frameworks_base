@@ -19,11 +19,13 @@ package com.android.systemui.navigationbar;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL;
+import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.om.IOverlayManager;
+import android.content.om.OverlayInfo;
 import android.content.res.Configuration;
 import android.graphics.drawable.Icon;
 import android.provider.Settings;
@@ -51,8 +53,13 @@ import com.android.systemui.recents.OverviewProxyService;
 import com.android.systemui.shared.system.QuickStepContract;
 import com.android.systemui.tuner.TunerService;
 
+import com.android.settingslib.applications.AppUtils;
+import com.android.settingslib.utils.WorkPolicyUtils;
+
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -116,6 +123,9 @@ public class NavigationBarInflaterView extends FrameLayout
     private static final String OVERLAY_NAVIGATION_HIDE_HINT =
             "org.pixelexperience.overlay.navbar.nohint";
 
+    private static final String KEY_NAVIGATION_SPACE =
+            "system:" + Settings.System.NAVIGATION_BAR_IME_SPACE;
+
     protected LayoutInflater mLayoutInflater;
     protected LayoutInflater mLandscapeInflater;
 
@@ -138,6 +148,7 @@ public class NavigationBarInflaterView extends FrameLayout
     private boolean mInverseLayout;
     private boolean mCompactLayout;
     private static AtomicReference<Boolean> mIsHintEnabledRef;
+    private static AtomicReference<Integer> mNavBarSpaceRef;
 
     public NavigationBarInflaterView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -148,6 +159,7 @@ public class NavigationBarInflaterView extends FrameLayout
         mCompactLayout = Settings.System.getInt(context.getContentResolver(),
                                 Settings.System.NAV_BAR_COMPACT_LAYOUT, 0) != 0;
         mIsHintEnabledRef = new AtomicReference<>(true);
+        mNavBarSpaceRef = new AtomicReference<>(0);
     }
 
     @VisibleForTesting
@@ -198,6 +210,7 @@ public class NavigationBarInflaterView extends FrameLayout
         mNavBarMode = mode;
         onLikelyDefaultLayoutChange();
         updateHint();
+        updateSpace();
     }
 
     @Override
@@ -206,6 +219,7 @@ public class NavigationBarInflaterView extends FrameLayout
         Dependency.get(TunerService.class).addTunable(this, NAV_BAR_INVERSE);
         Dependency.get(TunerService.class).addTunable(this, NAV_BAR_COMPACT);
         Dependency.get(TunerService.class).addTunable(this, KEY_NAVIGATION_HINT);
+        Dependency.get(TunerService.class).addTunable(this, KEY_NAVIGATION_SPACE);
     }
 
     @Override
@@ -230,6 +244,11 @@ public class NavigationBarInflaterView extends FrameLayout
             Boolean mIsHintEnabledOld = mIsHintEnabledRef.get();
             mIsHintEnabledRef.compareAndSet(mIsHintEnabledOld, TunerService.parseIntegerSwitch(newValue, true));
             updateHint();
+            onLikelyDefaultLayoutChange();
+        } else if (KEY_NAVIGATION_SPACE.equals(key)) {
+            Integer mNavBarSpaceRefOld = mNavBarSpaceRef.get();
+            mNavBarSpaceRef.compareAndSet(mNavBarSpaceRefOld, TunerService.parseInteger(newValue, 0));
+            updateSpace();
             onLikelyDefaultLayoutChange();
         }
         if (QuickStepContract.isGesturalMode(mNavBarMode)) {
@@ -318,6 +337,63 @@ public class NavigationBarInflaterView extends FrameLayout
         } catch (IllegalArgumentException | RemoteException e) {
             Log.e(TAG, "Failed to " + (state ? "enable" : "disable")
                     + " overlay " + OVERLAY_NAVIGATION_HIDE_HINT + " for user " + userId);
+        }
+    }
+
+    private void updateSpace() {
+        final String overlayNarrow = NAV_BAR_MODE_GESTURAL_OVERLAY + "_narrow_space";
+        final String overlayNoSpace = NAV_BAR_MODE_GESTURAL_OVERLAY + "_no_space";
+        final int type = mNavBarSpaceRef.get();
+        final boolean state = mNavBarMode == NAV_BAR_MODE_GESTURAL;
+
+        switch (type) {
+            case 1:  // narrow
+                enableOverlayManagedUser(overlayNarrow, state);
+                enableOverlayManagedUser(overlayNoSpace, false);
+                return;
+            case 2:  // hidden
+                enableOverlayManagedUser(overlayNarrow, false);
+                enableOverlayManagedUser(overlayNoSpace, state);
+                return;
+        }
+
+        enableOverlayManagedUser(overlayNarrow, false);
+        enableOverlayManagedUser(overlayNoSpace, false);
+    }
+
+    private void enableOverlayManagedUser(String overlay, boolean state) {
+        final List<Integer> allId = new ArrayList<Integer>();
+        final int userId = ActivityManager.getCurrentUser();
+        final WorkPolicyUtils wpu = new WorkPolicyUtils(mContext);
+        final int workId = wpu.getManagedProfileUserId();
+        final int cloneId = AppUtils.getCloneUserId(mContext);
+        allId.add(userId);
+        if (workId > -1) {
+            allId.add(workId);
+        }
+        if (cloneId > -1) {
+            allId.add(cloneId);
+        }
+        for (Integer uid : allId) {
+            enableOverlay(overlay, state, uid);
+        }
+    }
+
+    private void enableOverlay(String overlay, boolean state, int userId) {
+        final IOverlayManager iom = IOverlayManager.Stub.asInterface(
+                ServiceManager.getService(Context.OVERLAY_SERVICE));
+        try {
+            final OverlayInfo info = iom.getOverlayInfo(overlay, userId);
+            if (info == null || info.isEnabled() == state) return;
+            iom.setEnabled(overlay, state, userId);
+            if (state) {
+                // As overlays are also used to apply navigation mode, it is needed to set
+                // our customization overlay to highest priority to ensure it is applied.
+                iom.setHighestPriority(overlay, userId);
+            }
+        } catch (IllegalArgumentException | RemoteException e) {
+            Log.e(TAG, "Failed to " + (state ? "enable" : "disable")
+                    + " overlay " + overlay + " for user " + userId);
         }
     }
 
