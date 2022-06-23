@@ -40,6 +40,7 @@ import android.view.Display
 import android.view.ScrollCaptureResponse
 import android.view.ViewRootImpl.ActivityConfigCallback
 import android.view.WindowManager.TAKE_SCREENSHOT_FULLSCREEN
+import android.view.WindowManager.TAKE_SCREENSHOT_SELECTED_REGION
 import android.view.WindowManager.TAKE_SCREENSHOT_PROVIDED_IMAGE
 import android.widget.Toast
 import android.window.WindowContext
@@ -53,6 +54,7 @@ import com.android.systemui.dagger.qualifiers.Main
 import com.android.systemui.res.R
 import com.android.systemui.screenshot.ActionIntentCreator.createLongScreenshotIntent
 import com.android.systemui.screenshot.ScreenshotShelfViewProxy.ScreenshotViewCallback
+import com.android.systemui.screenshot.scroll.ScrollCaptureController
 import com.android.systemui.screenshot.scroll.ScrollCaptureController.LongScreenshot
 import com.android.systemui.screenshot.scroll.ScrollCaptureExecutor
 import com.android.systemui.shared.system.TaskStackChangeListener
@@ -228,6 +230,11 @@ internal constructor(
             val bounds = fullScreenRect
             screenshot.bitmap = imageCapture.captureDisplay(display.displayId, bounds)
             screenshot.screenBounds = bounds
+        }
+        if (screenshot.type == TAKE_SCREENSHOT_SELECTED_REGION) {
+            startPartialScreenshotActivity(Process.myUserHandle())
+            finisher.accept(null)
+            return
         }
 
         val currentBitmap = screenshot.bitmap
@@ -454,6 +461,30 @@ internal constructor(
                 onScrollButtonClicked(owner, response)
             }
         }
+    }
+
+    private fun startPartialScreenshotActivity(owner: UserHandle) {
+        val newScreenshot: Bitmap? = imageCapture.captureDisplay(display.displayId,
+                fullScreenRect)
+        val bitmapScreenshot: ScrollCaptureController.BitmapScreenshot =
+                ScrollCaptureController.BitmapScreenshot(context, newScreenshot!!);
+        scrollCaptureExecutor.executeBatchScrollCapture(
+            bitmapScreenshot,
+            {
+                val intent = createLongScreenshotIntent(owner, context)
+                context.startActivity(intent)
+
+                try {
+                    statusBarService.collapsePanels()
+                } catch (e: RemoteException) {
+                    Log.e(TAG, "Error during collapsing panels", e)
+                }
+            },
+            { transitionDestination: Rect, onTransitionEnd: Runnable, longScreenshot: LongScreenshot
+                ->
+                onTransitionEnd.run()
+            },
+        )
     }
 
     private fun onScrollButtonClicked(owner: UserHandle, response: ScrollCaptureResponse) {
