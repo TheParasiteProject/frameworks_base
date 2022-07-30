@@ -72,6 +72,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeoutException;
 
+import com.android.internal.util.custom.MeizuPropsUtils;
 import com.android.internal.util.custom.PixelPropsUtils;
 import com.android.internal.util.custom.GamesPropsUtils;
 
@@ -1358,6 +1359,7 @@ public class Instrumentation {
         app.attach(context);
         PixelPropsUtils.setProps(app);
         GamesPropsUtils.setProps(app);
+        MeizuPropsUtils.setProps(app);
         return app;
     }
 
@@ -1377,6 +1379,7 @@ public class Instrumentation {
         app.attach(context);
         PixelPropsUtils.setProps(app);
         GamesPropsUtils.setProps(app);
+        MeizuPropsUtils.setProps(app);
         return app;
     }
 
