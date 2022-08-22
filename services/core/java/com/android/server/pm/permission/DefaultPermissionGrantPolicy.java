@@ -49,6 +49,7 @@ import android.os.UserHandle;
 import android.os.storage.StorageManager;
 import android.permission.PermissionManager;
 import android.print.PrintManager;
+import android.provider.AlarmClock;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
@@ -2411,6 +2412,11 @@ final class DefaultPermissionGrantPolicy {
         // Google Markup
         grantSystemFixedPermissionsToSystemPackage(
                 pm, "com.google.android.markup", userId, STORAGE_PERMISSIONS);
+
+        // Alarm Clock
+        String clockAppPackage =
+                getDefaultSystemHandlerActivityPackage(pm, AlarmClock.ACTION_SET_ALARM, userId);
+        grantPermissionsToSystemPackage(pm, clockAppPackage, userId, NOTIFICATION_PERMISSIONS);
 
     }
 
