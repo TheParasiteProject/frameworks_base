@@ -6803,6 +6803,12 @@ public final class Settings {
         public static final String SHOW_APP_VOLUME = "show_app_volume";
 
         /**
+         * Enable/Disable fingerprint lockout
+         * @hide
+         */
+        public static final String FINGERPRINT_LOCKOUT = "fingerprint_lockout";
+
+        /**
          * When to use Wi-Fi calling
          *
          * @see android.telephony.TelephonyManager.WifiCallingChoices
