@@ -6549,6 +6549,13 @@ public final class Settings {
         public static final String RIGHT_VERTICAL_BACK_SWIPE_APP_ACTIVITY_ACTION = "right_vertical_back_swipe_app_activity_action";
 
         /**
+         * Give haptic feedback on qs brightness slider changes.
+         * @hide
+         */
+        @Readable
+        public static final String QS_BRIGHTNESS_SLIDER_HAPTIC_FEEDBACK = "qs_brightness_slider_haptic_feedback";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
