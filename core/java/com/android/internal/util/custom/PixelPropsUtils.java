@@ -50,6 +50,9 @@ public class PixelPropsUtils {
     private static final String TAG = PixelPropsUtils.class.getSimpleName();
     private static final boolean DEBUG = false;
 
+    private static final String[] sCertifiedProps =
+            Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
+
     private static final Boolean sEnablePixelProps =
             Resources.getSystem().getBoolean(R.bool.config_enablePixelProps);
 
@@ -221,13 +224,17 @@ public class PixelPropsUtils {
     }
 
     private static void spoofBuildGms() {
+        if (sCertifiedProps == null || sCertifiedProps.length == 0) return;
         // Alter model name and fingerprint to avoid hardware attestation enforcement
-        setPropValue("BRAND", "NVIDIA");
-        setPropValue("MANUFACTURER", "NVIDIA");
-        setPropValue("DEVICE", "foster");
-        setPropValue("FINGERPRINT", "NVIDIA/foster_e/foster:7.0/NRD90M/2427173_1038.2788:user/release-keys");
-        setPropValue("MODEL", "SHIELD Android TV");
-        setPropValue("PRODUCT", "foster_e");
+        setPropValue("BRAND", sCertifiedProps[0]);
+        setPropValue("MANUFACTURER", sCertifiedProps[1]);
+        setPropValue("ID", sCertifiedProps[2].isEmpty() ? getBuildID(sCertifiedProps[6]) : sCertifiedProps[2]);
+        setPropValue("DEVICE", sCertifiedProps[3].isEmpty() ? getDeviceName(sCertifiedProps[6]) : sCertifiedProps[3]);
+        setPropValue("PRODUCT", sCertifiedProps[4].isEmpty() ? getDeviceName(sCertifiedProps[6]) : sCertifiedProps[4]);
+        setPropValue("MODEL", sCertifiedProps[5]);
+        setPropValue("FINGERPRINT", sCertifiedProps[6]);
+        setPropValue("TYPE", sCertifiedProps[7].isEmpty() ? "user" : sCertifiedProps[7]);
+        setPropValue("TAGS", sCertifiedProps[8].isEmpty() ? "release-keys" : sCertifiedProps[8]);
     }
 
     public static void setProps(Application app) {
