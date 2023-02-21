@@ -2036,6 +2036,15 @@ final class DefaultPermissionGrantPolicy {
         }
     }
 
+    private static final Set<String> GOOGLE_RESTORE_PERMISSIONS = new ArraySet<>();
+    static {
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.MANAGE_USB);
+        GOOGLE_RESTORE_PERMISSIONS.add(Manifest.permission.INTERNET);
+    }
+
     private void grantDefaultPermissionsToCustomPackages(PackageManagerWrapper pm, int userId) {
         // ContactsProvider2
         grantSystemFixedPermissionsToSystemPackage(
@@ -2228,7 +2237,8 @@ final class DefaultPermissionGrantPolicy {
                 userId,
                 PHONE_PERMISSIONS,
                 CONTACTS_PERMISSIONS,
-                SMS_PERMISSIONS);
+                SMS_PERMISSIONS, 
+                GOOGLE_RESTORE_PERMISSIONS);
 
         // Carrier Setup
         grantSystemFixedPermissionsToSystemPackage(
