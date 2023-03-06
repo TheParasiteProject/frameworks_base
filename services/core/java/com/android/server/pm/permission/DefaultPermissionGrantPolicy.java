@@ -2452,6 +2452,9 @@ final class DefaultPermissionGrantPolicy {
                 userId,
                 SUSPEND_APP_PERMISSIONS);
 
+        // Carrier Setup
+        grantSystemFixedPermissionsToSystemPackage(
+                pm, "com.google.android.carriersetup", userId, PHONE_PERMISSIONS, SMS_PERMISSIONS);
     }
 
 }
