@@ -509,9 +509,9 @@ android_library {
     name: "SystemUI-core",
     srcs: [
         ":SystemUI-core-srcs",
-        ":ReleaseJavaFiles",
         "compose/features/src/**/*.kt",
         "compose/facade/enabled/src/**/*.kt",
+        ":DebugJavaFiles",
     ],
     defaults: ["SystemUI-srcs-defaults"],
     static_libs: [
