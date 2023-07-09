@@ -50,6 +50,7 @@ public class PixelPropsUtils {
     private static final Map<String, Object> propsToChangePixel2;
     private static final Map<String, Object> propsToChangePixelTablet;
     private static final Map<String, Object> propsToChangePixel7Pro;
+    private static final Map<String, Object> propsToChangePixel5a;
     private static final Map<String, Object> propsToChangePixelXL;
     private static final Map<String, ArrayList<String>> propsToKeep;
 
@@ -64,6 +65,11 @@ public class PixelPropsUtils {
     private static final String[] packagesToChangePixelTablet = {
             "com.google.android.googlequicksearchbox",
             "com.google.android.apps.googleassistant",
+    };
+
+    private static final String[] packagesToChangePixel7Pro = {
+            "com.google.android.wallpaper.effects",
+            "com.google.android.apps.emojiwallpaper",
     };
 
     private static final String[] extraPackagesToChange = {
@@ -207,6 +213,13 @@ public class PixelPropsUtils {
         propsToChangePixel7Pro.put("PRODUCT", "cheetah");
         propsToChangePixel7Pro.put("MODEL", "Pixel 7 Pro");
         propsToChangePixel7Pro.put("FINGERPRINT", "google/cheetah/cheetah:13/TQ3A.230705.001.A1/10217028:user/release-keys");
+        propsToChangePixel5a = new HashMap<>();
+        propsToChangePixel5a.put("BRAND", "google");
+        propsToChangePixel5a.put("MANUFACTURER", "Google");
+        propsToChangePixel5a.put("DEVICE", "barbet");
+        propsToChangePixel5a.put("PRODUCT", "barbet");
+        propsToChangePixel5a.put("MODEL", "Pixel 5a");
+        propsToChangePixel5a.put("FINGERPRINT", "google/barbet/barbet:13/TQ3A.230705.001/10216780:user/release-keys");
         propsToChangePixel2 = new HashMap<>();
         propsToChangePixel2.put("BRAND", "google");
         propsToChangePixel2.put("MANUFACTURER", "Google");
@@ -301,7 +314,7 @@ public class PixelPropsUtils {
             } else if (processName.toLowerCase().contains("persistent")
                         || processName.toLowerCase().contains("ui")
                         || processName.toLowerCase().contains("learning")) {
-                propsToChange.putAll(propsToChangePixel7Pro);
+                propsToChange.putAll(propsToChangePixel5a);
             }
             return;
         }
@@ -324,8 +337,11 @@ public class PixelPropsUtils {
             } else if (Arrays.asList(packagesToChangePixelTablet).contains(packageName)) {
                 if (isPixelDevice) return;
                 propsToChange.putAll(propsToChangePixelTablet);
-            } else {
+            } else if (Arrays.asList(packagesToChangePixel7Pro).contains(packageName)) {
+                if (isPixelDevice) return;
                 propsToChange.putAll(propsToChangePixel7Pro);
+            } else {
+                propsToChange.putAll(propsToChangePixel5a);
             }
         } else if (Arrays.asList(packagesToChangeK30U).contains(packageName)) {
             propsToChange.putAll(propsToChangeK30U);
