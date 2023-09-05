@@ -39,7 +39,7 @@ public class GlobalActionsPowerDialog {
     /**
      * Create a dialog for displaying Shut Down and Restart actions.
      */
-    public static Dialog create(@NonNull Context context, ListAdapter adapter) {
+    public static Dialog create(@NonNull Context context, ListAdapter adapter, BlurUtils blurUtils) {
         ViewGroup listView = (ViewGroup) LayoutInflater.from(context).inflate(
                 com.android.systemui.res.R.layout.global_actions_power_dialog_flow, null);
 
@@ -70,9 +70,6 @@ public class GlobalActionsPowerDialog {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(listView);
 
-        BlurUtils blurUtils = new BlurUtils(context.getResources(),
-                CrossWindowBlurListeners.getInstance(), new DumpManager());
-
         Window window = dialog.getWindow();
         window.setType(WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY);
         window.setTitle(""); // prevent Talkback from speaking first item name twice
@@ -80,7 +77,19 @@ public class GlobalActionsPowerDialog {
                 com.android.systemui.res.R.drawable.global_actions_lite_background,
                 context.getTheme()));
         window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-        window.setDimAmount(blurUtils.supportsBlursOnWindows() ? 0.54f : 0.88f);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        if (blurUtils.supportsBlursOnWindows()) {
+            // Enable blur behind
+            // Enable dim behind since we are setting some amount dim for the blur.
+            window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+            // Set blur behind radius
+            int blurBehindRadius = context.getResources()
+                    .getDimensionPixelSize(com.android.systemui.res.R.dimen.max_window_blur_radius);
+            window.getAttributes().setBlurBehindRadius(blurBehindRadius);
+            window.setDimAmount(0.54f);
+        } else {
+            window.setDimAmount(0.88f);
+        }
 
         return dialog;
     }
