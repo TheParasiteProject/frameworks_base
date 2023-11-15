@@ -163,8 +163,8 @@ public class PixelPropsUtils {
 
     private static String getDeviceName(String fingerprint) {
         String[] parts = fingerprint.split("/");
-        if (parts.length >= 3) {
-            return parts[2];
+        if (parts.length >= 2) {
+            return parts[1];
         }
         return "";
     }
