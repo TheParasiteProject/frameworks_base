@@ -222,16 +222,16 @@ public class PixelPropsUtils {
 
     private static void spoofBuildGms() {
         // Alter model name and fingerprint to avoid hardware attestation enforcement
-        setPropValue("BRAND", "google");
+        setPropValue("FINGERPRINT", "google/sailfish/sailfish:8.1.0/OPM2.171019.029/4657601:user/release-keys");
         setPropValue("PRODUCT", "bullhead");
-        setPropValue("MODEL", "Nexus 5X");
+        setPropValue("MODEL", "Pixel");
         setPropValue("MANUFACTURER", "Google");
-        setPropValue("DEVICE", "bullhead");
-        setPropValue("FINGERPRINT", "google/bullhead/bullhead:8.0.0/OPR6.170623.013/4283548:user/release-keys");
-        setPropValue("ID", "OPR6.170623.013");
+        setPropValue("DEVICE", "sailfish");
+        setPropValue("FINGERPRINT", "google/sailfish/sailfish:8.1.0/OPM2.171019.029/4657601:user/release-keys");
+        setPropValue("ID", "OPM2.171019.029");
         setPropValue("TYPE", "user");
         setPropValue("TAGS", "release-keys");
-        setVersionField("DEVICE_INITIAL_SDK_INT", Build.VERSION_CODES.N);
+        setVersionField("DEVICE_INITIAL_SDK_INT", Build.VERSION_CODES.O_MR1);
     }
 
     public static void setProps(Application app) {
