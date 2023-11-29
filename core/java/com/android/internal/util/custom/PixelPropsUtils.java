@@ -149,7 +149,7 @@ public class PixelPropsUtils {
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
-    private static volatile boolean sIsGms, sIsFinsky;
+    private static volatile boolean sIsGms, sIsFinsky, sIsSetupWizard;
 
     private static String getBuildID(String fingerprint) {
         Pattern pattern = Pattern.compile("([A-Za-z0-9]+\\.\\d+\\.\\d+\\.\\w+)");
@@ -191,13 +191,14 @@ public class PixelPropsUtils {
     private static boolean shouldTryToCertifyDevice() {
         if (!sIsGms) return false;
 
+        final boolean[] shouldCertify = {true};
+
         setPropValue("TIME", System.currentTimeMillis());
 
         final boolean was = isGmsAddAccountActivityOnTop();
         final String reason = "GmsAddAccountActivityOnTop";
         if (!was) {
             spoofBuildGms();
-            return true;
         }
         dlog("Skip spoofing build for GMS, because " + reason + "!");
         TaskStackListener taskStackListener = new TaskStackListener() {
@@ -206,18 +207,17 @@ public class PixelPropsUtils {
                 final boolean isNow = isGmsAddAccountActivityOnTop();
                 if (isNow ^ was) {
                     dlog(String.format("%s changed: isNow=%b, was=%b, killing myself!", reason, isNow, was));
-                    Process.killProcess(Process.myPid());
+                    shouldCertify[0] = false;
                 }
             }
         };
         try {
             ActivityTaskManager.getService().registerTaskStackListener(taskStackListener);
-            return false;
         } catch (Exception e) {
             Log.e(TAG, "Failed to register task stack listener!", e);
             spoofBuildGms();
-            return true;
         }
+        return shouldCertify[0];
     }
 
     private static void spoofBuildGms() {
@@ -251,6 +251,8 @@ public class PixelPropsUtils {
             sIsFinsky = true;
         } else if (procName.equals("com.google.android.gms")) {
             sIsGms = true;
+        } else if (procName.equals("com.google.android.setupwizard")) {
+            sIsSetupWizard = true;
         }
         if (shouldTryToCertifyDevice()) {
             return;
@@ -368,15 +370,14 @@ public class PixelPropsUtils {
     }
 
     private static boolean isCallerSafetyNet() {
-        return shouldTryToCertifyDevice() && sIsGms 
-                && Arrays.stream(Thread.currentThread().getStackTrace())
-                    .anyMatch(elem -> elem.getClassName().toLowerCase()
-                        .contains("droidguard"));
+        return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
+                            .anyMatch(elem -> elem.getClassName().toLowerCase()
+                                .contains("droidguard"));
     }
 
     public static void onEngineGetCertificateChain() {
         // Check stack for SafetyNet or Play Integrity
-        if (isCallerSafetyNet() || sIsFinsky) {
+        if ((isCallerSafetyNet() || sIsFinsky) && !sIsSetupWizard && shouldTryToCertifyDevice()) {
             dlog("Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
             throw new UnsupportedOperationException();
         }
