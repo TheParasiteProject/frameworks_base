@@ -222,16 +222,12 @@ public class PixelPropsUtils {
 
     private static void spoofBuildGms() {
         // Alter model name and fingerprint to avoid hardware attestation enforcement
-        setPropValue("FINGERPRINT", "google/sailfish/sailfish:8.1.0/OPM2.171019.029/4657601:user/release-keys");
-        setPropValue("PRODUCT", "bullhead");
-        setPropValue("MODEL", "Pixel");
-        setPropValue("MANUFACTURER", "Google");
-        setPropValue("DEVICE", "sailfish");
-        setPropValue("FINGERPRINT", "google/sailfish/sailfish:8.1.0/OPM2.171019.029/4657601:user/release-keys");
-        setPropValue("ID", "OPM2.171019.029");
-        setPropValue("TYPE", "user");
-        setPropValue("TAGS", "release-keys");
-        setVersionField("DEVICE_INITIAL_SDK_INT", Build.VERSION_CODES.O_MR1);
+        setPropValue("BRAND", "NVIDIA");
+        setPropValue("MANUFACTURER", "NVIDIA");
+        setPropValue("DEVICE", "foster");
+        setPropValue("FINGERPRINT", "NVIDIA/foster_e/foster:7.0/NRD90M/2427173_1038.2788:user/release-keys");
+        setPropValue("MODEL", "SHIELD Android TV");
+        setPropValue("PRODUCT", "foster_e");
     }
 
     public static void setProps(Application app) {
