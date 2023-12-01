@@ -83,6 +83,13 @@
         android:key="wifi"
         android:title="@string/quick_settings_wifi_label" />
 
+    <lineageos.preference.SystemSettingSwitchPreference
+        android:key="wifi_standard_icon"
+        android:icon="@drawable/ic_statusbar_wifi_standard"
+        android:title="@string/wifi_standard_icon_title"
+        android:summary="@string/wifi_standard_icon_summary"
+        android:defaultValue="false"/>
+
     <com.android.systemui.tuner.StatusBarSwitch
         android:icon="@drawable/ic_statusbar_ethernet"
         android:key="ethernet"
