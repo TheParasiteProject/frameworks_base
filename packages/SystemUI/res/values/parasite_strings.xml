@@ -34,6 +34,10 @@
     <string name="bluetooth_battery_title">Bluetooth battery status</string>
     <string name="bluetooth_battery_summary">Display battery status for the connected bluetooth device, if available</string>
 
+    <!-- WiFi Standard icon -->
+    <string name="wifi_standard_icon_title">Wi-Fi standard</string>
+    <string name="wifi_standard_icon_summary">Display Wi-Fi standard next to Wi-Fi signal</string>
+
     <!-- Statusbar Icons -->
     <string name="status_bar_call_strength">Call strength</string>
     <string name="status_bar_roaming">Roaming indicator</string>
