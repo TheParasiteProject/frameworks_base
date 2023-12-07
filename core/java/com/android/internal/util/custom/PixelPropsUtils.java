@@ -60,10 +60,6 @@ public class PixelPropsUtils {
 
     private static final Map<String, Object> propsToChangeGeneric;
 
-    private static final Map<String, Object> propsToChangePixelFold =
-            createGoogleSpoofProps("Pixel Fold",
-                    "google/felix/felix:14/UP1A.231105.003/11010452:user/release-keys");
-
     private static final Map<String, Object> propsToChangeRecentPixel =
             createGoogleSpoofProps("Pixel 8 Pro",
                     "google/husky/husky:14/UD1A.231105.004/11010374:user/release-keys");
@@ -297,8 +293,6 @@ public class PixelPropsUtils {
 
             if (packagesToChangeRecentPixel.contains(procName)) {
                 propsToChange = propsToChangeRecentPixel;
-            } else if (packagesToChangePixelFold.contains(procName)) {
-                propsToChange = propsToChangePixelFold;
             } else {
                 propsToChange = propsToChangePixel5a;
             }
