@@ -159,6 +159,7 @@ import com.android.systemui.statusbar.NotificationShadeDepthController;
 import com.android.systemui.statusbar.NotificationShadeWindowController;
 import com.android.systemui.statusbar.PulseExpansionHandler;
 import com.android.systemui.statusbar.StatusBarState;
+import com.android.systemui.statusbar.StatusBarStateControllerImpl;
 import com.android.systemui.statusbar.SysuiStatusBarStateController;
 import com.android.systemui.statusbar.VibratorHelper;
 import com.android.systemui.statusbar.notification.AnimatableProperty;
@@ -2420,6 +2421,36 @@ public final class NotificationPanelViewController implements
 
         final float dozeAmount = dozing ? 1 : 0;
         mStatusBarStateController.setAndInstrumentDozeAmount(mView, dozeAmount, animate);
+
+        StatusBarStateControllerImpl mStatusBarStateControllerImpl  = (StatusBarStateControllerImpl) mStatusBarStateController;
+        ValueAnimator animator = mStatusBarStateControllerImpl.mDarkAnimator;
+        if (animator != null && animator.isRunning()) {
+            if (!animate || mStatusBarStateControllerImpl.mDozeAmountTarget != dozeAmount) {
+                mStatusBarStateControllerImpl.mDarkAnimator.cancel();
+            }
+            updateKeyguardStatusViewAlignment(animate);
+        }
+
+        final View view = mStatusBarStateControllerImpl.mView;
+        if ((view == null || !view.isAttachedToWindow()) && mView.isAttachedToWindow()) {
+            mStatusBarStateControllerImpl.mView = mView;
+        }
+        mStatusBarStateControllerImpl.mDozeAmountTarget = dozeAmount;
+        if (animate) {
+            final float mStatusBarStateDozeAmount = mStatusBarStateControllerImpl.mDozeAmount;
+            if (mStatusBarStateDozeAmount == 0 || mStatusBarStateDozeAmount == 1) {
+                mStatusBarStateControllerImpl.mDozeInterpolator = 
+                    mStatusBarStateControllerImpl.mIsDozing
+                        ? Interpolators.FAST_OUT_SLOW_IN
+                        : Interpolators.TOUCH_RESPONSE_REVERSE;
+            }
+            if (mStatusBarStateDozeAmount == 1 && !mStatusBarStateControllerImpl.mIsDozing) {
+                mStatusBarStateControllerImpl.setDozeAmountInternal(0.99f);
+            }
+            mStatusBarStateControllerImpl.mDarkAnimator = mStatusBarStateControllerImpl.createDarkAnimator();
+        } else {
+            mStatusBarStateControllerImpl.setDozeAmountInternal(dozeAmount);
+        }
 
         updateKeyguardStatusViewAlignment();
     }
