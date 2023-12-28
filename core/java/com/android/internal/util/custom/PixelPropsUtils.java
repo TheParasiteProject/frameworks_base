@@ -94,6 +94,7 @@ public class PixelPropsUtils {
                 "com.disney.disneyplus",
                 "com.netflix.mediaclient",
                 "in.startv.hotstar",
+                "jp.id_credit_sp2.android",
                 "com.google.android.apps.emojiwallpaper",
                 "com.google.android.wallpaper.effects",
                 "com.google.pixel.livewallpaper",
