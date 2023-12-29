@@ -56,6 +56,9 @@ public class PixelPropsUtils {
     private static final Boolean sEnablePixelProps =
             Resources.getSystem().getBoolean(R.bool.config_enablePixelProps);
 
+    private static final Boolean sIsTablet =
+            Resources.getSystem().getBoolean(R.bool.config_spoofasTablet);
+
     private static final String SAMSUNG = "com.samsung.";
 
     private static final Map<String, Object> propsToChangeGeneric;
@@ -63,6 +66,10 @@ public class PixelPropsUtils {
     private static final Map<String, Object> propsToChangeRecentPixel =
             createGoogleSpoofProps("Pixel 8 Pro",
                     "google/husky/husky:14/UQ1A.231205.015/11084887:user/release-keys");
+
+    private static final Map<String, Object> propsToChangePixelTablet =
+            createGoogleSpoofProps("Pixel Tablet",
+                    "google/tangorpro/tangorpro:14/UQ1A.231205.015/11084887:user/release-keys");
 
     private static final Map<String, Object> propsToChangePixel5a =
             createGoogleSpoofProps("Pixel 5a",
@@ -294,6 +301,8 @@ public class PixelPropsUtils {
 
             if (packagesToChangeRecentPixel.contains(procName)) {
                 propsToChange = propsToChangeRecentPixel;
+            } else if (sIsTablet) {
+                propsToChange = propsToChangePixelTablet;
             } else {
                 propsToChange = propsToChangePixel5a;
             }
