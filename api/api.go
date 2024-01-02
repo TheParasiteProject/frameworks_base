@@ -108,7 +108,7 @@ func (a *CombinedApis) DepsMutator(ctx android.BottomUpMutatorContext) {
 func (a *CombinedApis) GenerateAndroidBuildActions(ctx android.ModuleContext) {
 	ctx.WalkDepsProxy(func(child, parent android.ModuleProxy) bool {
 		javaInfo, ok := android.OtherModuleProvider(ctx, child, java.JavaInfoProvider)
-		if ok && javaInfo.AndroidLibraryDependencyInfo != nil && child.Name() != "framework-res" {
+		if ok && javaInfo.AndroidLibraryDependencyInfo != nil && child.Name() != "framework-res" && child.Name() != "org.lineageos.platform-res" {
 			// Stubs of BCP and SSCP libraries should not have any dependencies on apps
 			// This check ensures that we do not run into circular dependencies when UNBUNDLED_BUILD_TARGET_SDK_WITH_API_FINGERPRINT=true
 			ctx.ModuleErrorf(

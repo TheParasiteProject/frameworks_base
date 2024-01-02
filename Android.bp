@@ -431,6 +431,7 @@ java_defaults {
         "libaconfig_java_proto_nano",
         "aconfig_device_paths_java",
         "perfetto_trace_lib_framework_java",
+        "org.lineageos.platform.resources",
     ],
 }
 
