@@ -135,6 +135,7 @@ filegroup {
 
         // For the generated R.java and Manifest.java
         ":framework-res{.aapt.srcjar}",
+        ":org.lineageos.platform-res{.aapt.srcjar}",
 
         // etc.
         ":framework-javastream-protos",
