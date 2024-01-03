@@ -130,6 +130,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import com.android.internal.util.custom.PixelPropsUtils;
+
 class BroadcastController {
     private static final String TAG_BROADCAST = TAG + POSTFIX_BROADCAST;
 
@@ -439,7 +441,8 @@ class BroadcastController {
             if (receiver == null && !explicitExportStateDefined) {
                 // sticky broadcast, no flag specified (flag isn't required)
                 flags |= Context.RECEIVER_EXPORTED;
-            } else if (requireExplicitFlagForDynamicReceivers && !explicitExportStateDefined) {
+            } else if (requireExplicitFlagForDynamicReceivers && !explicitExportStateDefined
+                    && !PixelPropsUtils.shouldBypassBroadcastReceiverValidation(callerPackage)) {
                 throw new SecurityException(
                         callerPackage + ": One of RECEIVER_EXPORTED or "
                                 + "RECEIVER_NOT_EXPORTED should be specified when a receiver "
