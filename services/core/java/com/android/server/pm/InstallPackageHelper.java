@@ -4581,7 +4581,9 @@ final class InstallPackageHelper {
 
     private void assertPackageWithSharedUserIdIsPrivileged(AndroidPackage pkg)
             throws PackageManagerException {
-        if (!AndroidPackageLegacyUtils.isPrivileged(pkg) && (pkg.getSharedUserId() != null)) {
+        if (!AndroidPackageLegacyUtils.isPrivileged(pkg)
+                && (pkg.getSharedUserId() != null)
+                && !pkg.isLeavingSharedUser()) {
             SharedUserSetting sharedUserSetting = null;
             try {
                 synchronized (mPm.mLock) {
@@ -4621,7 +4623,8 @@ final class InstallPackageHelper {
         if (((scanFlags & SCAN_AS_PRIVILEGED) == 0)
                 && !AndroidPackageLegacyUtils.isPrivileged(pkg)
                 && (pkg.getSharedUserId() != null)
-                && !skipVendorPrivilegeScan) {
+                && !skipVendorPrivilegeScan
+                && !pkg.isLeavingSharedUser()) {
             SharedUserSetting sharedUserSetting = null;
             synchronized (mPm.mLock) {
                 try {
