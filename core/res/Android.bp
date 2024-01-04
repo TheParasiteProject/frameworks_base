@@ -151,6 +151,10 @@ android_app {
             "simulated_device_launcher",
         ],
     },
+
+    required: [
+        "org.lineageos.platform-res",
+    ],
 }
 
 java_genrule {
