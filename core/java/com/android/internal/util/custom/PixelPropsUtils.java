@@ -314,7 +314,7 @@ public class PixelPropsUtils {
                 propsToChange = propsToChangePixel5a;
             }
             if (procName.equals("com.google.android.apps.photos")) {
-                if (SystemProperties.getBoolean("persist.sys.pixelprops.gphotos", true)) {
+                if (SystemProperties.getBoolean("persist.sys.pixelprops.gphotos", false)) {
                     propsToChange = propsToChangePixelXL;
                 }
             }
