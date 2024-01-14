@@ -34,6 +34,7 @@ import android.os.Process
 import android.os.RemoteException
 import android.os.UserHandle
 import android.os.UserManager
+import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.Settings
@@ -497,32 +498,13 @@ internal constructor(
     }
 
     private fun playScreenshotSound() {
-        var playSound = false
-        when (audioManager.ringerMode) {
-            AudioManager.RINGER_MODE_SILENT -> {
-                // do nothing
-            }
-            AudioManager.RINGER_MODE_VIBRATE -> {
-                vibrator?.takeIf { it.hasVibrator() }?.vibrate(
-                    VibrationEffect.createOneShot(
-                        50,
-                        VibrationEffect.DEFAULT_AMPLITUDE
-                    )
-                )
-            }
-            AudioManager.RINGER_MODE_NORMAL -> {
-                // in this case we want to play sound even if not forced on
-                playSound = true
-            }
-        }
-        if (playSound && Settings.System.getIntForUser(
-                context.contentResolver,
-                Settings.System.SCREENSHOT_SHUTTER_SOUND,
-                1,
-                UserHandle.USER_CURRENT
-            ) == 1
-        ) {
+        val playSound: Boolean = Settings.System.getIntForUser(context.getContentResolver(),
+                Settings.System.SCREENSHOT_SHUTTER_SOUND, 1, UserHandle.USER_CURRENT) == 1
+                && audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL
+        if (playSound) {
             screenshotSoundController.playScreenshotSoundAsync()
+        } else if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.vibrate(VIBRATION_EFFECT, VIBRATION_ATTRS)
         }
     }
 
@@ -660,6 +642,11 @@ internal constructor(
 
     companion object {
         private val TAG: String = LogConfig.logTag(ScreenshotController::class.java)
+
+        private val VIBRATION_EFFECT: VibrationEffect =
+                VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
+        private val VIBRATION_ATTRS: VibrationAttributes =
+                VibrationAttributes.createForUsage(VibrationAttributes.USAGE_TOUCH)
 
         // From WizardManagerHelper.java
         private const val SETTINGS_SECURE_USER_SETUP_COMPLETE = "user_setup_complete"
