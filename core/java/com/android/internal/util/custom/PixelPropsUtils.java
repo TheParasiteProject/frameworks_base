@@ -142,7 +142,12 @@ public class PixelPropsUtils {
                 "com.google.android.apps.tycho",
                 "com.google.android.apps.restore",
                 "com.google.oslo",
-                "it.ingdirect.app"
+                "it.ingdirect.app",
+                "com.google.android.apps.nexuslauncher",
+                "com.google.intelligence.sense",
+                "com.google.android.apps.tips",
+                "com.google.android.apps.dreamliner",
+                "com.google.android.apps.dreamlinerupdater"
         ));
 
     private static final String sNetflixModel =
