@@ -12395,6 +12395,13 @@ public final class Settings {
         public static final String HIDE_PRIVATESPACE_ENTRY_POINT = "hide_privatespace_entry_point";
 
         /**
+         * Control whether to spoof current status of storage encryption.
+         * @hide
+         */
+        @Readable
+        public static final String SPOOF_STORAGE_ENCRYPTION_STATUS = "spoof_storage_encryption_status";
+
+        /**
          * Show lyric in status bar when playing music
          * <ul>
          *    <li> 0 = disabled </li>
