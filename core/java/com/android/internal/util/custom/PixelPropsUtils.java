@@ -99,7 +99,9 @@ public class PixelPropsUtils {
                 "com.google.android.apps.customization.pixel",
                 "com.google.android.apps.privacy.wildlife",
                 "com.google.android.apps.subscriptions.red",
-                "com.google.android.apps.photos"
+                "com.google.android.apps.photos",
+                "com.google.android.gms",
+                "com.google.android.googlequicksearchbox"
         ));
 
     private static final ArrayList<String> extraPackagesToChange = 
@@ -194,6 +196,7 @@ public class PixelPropsUtils {
 
         final String processName = Application.getProcessName();
         if (!processName.toLowerCase().contains("unstable")
+                && !processName.toLowerCase().contains("chimera")
                 && !processName.toLowerCase().contains("pixelmigrate")
                 && !processName.toLowerCase().contains("instrumentation")) {
             return false;
@@ -299,6 +302,15 @@ public class PixelPropsUtils {
                 if (SystemProperties.getBoolean("persist.sys.pixelprops.gphotos", false)) {
                     propsToChange = propsToChangePixelXL;
                 }
+            }
+            if (sIsGms
+                && (processName.toLowerCase().contains("ui")
+                || processName.toLowerCase().contains("gservice")
+                || processName.toLowerCase().contains("gapps")
+                || processName.toLowerCase().contains("learning")
+                || processName.toLowerCase().contains("search")
+                || processName.toLowerCase().contains("persistent"))) {
+                propsToChange = propsToChangePixel5a;
             }
             // Allow process spoofing for GoogleCamera packages
             if (isGoogleCameraPackage(packageName) && (propsToChange == null || propsToChange.isEmpty())) {
