@@ -27,12 +27,15 @@ import android.app.Application;
 import android.app.TaskStackListener;
 import android.content.Context;
 import android.content.ComponentName;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemProperties;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import org.lineageos.platform.internal.R;
 
@@ -55,9 +58,6 @@ public class PixelPropsUtils {
 
     private static final Boolean sEnablePixelProps =
             Resources.getSystem().getBoolean(R.bool.config_enablePixelProps);
-
-    private static final Boolean sIsTablet =
-            Resources.getSystem().getBoolean(R.bool.config_spoofasTablet);
 
     private static final String SAMSUNG = "com.samsung.";
 
@@ -270,6 +270,8 @@ public class PixelPropsUtils {
 
         final String packageName = context.getPackageName();
         final String processName = Application.getProcessName();
+        Context appContext = context.getApplicationContext();
+        final boolean sIsTablet = isDeviceTablet(appContext);
 
         if (packageName == null || packageName.isEmpty()) {
             return;
@@ -342,6 +344,23 @@ public class PixelPropsUtils {
             setPropValue("MODEL", sNetflixModel);
             return;
         }
+    }
+
+    private static boolean isDeviceTablet(Context context) {
+        if (context == null) {
+            return false;
+        }
+        Configuration configuration = context.getResources().getConfiguration();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if (windowManager != null) {
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        }
+        return (configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE
+                || displayMetrics.densityDpi == DisplayMetrics.DENSITY_XHIGH
+                || displayMetrics.densityDpi == DisplayMetrics.DENSITY_XXHIGH
+                || displayMetrics.densityDpi == DisplayMetrics.DENSITY_XXXHIGH;
     }
 
     private static void setPropValue(String key, Object value) {
