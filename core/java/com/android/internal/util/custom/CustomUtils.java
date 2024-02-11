@@ -196,6 +196,10 @@ public class CustomUtils {
         FireActions.toggleCameraFlash();
     }
 
+    public static void toggleRecentApps() {
+        sendKeycode(KeyEvent.KEYCODE_APP_SWITCH);
+    }
+
     public static void takeScreenshot(boolean full) {
         IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
         try {
