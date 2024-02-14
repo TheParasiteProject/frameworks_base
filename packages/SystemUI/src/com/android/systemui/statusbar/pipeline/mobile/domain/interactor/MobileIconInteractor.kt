@@ -338,6 +338,9 @@ class MobileIconInteractorImpl(
 
     override val isAllowedDuringAirplaneMode = connectionRepository.isAllowedDuringAirplaneMode
 
+    private val mobileIconIgnoresIWlan = context.resources.getBoolean(
+        com.android.systemui.res.R.bool.config_mobileIconIgnoresIWlan)
+
     /** Whether or not to show the error state of [SignalDrawable] */
     private val showExclamationMark: StateFlow<Boolean> =
         combine(defaultSubscriptionHasDataEnabled, isDefaultConnectionFailed, isInService, shouldShowExclamationMark) {
@@ -345,7 +348,7 @@ class MobileIconInteractorImpl(
                 isDefaultConnectionFailed,
                 isInService,
                 shouldShowExclamationMark ->
-                (!isDefaultDataEnabled || isDefaultConnectionFailed || !isInService)
+                ((!isDefaultDataEnabled && !mobileIconIgnoresIWlan) || isDefaultConnectionFailed || !isInService)
                 && shouldShowExclamationMark
             }
             .stateIn(scope, SharingStarted.WhileSubscribed(), true)
