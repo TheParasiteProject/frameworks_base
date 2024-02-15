@@ -131,6 +131,7 @@ public class PixelPropsUtils {
         new ArrayList<String> (
             Arrays.asList(
                 "com.google.android.as",
+                "com.google.android.apps.miphone.aiai.AiaiApplication",
                 "com.google.android.apps.motionsense.bridge",
                 "com.google.android.euicc",
                 "com.google.ar.core",
