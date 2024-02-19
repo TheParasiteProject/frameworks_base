@@ -53,9 +53,6 @@ public class PixelPropsUtils {
     private static final String TAG = PixelPropsUtils.class.getSimpleName();
     private static final boolean DEBUG = false;
 
-    private static final String[] sCertifiedProps =
-            Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
-
     private static final Boolean sEnablePixelProps =
             Resources.getSystem().getBoolean(R.bool.config_enablePixelProps);
 
@@ -192,71 +189,6 @@ public class PixelPropsUtils {
             customGoogleCameraPackages.contains(packageName);
     }
 
-    private static boolean shouldTryToCertifyDevice() {
-        if (!sIsGms) return false;
-
-        final String processName = Application.getProcessName();
-        if (!processName.toLowerCase().contains("unstable")
-                && !processName.toLowerCase().contains("chimera")
-                && !processName.toLowerCase().contains("pixelmigrate")
-                && !processName.toLowerCase().contains("instrumentation")) {
-            return false;
-        }
-
-        final boolean[] shouldCertify = {true};
-
-        setPropValue("TIME", System.currentTimeMillis());
-
-        final boolean was = isGmsAddAccountActivityOnTop();
-        final String reason = "GmsAddAccountActivityOnTop";
-        if (!was) {
-            spoofBuildGms();
-        }
-        dlog("Skip spoofing build for GMS, because " + reason + "!");
-        TaskStackListener taskStackListener = new TaskStackListener() {
-            @Override
-            public void onTaskStackChanged() {
-                final boolean isNow = isGmsAddAccountActivityOnTop();
-                if (isNow ^ was) {
-                    dlog(String.format("%s changed: isNow=%b, was=%b, killing myself!", reason, isNow, was));
-                    shouldCertify[0] = false;
-                }
-            }
-        };
-        try {
-            ActivityTaskManager.getService().registerTaskStackListener(taskStackListener);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to register task stack listener!", e);
-            spoofBuildGms();
-        }
-        if (shouldCertify[0]) {
-            try {
-                ActivityTaskManager.getService().unregisterTaskStackListener(taskStackListener); // this will be registered on next query
-            } catch (Exception e) {}
-        }
-        return shouldCertify[0];
-    }
-
-    private static void spoofBuildGms() {
-        if (sCertifiedProps == null || sCertifiedProps.length == 0) return;
-        // Alter model name and fingerprint to avoid hardware attestation enforcement
-        setPropValue("PRODUCT", sCertifiedProps[0].isEmpty() ? getDeviceName(sCertifiedProps[4]) : sCertifiedProps[0]);
-        setPropValue("DEVICE", sCertifiedProps[1].isEmpty() ? getDeviceName(sCertifiedProps[4]) : sCertifiedProps[1]);
-        setPropValue("MANUFACTURER", sCertifiedProps[2]);
-        setPropValue("BRAND", sCertifiedProps[3]);
-        setPropValue("MODEL", sCertifiedProps[4]);
-        setPropValue("FINGERPRINT", sCertifiedProps[5]);
-        if (!sCertifiedProps[6].isEmpty()) {
-            setVersionFieldString("SECURITY_PATCH", sCertifiedProps[6]);
-        }
-        if (!sCertifiedProps[7].isEmpty() && sCertifiedProps[7].matches("\\d+")) {
-            setVersionFieldInt("DEVICE_INITIAL_SDK_INT", Integer.parseInt(sCertifiedProps[7]));
-        }
-        setPropValue("ID", sCertifiedProps[8].isEmpty() ? getBuildID(sCertifiedProps[4]) : sCertifiedProps[8]);
-        setPropValue("TYPE", sCertifiedProps[9].isEmpty() ? "user" : sCertifiedProps[9]);
-        setPropValue("TAGS", sCertifiedProps[10].isEmpty() ? "release-keys" : sCertifiedProps[10]);
-    }
-
     public static void setProps(Context context) {
         if (!sEnablePixelProps) {
             dlog("Pixel props is disabled by config");
@@ -278,9 +210,6 @@ public class PixelPropsUtils {
         sIsFinsky = packageName.equals("com.android.vending");
         sIsSetupWizard = packageName.equals("com.google.android.setupwizard");
 
-        if (shouldTryToCertifyDevice()) {
-            return;
-        }
         if (packagesToKeep.contains(packageName)
             || packagesToKeep.contains(processName)) {
             return;
@@ -311,6 +240,7 @@ public class PixelPropsUtils {
                 || processName.toLowerCase().contains("learning")
                 || processName.toLowerCase().contains("search")
                 || processName.toLowerCase().contains("persistent"))) {
+                setPropValue("TIME", System.currentTimeMillis());
                 propsToChange = propsToChangePixel5a;
             }
             // Allow process spoofing for GoogleCamera packages
@@ -361,61 +291,34 @@ public class PixelPropsUtils {
 
     private static void setPropValue(String key, Object value) {
         try {
-            dlog("Defining prop " + key + " to " + value.toString());
-            Field field = Build.class.getDeclaredField(key);
-            field.setAccessible(true);
-            field.set(null, value);
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Field field;
+            Class<?> targetClass;
+            try {
+                targetClass = Build.class;
+                field = targetClass.getDeclaredField(key);
+            } catch (NoSuchFieldException e) {
+                targetClass = Build.VERSION.class;
+                field = targetClass.getDeclaredField(key);
+            }
+            if (field != null) {
+                field.setAccessible(true);
+                Class<?> fieldType = field.getType();
+                if (fieldType == int.class || fieldType == Integer.class) {
+                    if (value instanceof Integer) {
+                        field.set(null, value);
+                    } else if (value instanceof String) {
+                        field.set(null, Integer.parseInt((String) value));
+                    }
+                } else if (fieldType == String.class) {
+                    field.set(null, String.valueOf(value));
+                }
+                field.setAccessible(false);
+            }
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             Log.e(TAG, "Failed to set prop " + key, e);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Failed to parse value for field " + key, e);
         }
-    }
-
-    private static void setVersionField(String key, Object value) {
-        try {
-            dlog("Defining version field " + key + " to " + value.toString());
-            Field field = Build.VERSION.class.getDeclaredField(key);
-            field.setAccessible(true);
-            field.set(null, value);
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(TAG, "Failed to set version field " + key, e);
-        }
-    }
-
-    private static void setVersionFieldInt(String key, int value) {
-        try {
-            dlog("Defining version field " + key + " to " + value);
-            Field field = Build.VERSION.class.getDeclaredField(key);
-            field.setAccessible(true);
-            field.set(null, value);
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(TAG, "Failed to spoof Build." + key, e);
-        }
-    }
-
-    private static void setVersionFieldString(String key, String value) {
-        try {
-            Field field = Build.VERSION.class.getDeclaredField(key);
-            field.setAccessible(true);
-            field.set(null, value);
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(TAG, "Failed to spoof Build." + key, e);
-        }
-    }
-
-    private static boolean isGmsAddAccountActivityOnTop() {
-        try {
-            final ActivityTaskManager.RootTaskInfo focusedTask =
-                    ActivityTaskManager.getService().getFocusedRootTaskInfo();
-            return focusedTask != null && focusedTask.topActivity != null
-                    && focusedTask.topActivity.equals(GMS_ADD_ACCOUNT_ACTIVITY);
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to get top activity!", e);
-        }
-        return false;
     }
 
     public static boolean shouldBypassTaskPermission(Context context) {
@@ -434,10 +337,6 @@ public class PixelPropsUtils {
 
     public static void onEngineGetCertificateChain() {
         // Check stack for SafetyNet or Play Integrity
-        if (sIsSetupWizard || !shouldTryToCertifyDevice()) {
-            Process.killProcess(Process.myPid());
-            return;
-        }
         if (isCallerSafetyNet() || sIsFinsky) {
             dlog("Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
             throw new UnsupportedOperationException();
