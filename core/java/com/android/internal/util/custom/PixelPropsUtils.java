@@ -22,7 +22,7 @@
 
 package com.android.internal.util.custom;
 
-import android.app.ActivityTaskManager;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.app.TaskStackListener;
 import android.content.Context;
@@ -42,6 +42,7 @@ import org.lineageos.platform.internal.R;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -195,15 +196,35 @@ public class PixelPropsUtils {
             return;
         }
 
-        propsToChangeGeneric.forEach((k, v) -> setPropValue(k, v));
+        if (context == null) return;
 
         final String packageName = context.getPackageName();
-        final String processName = Application.getProcessName();
-        if (packageName == null || processName == null || packageName.isEmpty()) {
+        if (packageName == null || packageName.isEmpty()) {
             return;
         }
-        Context appContext = context.getApplicationContext();
-        final boolean sIsTablet = isDeviceTablet(appContext);
+
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager == null) return;
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = null;
+        try {
+            runningProcesses = manager.getRunningAppProcesses();
+        } catch (Exception e) {
+            runningProcesses = null;
+        }
+        if (runningProcesses == null) return;
+
+        String processName = null;
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+            if (processInfo.pid == android.os.Process.myPid()) {
+                processName = processInfo.processName;
+                break;
+            }
+        }
+        if (processName == null) return;
+
+        propsToChangeGeneric.forEach((k, v) -> setPropValue(k, v));
+
+        final boolean sIsTablet = isDeviceTablet(context);
         sIsGoogle = packageName.toLowerCase().contains("google") || processName.toLowerCase().contains("google");
         sIsSamsung = packageName.toLowerCase().contains("samsung") || processName.toLowerCase().contains("samsung");
         sIsGms = packageName.equals("com.google.android.gms");
@@ -291,6 +312,11 @@ public class PixelPropsUtils {
 
     private static void setPropValue(String key, Object value) {
         try {
+            if (value == null || (value instanceof String && ((String) value).isEmpty())) {
+                dlog(TAG + " Skipping setting empty value for key: " + key);
+                return;
+            }
+            dlog(TAG + " Setting property for key: " + key + ", value: " + value.toString());
             Field field;
             Class<?> targetClass;
             try {
@@ -307,7 +333,9 @@ public class PixelPropsUtils {
                     if (value instanceof Integer) {
                         field.set(null, value);
                     } else if (value instanceof String) {
-                        field.set(null, Integer.parseInt((String) value));
+                        int convertedValue = Integer.parseInt((String) value);
+                        field.set(null, convertedValue);
+                        dlog(TAG + " Converted value for key " + key + ": " + convertedValue);
                     }
                 } else if (fieldType == String.class) {
                     field.set(null, String.valueOf(value));
@@ -315,9 +343,9 @@ public class PixelPropsUtils {
                 field.setAccessible(false);
             }
         } catch (IllegalAccessException | NoSuchFieldException e) {
-            Log.e(TAG, "Failed to set prop " + key, e);
+            dlog(TAG + " Failed to set prop " + key);
         } catch (NumberFormatException e) {
-            Log.e(TAG, "Failed to parse value for field " + key, e);
+            dlog(TAG + " Failed to parse value for field " + key);
         }
     }
 
