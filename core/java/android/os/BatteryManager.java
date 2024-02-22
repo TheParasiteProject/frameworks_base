@@ -254,6 +254,19 @@ public class BatteryManager {
     public static final String EXTRA_EVENT_TIMESTAMP = "android.os.extra.EVENT_TIMESTAMP";
 
     /**
+     * Int value representing the estimated battery full charge capacity in microampere-hours.
+     * {@hide}
+     */
+    public static final String EXTRA_MAXIMUM_CAPACITY = "android.os.extra.MAXIMUM_CAPACITY";
+
+    /**
+     * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
+     * Int value representing the battery full charge design capacity in microampere-hours.
+     * {@hide}
+     */
+    public static final String EXTRA_DESIGN_CAPACITY = "android.os.extra.DESIGN_CAPACITY";
+
+    /**
      * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
      * Contains a value that forces Moto Mod battery level `mod_level`
      * to overwrite the interal battery level and act as the device's
