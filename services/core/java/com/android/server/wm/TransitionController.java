@@ -949,6 +949,7 @@ class TransitionController {
             }
         }
         mValidateDisplayVis.clear();
+<<<<<<< HEAD
     }
 
     void onVisibleWithoutCollectingTransition(WindowContainer<?> wc, String caller) {
@@ -987,6 +988,8 @@ class TransitionController {
             }
         }
         wc.scheduleAnimation();
+=======
+>>>>>>> 8d29f6c8604050126266cfc386a2f300b1125595
     }
 
     /**
