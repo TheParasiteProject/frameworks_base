@@ -23,6 +23,7 @@
 package com.android.internal.util.custom;
 
 import android.app.ActivityManager;
+import android.app.ActivityTaskManager;
 import android.app.Application;
 import android.app.TaskStackListener;
 import android.content.Context;
@@ -148,7 +149,10 @@ public class PixelPropsUtils {
                 "com.google.intelligence.sense",
                 "com.google.android.apps.tips",
                 "com.google.android.apps.dreamliner",
-                "com.google.android.apps.dreamlinerupdater"
+                "com.google.android.apps.dreamlinerupdater",
+                "com.google.android.apps.pixelmigrate",
+                "com.google.android.backupuses",
+                "com.google.android.backuptransport"
         ));
 
     private static final String sNetflixModel =
@@ -196,6 +200,40 @@ public class PixelPropsUtils {
             customGoogleCameraPackages.contains(packageName);
     }
 
+    private static void spoofBuildGms() {
+        String[] sCertifiedProps = {
+            SystemProperties.get("persist.sys.pihooks.product_name", ""),
+            SystemProperties.get("persist.sys.pihooks.product_device", ""),
+            SystemProperties.get("persist.sys.pihooks.manufacturer", ""),
+            SystemProperties.get("persist.sys.pihooks.brand", ""),
+            SystemProperties.get("persist.sys.pihooks.product_model", ""),
+            SystemProperties.get("persist.sys.pihooks.build_fingerprint", ""),
+            SystemProperties.get("persist.sys.pihooks.security_patch", ""),
+            SystemProperties.get("persist.sys.pihooks.first_api_level", ""),
+            SystemProperties.get("persist.sys.pihooks.build_id", ""),
+            SystemProperties.get("persist.sys.pihooks.build_type", ""),
+            SystemProperties.get("persist.sys.pihooks.build_tags", "")
+        };
+
+        if (sCertifiedProps == null || sCertifiedProps.length == 0) return;
+        // Alter model name and fingerprint to avoid hardware attestation enforcement
+        setPropValue("PRODUCT", sCertifiedProps[0].isEmpty() ? getDeviceName(sCertifiedProps[4]) : sCertifiedProps[0]);
+        setPropValue("DEVICE", sCertifiedProps[1].isEmpty() ? getDeviceName(sCertifiedProps[4]) : sCertifiedProps[1]);
+        setPropValue("MANUFACTURER", sCertifiedProps[2]);
+        setPropValue("BRAND", sCertifiedProps[3]);
+        setPropValue("MODEL", sCertifiedProps[4]);
+        setPropValue("FINGERPRINT", sCertifiedProps[5]);
+        if (!sCertifiedProps[6].isEmpty()) {
+            setPropValue("SECURITY_PATCH", sCertifiedProps[6]);
+        }
+        if (!sCertifiedProps[7].isEmpty() && sCertifiedProps[7].matches("\\d+")) {
+            setPropValue("DEVICE_INITIAL_SDK_INT", Integer.parseInt(sCertifiedProps[7]));
+        }
+        setPropValue("ID", sCertifiedProps[8].isEmpty() ? getBuildID(sCertifiedProps[4]) : sCertifiedProps[8]);
+        setPropValue("TYPE", sCertifiedProps[9].isEmpty() ? "user" : sCertifiedProps[9]);
+        setPropValue("TAGS", sCertifiedProps[10].isEmpty() ? "release-keys" : sCertifiedProps[10]);
+    }
+
     public static void setProps(Context context) {
         if (!sEnablePixelProps) {
             dlog("Pixel props is disabled by config");
@@ -237,6 +275,16 @@ public class PixelPropsUtils {
         sIsFinsky = packageName.equals("com.android.vending");
         sIsSetupWizard = packageName.equals("com.google.android.setupwizard");
 
+        if (sIsGms) {
+            setPropValue("TIME", System.currentTimeMillis());
+
+            if (processName.toLowerCase().contains("chimera")
+                || processName.toLowerCase().contains("unstable")) {
+                spoofBuildGms();
+                return;
+            }
+        }
+
         if (packagesToKeep.contains(packageName)
             || packagesToKeep.contains(processName)) {
             return;
@@ -267,7 +315,6 @@ public class PixelPropsUtils {
                 || processName.toLowerCase().contains("learning")
                 || processName.toLowerCase().contains("search")
                 || processName.toLowerCase().contains("persistent"))) {
-                setPropValue("TIME", System.currentTimeMillis());
                 propsToChange = propsToChangePixel5a;
             }
             // Allow process spoofing for GoogleCamera packages
@@ -355,6 +402,18 @@ public class PixelPropsUtils {
         }
     }
 
+    private static boolean isGmsAddAccountActivityOnTop() {
+        try {
+            final ActivityTaskManager.RootTaskInfo focusedTask =
+                    ActivityTaskManager.getService().getFocusedRootTaskInfo();
+            return focusedTask != null && focusedTask.topActivity != null
+                    && focusedTask.topActivity.equals(GMS_ADD_ACCOUNT_ACTIVITY);
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to get top activity!", e);
+        }
+        return false;
+    }
+
     public static boolean shouldBypassTaskPermission(Context context) {
         // GMS doesn't have MANAGE_ACTIVITY_TASKS permission
         final int callingUid = Binder.getCallingUid();
@@ -371,7 +430,11 @@ public class PixelPropsUtils {
 
     public static void onEngineGetCertificateChain() {
         // Check stack for SafetyNet or Play Integrity
-        if ((isCallerSafetyNet() || sIsFinsky) && !sIsSetupWizard) {
+        if (sIsSetupWizard) {
+            Process.killProcess(Process.myPid());
+            return;
+        }
+        if (isCallerSafetyNet() || sIsFinsky) {
             dlog("Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
             throw new UnsupportedOperationException();
         }
