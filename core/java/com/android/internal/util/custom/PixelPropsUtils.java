@@ -56,7 +56,7 @@ public class PixelPropsUtils {
     private static final boolean DEBUG = false;
 
     private static final Boolean sEnablePixelProps =
-            Resources.getSystem().getBoolean(R.bool.config_enablePixelProps);
+            SystemProperties.getBoolean("persist.sys.pihooks.enable", true);
 
     private static final Map<String, Object> propsToChangeGeneric;
 
@@ -156,7 +156,7 @@ public class PixelPropsUtils {
         ));
 
     private static final String sNetflixModel =
-            Resources.getSystem().getString(R.string.config_netflixSpoofModel);
+            SystemProperties.get("persist.sys.pihooks.netflix_model", "");
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");

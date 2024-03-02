@@ -811,7 +811,7 @@ public class ApplicationPackageManager extends PackageManager {
             };
 
     private static final Boolean sHasTensorSoC =
-            Resources.getSystem().getBoolean(org.lineageos.platform.internal.R.bool.config_hasTensorSoC);
+            SystemProperties.get("ro.soc.manufacturer", "").toLowerCase().contains("google");
 
     private static final String[] featuresPixel = {
             "com.google.android.apps.photos.PIXEL_2019_PRELOAD",
