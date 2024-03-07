@@ -134,6 +134,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.SomeArgs;
 import com.android.internal.pm.RoSystemFeatures;
 import com.android.internal.util.UserIcons;
+import com.android.internal.util.custom.CustomFeaturesUtils;
 
 import com.nvidia.NvAppProfileService;
 
@@ -838,6 +839,12 @@ public class ApplicationPackageManager extends PackageManager {
 
     @Override
     public boolean hasSystemFeature(String name, int version) {
+        final int report = CustomFeaturesUtils.hasSystemFeatureCustom(name);
+        switch (report) {
+            case 0: return false;
+            case 1: return true;
+            default:
+        }
         // We check for system features in the following order:
         //    * Build time-defined system features (constant, very efficient)
         //    * SDK-defined system features (cached at process start, very efficient)
