@@ -35,13 +35,16 @@ import android.graphics.RecordingCanvas;
 import android.graphics.Rect;
 import android.graphics.RenderNode;
 import android.os.Build;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.view.HapticFeedbackConstants;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
 
 /**
  * This class performs the graphical effect used at the edges of scrollable widgets
@@ -218,6 +221,10 @@ public class EdgeEffect {
     private float mDisplacement = 0.5f;
     private float mTargetDisplacement = 0.5f;
 
+    private Context mContext;
+    private Executor mExecutor;
+    private Vibrator mVibrator;
+
     /**
      * Current edge effect type, consumers should always query
      * {@link #getCurrentEdgeEffectBehavior()} instead of this parameter
@@ -253,6 +260,13 @@ public class EdgeEffect {
         mPaint.setColor((themeColor & 0xffffff) | 0x33000000);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setBlendMode(DEFAULT_BLEND_MODE);
+        setupVibration(context);
+    }
+
+    private void setupVibration(Context context) {
+        mContext = context;
+        mExecutor = context.getMainExecutor();
+        mVibrator = context.getSystemService(Vibrator.class);
     }
 
     @EdgeEffectType
@@ -497,6 +511,7 @@ public class EdgeEffect {
             mState = STATE_RECEDE;
             mVelocity = velocity * ON_ABSORB_VELOCITY_ADJUSTMENT;
             mStartTime = AnimationUtils.currentAnimationTimeMillis();
+            maybeTriggerVibration();
         } else if (edgeEffectBehavior == TYPE_GLOW) {
             mState = STATE_ABSORB;
             mVelocity = 0;
@@ -521,6 +536,7 @@ public class EdgeEffect {
                     mGlowAlphaStart,
                     Math.min(velocity * VELOCITY_GLOW_FACTOR * .00001f, MAX_ALPHA));
             mTargetDisplacement = 0.5f;
+            maybeTriggerVibration();
         } else {
             finish();
         }
@@ -835,5 +851,23 @@ public class EdgeEffect {
         double scalar = Math.E / SCROLL_DIST_AFFECTED_BY_EXP_STRETCH;
         double expIntensity = EXP_STRETCH_INTENSITY * (1 - Math.exp(-overscroll * scalar));
         return sign * (float) (linearIntensity + expIntensity);
+    }
+
+    private void maybeTriggerVibration() {
+        if (mVibrator == null || !mVibrator.hasVibrator()) {
+            return;
+        }
+
+        mExecutor.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mVibrator.performHapticFeedback(
+                            HapticFeedbackConstants.SEGMENT_FREQUENT_TICK,
+                            "Scroll Limit Reached",
+                            HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING,
+                            0);
+                    }
+                });
     }
 }
