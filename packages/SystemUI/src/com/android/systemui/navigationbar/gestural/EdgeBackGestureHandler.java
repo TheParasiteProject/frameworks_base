@@ -1364,9 +1364,6 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
             case 14: // Powermenu
                 CustomUtils.showPowerMenu();
                 break;
-            case 15: // Partial Screenshot
-                CustomUtils.takeScreenshot(false);
-                break;
             case 16: // Recents
                 CustomUtils.sendKeycode(KeyEvent.KEYCODE_APP_SWITCH);
                 break;
