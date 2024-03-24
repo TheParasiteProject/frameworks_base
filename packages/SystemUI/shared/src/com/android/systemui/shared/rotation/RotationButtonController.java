@@ -33,12 +33,15 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemProperties;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
@@ -72,6 +75,8 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Supplier;
+
+import lineageos.providers.LineageSettings;
 
 /**
  * Contains logic that deals with showing a rotate suggestion button with animation.
@@ -115,6 +120,7 @@ public class RotationButtonController {
     private boolean mSkipOverrideUserLockPrefsOnce;
     private final int mLightIconColor;
     private final int mDarkIconColor;
+    private boolean mButtonEnabled = true;
 
     @DrawableRes
     private final int mIconCcwStart0ResId;
@@ -189,6 +195,21 @@ public class RotationButtonController {
         mWindowRotationProvider = windowRotationProvider;
 
         mBgExecutor = context.getMainExecutor();
+
+        mButtonEnabled = LineageSettings.System.getIntForUser(mContext.getContentResolver(),
+            LineageSettings.System.ENABLE_FLOATING_ROTATION_BUTTON, 1, UserHandle.USER_CURRENT) == 1;
+        mContext.getContentResolver().registerContentObserver(
+            LineageSettings.System.getUriFor(LineageSettings.System.ENABLE_FLOATING_ROTATION_BUTTON), false,
+            new ContentObserver(mMainThreadHandler) {
+                @Override
+                public void onChange(boolean selfChange, Uri uri) {
+                    if (uri.getLastPathSegment().equals(LineageSettings.System.ENABLE_FLOATING_ROTATION_BUTTON)) {
+                        mButtonEnabled = LineageSettings.System.getIntForUser(mContext.getContentResolver(),
+                            LineageSettings.System.ENABLE_FLOATING_ROTATION_BUTTON, 1, UserHandle.USER_CURRENT) == 1;
+                    }
+                }
+            }
+        );
     }
 
     public void setRotationButton(RotationButton rotationButton,
@@ -407,7 +428,7 @@ public class RotationButtonController {
 
         int windowRotation = mWindowRotationProvider.get();
 
-        if (!mRotationButton.acceptRotationProposal()) {
+        if (!mButtonEnabled || !mRotationButton.acceptRotationProposal()) {
             return;
         }
 
