@@ -364,7 +364,7 @@ public class InternetDialogDelegate implements
         mLifecycleRegistry.setCurrentState(Lifecycle.State.DESTROYED);
         mMobileNetworkLayout.setOnClickListener(null);
         mMobileNetworkLayout.setOnLongClickListener(null);
-        mHotspotLayout.setOnClickListener(null);
+        mHotspotLayout.setOnLongClickListener(null);
         mHotspotToggle.setOnClickListener(null);
         mConnectedWifListLayout.setOnClickListener(null);
         if (mSecondaryMobileNetworkLayout != null) {
@@ -488,7 +488,10 @@ public class InternetDialogDelegate implements
                         dialog.getContext(), mDefaultDataSubId, isChecked, false);
             }
         });
-        mHotspotLayout.setOnClickListener(mInternetDialogController::launchHotspotSetting);
+        mHotspotLayout.setOnLongClickListener(v -> {
+            mInternetDialogController.launchHotspotSetting(v);
+            return true;
+        });
         mHotspotToggle.setOnClickListener(v -> {
             mInternetDialogController.setHotspotEnabled(mHotspotToggle.isChecked());
         });
