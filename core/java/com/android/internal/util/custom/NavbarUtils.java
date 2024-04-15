@@ -74,31 +74,6 @@ public class NavbarUtils {
     }
 
     public static boolean isEnabled(Context context) {
-        return Settings.System.getIntForUser(context.getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, hasNavbarByDefault(context) ? 1 : 0, UserHandle.USER_CURRENT) != 0;
-    }
-
-    public static void setEnabled(Context context, boolean enabled) {
-        if (!canDisable(context)){
-            return;
-        }
-        Settings.System.putIntForUser(context.getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, enabled ? 1 : 0, UserHandle.USER_CURRENT);
-    }
-
-    public static boolean canDisable(Context context) {
-        boolean canForceDisable = context.getResources().getBoolean(org.lineageos.platform.internal.R.bool.config_canForceDisableNavigationBar);
-        if (canForceDisable){
-            return true;
-        }
-        LineageHardwareManager lineageHardware = LineageHardwareManager.getInstance(context);
-        if (lineageHardware != null && lineageHardware.isSupported(LineageHardwareManager.FEATURE_KEY_DISABLE)) {
-            return true;
-        }
-        final int deviceKeys = context.getResources().getInteger(
-                org.lineageos.platform.internal.R.integer.config_deviceHardwareKeys);
-        final boolean hasHomeKey = (deviceKeys & KEY_MASK_HOME) != 0;
-        final boolean hasBackKey = (deviceKeys & KEY_MASK_BACK) != 0;
-        return hasHomeKey && hasBackKey;
+        return hasNavbarByDefault(context);
     }
 }
