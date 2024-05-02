@@ -231,7 +231,7 @@ final class InstallPackageHelper {
     @GuardedBy("mInternalLock")
     private PowerManager.WakeLock mInstallingWakeLock;
 
-    private Signature[] mVendorPlatformSignatures = new Signature[0];
+    private Signature[][] mVendorPlatformSignatures = new Signature[0][0];
 
     private static Signature[] createSignatures(String[] hexBytes) {
         Signature[] sigs = new Signature[hexBytes.length];
@@ -260,8 +260,12 @@ final class InstallPackageHelper {
         mPackageAbiHelper = pm.mInjector.getAbiHelper();
         mSharedLibraries = pm.mInjector.getSharedLibrariesImpl();
         mUpdateOwnershipHelper = pm.mInjector.getUpdateOwnershipHelper();
-        mVendorPlatformSignatures = createSignatures(mContext.getResources().getStringArray(
-                org.lineageos.platform.internal.R.array.config_vendorPlatformSignatures));
+        mVendorPlatformSignatures = new Signature[][] { 
+            createSignatures(mContext.getResources().getStringArray(
+                org.lineageos.platform.internal.R.array.config_vendorPlatformSignatures)),
+            createSignatures(mContext.getResources().getStringArray(
+                org.lineageos.platform.internal.R.array.config_googlePlatformSignatures))
+        };
     }
 
     /**
