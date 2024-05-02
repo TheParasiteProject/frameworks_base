@@ -234,7 +234,7 @@ final class InstallPackageHelper {
     // List of packages being installed
     private final Set<String> mInstallingPackages;
 
-    private Signature[] mVendorPlatformSignatures = new Signature[0];
+    private Signature[][] mVendorPlatformSignatures = new Signature[0][0];
 
     private static Signature[] createSignatures(String[] hexBytes) {
         Signature[] sigs = new Signature[hexBytes.length];
@@ -263,8 +263,12 @@ final class InstallPackageHelper {
         mSharedLibraries = pm.mInjector.getSharedLibrariesImpl();
         mUpdateOwnershipHelper = pm.mInjector.getUpdateOwnershipHelper();
         mInstallingPackages = new ArraySet<>();
-        mVendorPlatformSignatures = createSignatures(mContext.getResources().getStringArray(
-                org.lineageos.platform.internal.R.array.config_vendorPlatformSignatures));
+        mVendorPlatformSignatures = new Signature[][] {
+            createSignatures(mContext.getResources().getStringArray(
+                org.lineageos.platform.internal.R.array.config_vendorPlatformSignatures)),
+            createSignatures(mContext.getResources().getStringArray(
+                org.lineageos.platform.internal.R.array.config_googlePlatformSignatures))
+        };
     }
 
     /**
