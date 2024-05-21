@@ -1632,7 +1632,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
         boolean needsRefresh = mDisplayCutoutHidden != displayCutoutHidden;
         mDisplayCutoutHidden = displayCutoutHidden;
         try {
-            mOverlayManager.setEnabled("org.pixelexperience.overlay.hidecutout",
+            mOverlayManager.setEnabled("com.android.internal.display.cutout.emulation.noCutout",
                         mDisplayCutoutHidden, mLockscreenUserManager.getCurrentUserId());
         } catch (RemoteException ignored) {
         }
