@@ -134,10 +134,12 @@ public class TunerFragment extends PreferenceFragment {
         MetricsLogger.visibility(getContext(), MetricsEvent.TUNER, false);
     }
 
+/*
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.add(Menu.NONE, MENU_REMOVE, Menu.NONE, R.string.remove_from_settings);
     }
+*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
