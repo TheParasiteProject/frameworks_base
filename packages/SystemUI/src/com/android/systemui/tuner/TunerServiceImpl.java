@@ -162,6 +162,10 @@ public class TunerServiceImpl extends TunerService {
         setValue(TUNER_VERSION, newVersion);
     }
 
+    private boolean isInternalSetting(String key) {
+        return isGlobal(key) || isSystem(key) || isSecure(key);
+    }
+
     private boolean isLineageSetting(String key) {
         return isLineageGlobal(key) || isLineageSystem(key) || isLineageSecure(key);
     }
@@ -186,8 +190,12 @@ public class TunerServiceImpl extends TunerService {
         return key.startsWith("global:");
     }
 
+    private boolean isSecure(String key) {
+        return key.startsWith("secure:");
+    }
+
     private String chomp(String key) {
-        return key.replaceFirst("^(lineageglobal|lineagesecure|lineagesystem|system|global):", "");
+        return key.replaceFirst("^(lineageglobal|lineagesecure|lineagesystem|system|global|secure):", "");
     }
 
     @Override
@@ -206,9 +214,11 @@ public class TunerServiceImpl extends TunerService {
         } else if (isGlobal(setting)) {
             return Settings.Global.getStringForUser(
                     mContentResolver, chomp(setting), mCurrentUser);
-        } else {
-            return Settings.Secure.getStringForUser(mContentResolver, setting, mCurrentUser);
+        } else if (isSecure(setting)) {
+            return Settings.Secure.getStringForUser(
+                    mContentResolver, chomp(setting), mCurrentUser);
         }
+        return "";
     }
 
     @Override
@@ -227,8 +237,9 @@ public class TunerServiceImpl extends TunerService {
         } else if (isGlobal(setting)) {
             Settings.Global.putStringForUser(
                     mContentResolver, chomp(setting), value, mCurrentUser);
-        } else {
-            Settings.Secure.putStringForUser(mContentResolver, setting, value, mCurrentUser);
+        } else if (isSecure(setting)) {
+            Settings.Secure.putStringForUser(
+                    mContentResolver, chomp(setting), value, mCurrentUser);
         }
     }
 
@@ -248,9 +259,11 @@ public class TunerServiceImpl extends TunerService {
         } else if (isGlobal(setting)) {
             return Settings.Global.getInt(
                     mContentResolver, chomp(setting), def);
-        } else {
-            return Settings.Secure.getIntForUser(mContentResolver, setting, def, mCurrentUser);
+        } else if (isSecure(setting)) {
+            return Settings.Secure.getIntForUser(
+                    mContentResolver, chomp(setting), def, mCurrentUser);
         }
+        return def;
     }
 
     @Override
@@ -270,8 +283,9 @@ public class TunerServiceImpl extends TunerService {
         } else if (isGlobal(setting)) {
             ret = Settings.Global.getStringForUser(
                     mContentResolver, chomp(setting), mCurrentUser);
-        } else {
-            ret = Secure.getStringForUser(mContentResolver, setting, mCurrentUser);
+        } else if (isSecure(setting)) {
+            ret = Secure.getStringForUser(
+                    mContentResolver, chomp(setting), mCurrentUser);
         }
         if (ret == null) return def;
         return ret;
@@ -291,8 +305,8 @@ public class TunerServiceImpl extends TunerService {
             Settings.System.putIntForUser(mContentResolver, chomp(setting), value, mCurrentUser);
         } else if (isGlobal(setting)) {
             Settings.Global.putInt(mContentResolver, chomp(setting), value);
-        } else {
-            Settings.Secure.putIntForUser(mContentResolver, setting, value, mCurrentUser);
+        } else if (isSecure(setting)) {
+            Settings.Secure.putIntForUser(mContentResolver, chomp(setting), value, mCurrentUser);
         }
     }
 
@@ -323,9 +337,10 @@ public class TunerServiceImpl extends TunerService {
             uri = Settings.System.getUriFor(chomp(key));
         } else if (isGlobal(key)) {
             uri = Settings.Global.getUriFor(chomp(key));
-        } else {
-            uri = Settings.Secure.getUriFor(key);
+        } else if (isSecure(key)) {
+            uri = Settings.Secure.getUriFor(chomp(key));
         }
+        if (uri == null) return;
         if (!mListeningUris.containsKey(uri)) {
             mListeningUris.put(uri, key);
             mContentResolver.registerContentObserver(uri, false, mObserver,
