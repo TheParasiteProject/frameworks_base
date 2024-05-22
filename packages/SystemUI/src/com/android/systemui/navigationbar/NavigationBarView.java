@@ -62,6 +62,7 @@ import androidx.annotation.Nullable;
 import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.settingslib.Utils;
+import com.android.systemui.Dependency;
 import com.android.systemui.Gefingerpoken;
 import com.android.systemui.model.SysUiState;
 import com.android.systemui.navigationbar.buttons.ButtonDispatcher;
@@ -85,6 +86,7 @@ import com.android.systemui.statusbar.phone.AutoHideController;
 import com.android.systemui.statusbar.phone.CentralSurfaces;
 import com.android.systemui.statusbar.phone.LightBarTransitionsController;
 import com.android.systemui.statusbar.policy.Offset;
+import com.android.systemui.tuner.TunerService;
 import com.android.wm.shell.back.BackAnimation;
 import com.android.wm.shell.pip.Pip;
 
@@ -97,7 +99,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 /** */
-public class NavigationBarView extends FrameLayout {
+public class NavigationBarView extends FrameLayout implements TunerService.Tunable {
     final static boolean DEBUG = false;
     final static String TAG = "NavBarView";
 
@@ -1157,6 +1159,7 @@ public class NavigationBarView extends FrameLayout {
         requestApplyInsets();
         reorient();
 
+        final TunerService tunerService = Dependency.get(TunerService.class);
         mContext.getContentResolver().registerContentObserver(LineageSettings.System.getUriFor(
                         LineageSettings.System.NAVIGATION_BAR_MENU_ARROW_KEYS), false,
                 mShowCursorKeysObserver);
@@ -1178,6 +1181,14 @@ public class NavigationBarView extends FrameLayout {
         if (mRotationButtonController != null) {
             mFloatingRotationButton.hide();
             mRotationButtonController.unregisterListeners();
+        }
+    }
+
+    @Override
+    public void onTuningChanged(String key, String newValue) {
+        switch (key) {
+            default:
+                break;
         }
     }
 
