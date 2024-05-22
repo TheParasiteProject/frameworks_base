@@ -104,6 +104,8 @@ import com.android.wm.shell.back.BackAnimation;
 import com.android.wm.shell.desktopmode.DesktopMode;
 import com.android.wm.shell.pip.Pip;
 
+import org.lineageos.internal.util.DeviceKeysConstants;
+
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -1318,48 +1320,14 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
 
         prepareForAction();
 
+        final int lastAction = DeviceKeysConstants.LAST_ACTION + 1;
+
         switch (action) {
-            case 0: // No action
             default:
+                sendEvent(action, KeyEvent.KEYCODE_UNKNOWN);
                 break;
-            case 1: // Voice search
-                CustomUtils.launchVoiceSearch(mContext);
-                break;
-            case 2: // Camera
-                CustomUtils.launchCamera(mContext);
-                break;
-            case 3: // Flashlight
-                CustomUtils.toggleCameraFlash();
-                break;
-            case 4: // Application
+            case lastAction: // Application
                 launchApp(mContext, mIsOnLeftEdge, isVertical);
-                break;
-            case 5: // Volume panel
-                CustomUtils.toggleVolumePanel(mContext);
-                break;
-            case 6: // Screen off
-                CustomUtils.switchScreenOff(mContext);
-                break;
-            case 7: // Screenshot
-                CustomUtils.takeScreenshot(true);
-                break;
-            case 8: // Notification panel
-                CustomUtils.toggleNotifications();
-                break;
-            case 9: // QS panel
-                CustomUtils.toggleQsPanel();
-                break;
-            case 10: // Clear notifications
-                CustomUtils.clearAllNotifications();
-                break;
-            case 11: // Ringer modes
-                CustomUtils.toggleRingerModes(mContext);
-                break;
-            case 12: // Kill app
-                CustomUtils.killForegroundApp();
-                break;
-            case 13: // Switch recent app
-                CustomUtils.switchToLastApp(mContext);
                 break;
         }
     }
