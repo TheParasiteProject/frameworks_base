@@ -2261,6 +2261,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case RINGER_MODES:
                 toggleRingerModes();
                 break;
+            case POWER_MENU:
+                showGlobalActions();
+                break;
             default:
                 break;
         }
