@@ -2243,6 +2243,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case SCREENSHOT:
                 interceptScreenshotChord(SCREENSHOT_KEY_OTHER, 0 /*pressDelay*/);
                 break;
+            case PARTIAL_SCREENSHOT:
+                interceptScreenshotChord(TAKE_SCREENSHOT_SELECTED_REGION, SCREENSHOT_KEY_OTHER, 0 /*pressDelay*/);
+                break;
             case VOLUME_PANEL:
                 toggleVolumePanel();
                 break;
