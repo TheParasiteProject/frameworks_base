@@ -2264,6 +2264,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case POWER_MENU:
                 showGlobalActions();
                 break;
+            case GO_FORWARD:
+                triggerVirtualKeypress(KeyEvent.KEYCODE_FORWARD);
+                break;
             default:
                 break;
         }
