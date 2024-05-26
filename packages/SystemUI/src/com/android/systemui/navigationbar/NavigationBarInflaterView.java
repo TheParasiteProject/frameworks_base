@@ -51,6 +51,7 @@ import com.android.systemui.navigationbar.buttons.ReverseLinearLayout;
 import com.android.systemui.navigationbar.buttons.ReverseLinearLayout.ReverseRelativeLayout;
 import com.android.systemui.recents.OverviewProxyService;
 import com.android.systemui.shared.system.QuickStepContract;
+import com.android.systemui.tuner.TunerService;
 
 import lineageos.providers.LineageSettings;
 
@@ -58,7 +59,8 @@ import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 
-public class NavigationBarInflaterView extends FrameLayout {
+public class NavigationBarInflaterView extends FrameLayout
+        implements TunerService.Tunable {
     private static final String TAG = "NavBarInflater";
 
     public static final String NAV_BAR_VIEWS = "sysui_nav_bar";
@@ -251,6 +253,14 @@ public class NavigationBarInflaterView extends FrameLayout {
         Dependency.get(NavigationModeController.class).removeListener(mListener);
         mContext.getContentResolver().unregisterContentObserver(mContentObserver);
         super.onDetachedFromWindow();
+    }
+
+    @Override
+    public void onTuningChanged(String key, String newValue) {
+        switch (key) {
+            default:
+                break;
+        }
     }
 
     @Override
