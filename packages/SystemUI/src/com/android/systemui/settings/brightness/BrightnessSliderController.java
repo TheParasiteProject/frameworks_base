@@ -19,6 +19,7 @@ package com.android.systemui.settings.brightness;
 import static com.android.systemui.Flags.hapticBrightnessSlider;
 
 import android.content.Context;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -221,7 +222,9 @@ public class BrightnessSliderController extends ViewController<BrightnessSliderV
             if (mListener != null) {
                 mListener.onChanged(mTracking, progress, false);
                 if (fromUser) {
-                    mBrightnessSliderHapticPlugin.onProgressChanged(seekBar, progress, fromUser);
+                    if (isHapticFeedbackEnabled()) {
+                        mBrightnessSliderHapticPlugin.onProgressChanged(seekBar, progress, fromUser);
+                    }
                 }
             }
         }
@@ -232,7 +235,9 @@ public class BrightnessSliderController extends ViewController<BrightnessSliderV
             mUiEventLogger.log(BrightnessSliderEvent.BRIGHTNESS_SLIDER_STARTED_TRACKING_TOUCH);
             if (mListener != null) {
                 mListener.onChanged(mTracking, getValue(), false);
-                mBrightnessSliderHapticPlugin.onStartTrackingTouch(seekBar);
+                if (isHapticFeedbackEnabled()) {
+                    mBrightnessSliderHapticPlugin.onStartTrackingTouch(seekBar);
+                }
             }
 
             if (mMirrorController != null) {
@@ -247,7 +252,9 @@ public class BrightnessSliderController extends ViewController<BrightnessSliderV
             mUiEventLogger.log(BrightnessSliderEvent.BRIGHTNESS_SLIDER_STOPPED_TRACKING_TOUCH);
             if (mListener != null) {
                 mListener.onChanged(mTracking, getValue(), true);
-                mBrightnessSliderHapticPlugin.onStopTrackingTouch(seekBar);
+                if (isHapticFeedbackEnabled()) {
+                    mBrightnessSliderHapticPlugin.onStopTrackingTouch(seekBar);
+                }
             }
 
             if (mMirrorController != null) {
@@ -255,6 +262,11 @@ public class BrightnessSliderController extends ViewController<BrightnessSliderV
             }
         }
     };
+
+    private static boolean isHapticFeedbackEnabled() {
+        return Settings.System.getInt(mView.getContext().getContentResolver(),
+            Settings.System.QS_BRIGHTNESS_SLIDER_HAPTIC_FEEDBACK, 0) != 0;
+    }
 
     /**
      * Creates a {@link BrightnessSliderController} with its associated view.
