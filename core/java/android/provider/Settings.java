@@ -21169,10 +21169,10 @@ public final class Settings {
         @RequiresPermission(Manifest.permission.WRITE_DEVICE_CONFIG)
         public static boolean putString(@NonNull String namespace,
                 @NonNull String name, @Nullable String value, boolean makeDefault) {
-            if (DeviceConfigUtils.shouldDenyDeviceConfigControl(namespace, name)) {
+            ContentResolver resolver = getContentResolver();
+            if (DeviceConfigUtils.shouldDenyDeviceConfigControl(resolver.getPackageName(), namespace, name)) {
                 return true;
             }
-            ContentResolver resolver = getContentResolver();
             return sNameValueCache.putStringForUser(resolver, createCompositeName(namespace, name),
                     value, null, makeDefault, resolver.getUserId(),
                     DEFAULT_OVERRIDEABLE_BY_RESTORE);
@@ -21193,8 +21193,11 @@ public final class Settings {
         public static boolean setStrings(@NonNull String namespace,
                 @NonNull Map<String, String> keyValues)
                 throws DeviceConfig.BadConfigException {
+            final List<String> backup =
+                DeviceConfigUtils.backupKeepValue(namespace);
             boolean result = setStrings(getContentResolver(), namespace, keyValues);
             DeviceConfigUtils.setDefaultProperties(namespace, null);
+            DeviceConfigUtils.restoreKeepValue(backup);
             return result;
         }
 
@@ -21245,10 +21248,10 @@ public final class Settings {
         @RequiresPermission(Manifest.permission.WRITE_DEVICE_CONFIG)
         public static boolean deleteString(@NonNull String namespace,
                 @NonNull String name) {
-            if (DeviceConfigUtils.shouldDenyDeviceConfigControl(namespace, name)) {
+            ContentResolver resolver = getContentResolver();
+            if (DeviceConfigUtils.shouldDenyDeviceConfigControl(resolver.getPackageName(), namespace, name)) {
                 return true;
             }
-            ContentResolver resolver = getContentResolver();
             return sNameValueCache.deleteStringForUser(resolver,
                     createCompositeName(namespace, name), resolver.getUserId());
         }
@@ -21270,6 +21273,8 @@ public final class Settings {
         @RequiresPermission(Manifest.permission.WRITE_DEVICE_CONFIG)
         public static void resetToDefaults(@ResetMode int resetMode,
                 @Nullable String namespace) {
+            final List<String> backup =
+                DeviceConfigUtils.backupKeepValue(null);
             try {
                 ContentResolver resolver = getContentResolver();
                 Bundle arg = new Bundle();
@@ -21285,6 +21290,7 @@ public final class Settings {
                 Log.w(TAG, "Can't reset to defaults for " + CONTENT_URI, e);
             }
             DeviceConfigUtils.setDefaultProperties(null, null);
+            DeviceConfigUtils.restoreKeepValue(backup);
         }
 
         /**
