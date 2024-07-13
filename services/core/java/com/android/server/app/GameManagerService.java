@@ -121,6 +121,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.android.internal.util.custom.GameModeUtils;
+
 /**
  * Service to manage game related features.
  *
@@ -1033,7 +1035,8 @@ public final class GameManagerService extends IGameManagerService.Stub {
         try {
             final ApplicationInfo applicationInfo = mPackageManager
                     .getApplicationInfoAsUser(packageName, PackageManager.MATCH_ALL, userId);
-            return applicationInfo.category == ApplicationInfo.CATEGORY_GAME;
+            final boolean ret = applicationInfo.category == ApplicationInfo.CATEGORY_GAME;
+            return GameModeUtils.isGameInList(packageName, ret);
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
@@ -1161,7 +1164,8 @@ public final class GameManagerService extends IGameManagerService.Stub {
     public void setGameMode(String packageName, @GameMode int gameMode, int userId)
             throws SecurityException {
         checkPermission(Manifest.permission.MANAGE_GAME_MODE);
-        if (gameMode == GameManager.GAME_MODE_UNSUPPORTED) {
+        final boolean gameInList = GameModeUtils.isGameInList(packageName, false);
+        if (!gameInList && gameMode == GameManager.GAME_MODE_UNSUPPORTED) {
             Slog.d(TAG, "No-op for attempt to set UNSUPPORTED mode for app: " + packageName);
             return;
         } else if (!isPackageGame(packageName, userId)) {
@@ -1182,6 +1186,10 @@ public final class GameManagerService extends IGameManagerService.Stub {
             GameManagerSettings userSettings = mSettings.get(userId);
             fromGameMode = userSettings.getGameModeLocked(packageName);
             userSettings.setGameModeLocked(packageName, gameMode);
+            if (gameInList) {
+                userSettings.setGameModeLocked(
+                    packageName, GameModeUtils.getGameMode(packageName, 0));
+            }
         }
         updateInterventions(packageName, gameMode, userId);
         synchronized (mGameModeListenerLock) {

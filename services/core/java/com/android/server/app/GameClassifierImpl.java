@@ -21,6 +21,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.UserHandle;
 
+import com.android.internal.util.custom.GameModeUtils;
+
 final class GameClassifierImpl implements GameClassifier {
 
     private final PackageManager mPackageManager;
@@ -44,6 +46,7 @@ final class GameClassifierImpl implements GameClassifier {
             return false;
         }
 
-        return applicationCategory == ApplicationInfo.CATEGORY_GAME;
+        final boolean ret = applicationCategory == ApplicationInfo.CATEGORY_GAME;
+        return GameModeUtils.isGameInList(packageName, ret);
     }
 }
