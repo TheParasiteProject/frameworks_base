@@ -1993,6 +1993,9 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
             throw new InvalidParameterException("token must not be null.");
         }
         if (token != getCurTokenLocked()) {
+            if (!android.os.DeviceIntegrationUtils.DISABLE_DEVICE_INTEGRATION) {
+                return true;
+            }
             Slog.e(TAG, "Ignoring " + Debug.getCaller() + " due to an invalid token."
                     + " uid:" + Binder.getCallingUid() + " token:" + token);
             return false;
@@ -3954,6 +3957,9 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
                             windowToken, cs.mUid, cs.mPid, cs.mSelfReportedDisplayId);
                     switch (imeClientFocus) {
                         case WindowManagerInternal.ImeClientFocusResult.DISPLAY_ID_MISMATCH:
+                            if (!android.os.DeviceIntegrationUtils.DISABLE_DEVICE_INTEGRATION) {
+                                break;
+                            }
                             Slog.e(TAG,
                                     "startInputOrWindowGainedFocusInternal: display ID mismatch.");
                             return InputBindResult.DISPLAY_ID_MISMATCH;
