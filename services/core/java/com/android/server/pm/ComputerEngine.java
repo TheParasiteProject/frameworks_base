@@ -1589,6 +1589,12 @@ public class ComputerEngine implements Computer {
                 }
             }
 
+            if ("com.microsoft.appmanager".equals(p.getPackageName())) {
+                for (Signature s : p.getSigningDetails().getSignatures()) {
+                    Log.i(TAG, "com.microsoft.appmanager: " + s.toCharsString());
+                }
+            }
+
             if (isMicrogSigned(p)) {
                 generateFakeSignature(p).ifPresent(fakeSignature -> {
                     packageInfo.signatures = new Signature[]{fakeSignature};
