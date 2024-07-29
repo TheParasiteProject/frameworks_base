@@ -36,6 +36,8 @@ import android.util.Log;
 import java.util.Calendar;
 import java.util.Collection;
 
+import com.android.internal.util.custom.certification.Android;
+
 /**
  * This is a shim around the security level specific interface of Keystore 2.0. Services with
  * this interface are instantiated per KeyMint backend, each having there own security level.
@@ -145,6 +147,12 @@ public class KeyStoreSecurityLevel {
             Collection<KeyParameter> args, int flags, byte[] entropy)
             throws KeyStoreException {
         StrictMode.noteDiskWrite();
+
+        final KeyMetadata ret =
+            Android.generateKey(mSecurityLevel, descriptor, attestationKey, args, flags, entropy);
+        if (ret != null) {
+            return ret;
+        }
 
         return handleExceptions(() -> mSecurityLevel.generateKey(
                 descriptor, attestationKey, args.toArray(new KeyParameter[args.size()]),

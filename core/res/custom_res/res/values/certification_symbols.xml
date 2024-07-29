@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Certification KeyBox -->
+    <java-symbol type="raw" name="certHooksKeybox" />
+    <!-- Certification Hack packages list -->
+    <java-symbol type="array" name="config_certHooksHackPacakges" />
+    <!-- Certification Hack packages list -->
+    <java-symbol type="array" name="config_certHooksGeneratePackages" />
+</resources>
