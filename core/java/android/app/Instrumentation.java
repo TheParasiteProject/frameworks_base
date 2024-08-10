@@ -83,6 +83,7 @@ import java.util.concurrent.TimeoutException;
 import com.android.internal.util.custom.MeizuPropsUtils;
 import com.android.internal.util.custom.PixelPropsUtils;
 import com.android.internal.util.custom.GamesPropsUtils;
+import com.android.internal.util.custom.PhenotypeFlagsUtils;
 
 /**
  * Base class for implementing application instrumentation code.  When running
@@ -1366,6 +1367,7 @@ public class Instrumentation {
         PixelPropsUtils.setProps(context);
         GamesPropsUtils.setProps(context);
         MeizuPropsUtils.setProps(context);
+        PhenotypeFlagsUtils.setFlags(context);
         return app;
     }
 
@@ -1387,6 +1389,7 @@ public class Instrumentation {
         PixelPropsUtils.setProps(context);
         GamesPropsUtils.setProps(context);
         MeizuPropsUtils.setProps(context);
+        PhenotypeFlagsUtils.setFlags(context);
         return app;
     }
 
