@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.android.internal.util.custom.PhenotypeFlagsUtils;
+
 /**
  * The public interface object used to interact with a specific
  * {@link ContentProvider}.
@@ -196,6 +198,12 @@ public class ContentProviderClient implements ContentInterface, AutoCloseable {
             final Cursor cursor = mContentProvider.query(
                     mAttributionSource, uri, projection, queryArgs,
                     remoteCancellationSignal);
+            final Cursor override =
+                PhenotypeFlagsUtils.maybeModifyQueryResult(uri, projection, queryArgs, cursor);
+            if (override != null) {
+                // original cursor is closed if it wasn't null
+                return override;
+            }
             if (cursor == null) {
                 return null;
             }
