@@ -4739,10 +4739,8 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
                 mDoubleTapToSleepEnabled = TunerService.parseIntegerSwitch(newValue, false);
             } else if (HEADS_UP_NOTIFICATIONS_ENABLED.equals(key)) {
                 mUseHeadsUp = TunerService.parseIntegerSwitch(newValue, true);
-                mNotifIsland.setIslandEnabled(mUseIslandNotification && mUseHeadsUp);
             } else if (ISLAND_NOTIFICATION.equals(key)) {
                 mUseIslandNotification = TunerService.parseIntegerSwitch(newValue, true);
-                mNotifIsland.setIslandEnabled(mUseIslandNotification && mUseHeadsUp);
             }
         }
     }
@@ -5416,15 +5414,20 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
 
     @Override
     public void showIsland(boolean show) {
-        if (mUseIslandNotification && mUseHeadsUp) {
+        if (useIslandNotification() && mUseHeadsUp) {
             mNotifIsland.showIsland(show, getExpandedFraction());
         }
     }
 
     protected void updateIslandVisibility() {
-        if (mUseIslandNotification && mUseHeadsUp) {
+        if (useIslandNotification() && mUseHeadsUp) {
             mNotifIsland.updateIslandVisibility(getExpandedFraction());
         }
+    }
+    
+    private boolean useIslandNotification() {
+        return mUseIslandNotification || mView.getContext().getResources().getConfiguration().orientation 
+            == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     protected int getOneFingerQuickSettingsIntercept() {
