@@ -47,4 +47,13 @@
     <!-- Additional namespaces for packages' phenotype/gservices flags -->
     <string-array name="global_phenotype_package_namespaces" translatable="false"/>
     <string-array name="device_phenotype_package_namespaces" translatable="false"/>
+
+    <!-- Prop imitation hook -->
+    <string-array name="config_piHookPropsPixelXL" translatable="false"/>
+    <string-array name="config_piHookPropsPixelLegacy" translatable="false"/>
+    <string-array name="config_piHookProcessPixelLegacy" translatable="false"/>
+    <string-array name="config_piHookPropsPixelTablet" translatable="false"/>
+    <string-array name="config_piHookPropsPixelRecent" translatable="false"/>
+    <string-array name="config_piHookProcessPixelRecent" translatable="false"/>
+    <string-array name="config_piHookProcessKeep" translatable="false"/>
 </resources>

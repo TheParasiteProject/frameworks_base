@@ -51,4 +51,13 @@
     <!-- Additional namespaces for packages' phenotype/gservices flags -->
     <java-symbol type="array" name="global_phenotype_package_namespaces" />
     <java-symbol type="array" name="device_phenotype_package_namespaces" />
+
+    <!-- Prop imitation hook -->
+    <java-symbol type="array" name="config_piHookPropsPixelXL" />
+    <java-symbol type="array" name="config_piHookPropsPixelLegacy" />
+    <java-symbol type="array" name="config_piHookProcessPixelLegacy" />
+    <java-symbol type="array" name="config_piHookPropsPixelTablet" />
+    <java-symbol type="array" name="config_piHookPropsPixelRecent" />
+    <java-symbol type="array" name="config_piHookProcessPixelRecent" />
+    <java-symbol type="array" name="config_piHookProcessKeep" />
 </resources>
