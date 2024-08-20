@@ -1043,4 +1043,11 @@ interface IActivityManager {
      * Force full screen for devices with long screen
      */
     boolean shouldForceLongScreen(in String packageName);
+
+    /**
+     *  Should disable touch if three fingers swipe enabled
+     */
+    boolean isThreeFingersSwipeActive();
+    void setThreeFingersSwipeActive(boolean active);
+
 }
