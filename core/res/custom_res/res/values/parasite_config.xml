@@ -56,4 +56,12 @@
     <string-array name="config_piHookPropsPixelRecent" translatable="false"/>
     <string-array name="config_piHookProcessPixelRecent" translatable="false"/>
     <string-array name="config_piHookProcessKeep" translatable="false"/>
+
+    <!-- Custom features hook -->
+    <string-array name="config_cfHookFeaturesPixel" translatable="false"/>
+    <string-array name="config_cfHookFeaturesPixelOthers" translatable="false"/>
+    <string-array name="config_cfHookFeaturesPixelTensor" translatable="false"/>
+    <string-array name="config_cfHookPackagesFeaturesPixelTensor" translatable="false"/>
+    <string-array name="config_cfHookFeaturesNexus" translatable="false"/>
+    <string-array name="config_cfHookFeaturesAndroid" translatable="false"/>
 </resources>

@@ -60,4 +60,12 @@
     <java-symbol type="array" name="config_piHookPropsPixelRecent" />
     <java-symbol type="array" name="config_piHookProcessPixelRecent" />
     <java-symbol type="array" name="config_piHookProcessKeep" />
+
+    <!-- Custom features hook -->
+    <java-symbol type="array" name="config_cfHookFeaturesPixel" />
+    <java-symbol type="array" name="config_cfHookFeaturesPixelOthers" />
+    <java-symbol type="array" name="config_cfHookFeaturesPixelTensor" />
+    <java-symbol type="array" name="config_cfHookPackagesFeaturesPixelTensor" />
+    <java-symbol type="array" name="config_cfHookFeaturesNexus" />
+    <java-symbol type="array" name="config_cfHookFeaturesAndroid" />
 </resources>
