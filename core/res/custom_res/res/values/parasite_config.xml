@@ -53,6 +53,8 @@
     <string-array name="config_piHookPropsPixelLegacy" translatable="false"/>
     <string-array name="config_piHookProcessPixelLegacy" translatable="false"/>
     <string-array name="config_piHookPropsPixelTablet" translatable="false"/>
+    <string-array name="config_piHookPropsPixelExtra" translatable="false"/>
+    <string-array name="config_piHookProcessPixelExtra" translatable="false"/>
     <string-array name="config_piHookPropsPixelRecent" translatable="false"/>
     <string-array name="config_piHookProcessPixelRecent" translatable="false"/>
     <string-array name="config_piHookProcessKeep" translatable="false"/>

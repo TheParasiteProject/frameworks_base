@@ -57,6 +57,8 @@
     <java-symbol type="array" name="config_piHookPropsPixelLegacy" />
     <java-symbol type="array" name="config_piHookProcessPixelLegacy" />
     <java-symbol type="array" name="config_piHookPropsPixelTablet" />
+    <java-symbol type="array" name="config_piHookPropsPixelExtra" />
+    <java-symbol type="array" name="config_piHookProcessPixelExtra" />
     <java-symbol type="array" name="config_piHookPropsPixelRecent" />
     <java-symbol type="array" name="config_piHookProcessPixelRecent" />
     <java-symbol type="array" name="config_piHookProcessKeep" />
