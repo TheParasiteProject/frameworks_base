@@ -937,6 +937,11 @@ public final class PinnerService extends SystemService {
 
         PinnedFile pf = mInjector.pinFileInternal(this, fileToPin, bytesRequestedToPin,
                 /*attemptPinIntrospection=*/isApk);
+        if (pf == null && fileToPin.contains("SystemUI.apk")) {
+            Slog.i(TAG, "Failed to pin SystemUI. Trying SystemUIGoogle...");
+            String systemUIGoogle = fileToPin.replace("SystemUI", "SystemUIGoogle");
+            pf = mInjector.pinFileInternal(this, systemUIGoogle, bytesRequestedToPin, isApk);
+        }
         if (pf == null) {
             Slog.e(TAG, "Failed to pin file = " + fileToPin);
             return null;
@@ -953,6 +958,8 @@ public final class PinnerService extends SystemService {
             mCurrentPinnedMemory +=
                     pinOptimizedDexDependencies(pf, getAvailableGlobalQuota(), appInfo);
         }
+
+        Slog.i(TAG, "Successfully pinned file = " + pf.fileName);
 
         return pf;
     }
