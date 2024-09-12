@@ -115,6 +115,8 @@ public class StatusBarNetworkTraffic extends TextView implements DarkReceiver,
 
     private boolean mColorIsStatic;
 
+    private final TunerService mTunerService;
+
     private boolean mKeyguardShowing;
     private final KeyguardUpdateMonitorCallback mUpdateCallback =
             new KeyguardUpdateMonitorCallback() {
@@ -135,6 +137,7 @@ public class StatusBarNetworkTraffic extends TextView implements DarkReceiver,
 
     public StatusBarNetworkTraffic(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mTunerService = Dependency.get(TunerService.class);
         mContext = context;
         mConnectivityManager =
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -150,10 +153,9 @@ public class StatusBarNetworkTraffic extends TextView implements DarkReceiver,
 
         if (!mAttached) {
             mAttached = true;
-            final TunerService tunerService = Dependency.get(TunerService.class);
-            tunerService.addTunable(this, NETWORK_TRAFFIC_ENABLED);
-            tunerService.addTunable(this, NETWORK_TRAFFIC_AUTOHIDE);
-            tunerService.addTunable(this, NETWORK_TRAFFIC_UNIT_TYPE);
+            mTunerService.addTunable(this, NETWORK_TRAFFIC_ENABLED);
+            mTunerService.addTunable(this, NETWORK_TRAFFIC_AUTOHIDE);
+            mTunerService.addTunable(this, NETWORK_TRAFFIC_UNIT_TYPE);
 
             updateViews();
             setTrafficDrawable();
@@ -174,7 +176,7 @@ public class StatusBarNetworkTraffic extends TextView implements DarkReceiver,
         clearHandlerCallbacks();
         if (mAttached) {
             mContext.unregisterReceiver(mIntentReceiver);
-            Dependency.get(TunerService.class).removeTunable(this);
+            mTunerService.removeTunable(this);
             mAttached = false;
         }
     }
