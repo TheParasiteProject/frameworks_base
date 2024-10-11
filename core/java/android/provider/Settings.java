@@ -6355,6 +6355,12 @@ public final class Settings {
         public static final String SHOW_FOURG_ICON = "show_fourg_icon";
 
         /**
+         * Whether to show the carrier name on the lockscreen
+         * @hide
+         */
+        public static final String CARRIER_ON_LOCKSCREEN = "carrier_on_lockscreen";
+
+        /**
          * Gestures nav: left long back swipe action
          * @hide
          */
