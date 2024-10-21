@@ -770,7 +770,7 @@ bool BootAnimation::findBootAnimationFileInternal(const std::vector<std::string>
 
 void BootAnimation::findBootAnimationFile() {
     ATRACE_CALL();
-    const bool playMonetAnim = android::base::GetIntProperty("persist.sys.boot.theme.monet", 0) == 1;
+    const bool playMonetAnim = android::base::GetBoolProperty("persist.sys.boot.theme.monet", false);
     const bool playDarkAnim = android::base::GetIntProperty("persist.sys.boot.theme", 0) == 1;
     static const std::vector<std::string> bootFiles = {
         APEX_BOOTANIMATION_FILE,
