@@ -116,7 +116,6 @@ public final class ColorDisplayService extends SystemService {
     private static final int MSG_APPLY_GLOBAL_SATURATION = 4;
     private static final int MSG_APPLY_DISPLAY_WHITE_BALANCE = 5;
     private static final int MSG_APPLY_REDUCE_BRIGHT_COLORS = 6;
-    private static final int MSG_APPLY_UPDATE_DISPLAY_ENGINE = 7;
 
     /**
      * Return value if a setting has not been set.
@@ -158,8 +157,6 @@ public final class ColorDisplayService extends SystemService {
                     LocalServices.getService(DisplayManagerInternal.class), mDisplayManagerFlags);
     private final NightDisplayTintController mNightDisplayTintController =
             new NightDisplayTintController();
-    private final XRealityEngineController mXRealityEngineController =
-            new XRealityEngineController();
     private final TintController mGlobalSaturationTintController =
             new GlobalSaturationTintController();
     private final ReduceBrightColorsTintController mReduceBrightColorsTintController =
@@ -359,9 +356,6 @@ public final class ColorDisplayService extends SystemService {
                             case Secure.ACCESSIBILITY_DISPLAY_DALTONIZER:
                                 onAccessibilityDaltonizerChanged();
                                 break;
-                            case Secure.X_REALITY_ENGINE_ENABLED:
-                                mHandler.sendEmptyMessage(MSG_APPLY_UPDATE_DISPLAY_ENGINE);
-                                break;
                             case Secure.DISPLAY_WHITE_BALANCE_ENABLED:
                                 updateDisplayWhiteBalanceStatus();
                                 break;
@@ -399,8 +393,6 @@ public final class ColorDisplayService extends SystemService {
                 Secure.getUriFor(Secure.ACCESSIBILITY_DISPLAY_DALTONIZER_ENABLED),
                 false /* notifyForDescendants */, mContentObserver, mCurrentUser);
         cr.registerContentObserver(Secure.getUriFor(Secure.ACCESSIBILITY_DISPLAY_DALTONIZER),
-                false /* notifyForDescendants */, mContentObserver, mCurrentUser);
-        cr.registerContentObserver(Secure.getUriFor(Secure.X_REALITY_ENGINE_ENABLED),
                 false /* notifyForDescendants */, mContentObserver, mCurrentUser);
         cr.registerContentObserver(Secure.getUriFor(Secure.DISPLAY_WHITE_BALANCE_ENABLED),
                 false /* notifyForDescendants */, mContentObserver, mCurrentUser);
@@ -454,10 +446,6 @@ public final class ColorDisplayService extends SystemService {
                 onReduceBrightColorsActivationChanged(/*userInitiated*/ false);
                 mHandler.sendEmptyMessage(MSG_APPLY_REDUCE_BRIGHT_COLORS);
             }
-        }
-
-        if (mXRealityEngineController.isAvailable(getContext())) {
-            mHandler.sendEmptyMessage(MSG_APPLY_UPDATE_DISPLAY_ENGINE);
         }
     }
 
@@ -1712,10 +1700,6 @@ public final class ColorDisplayService extends SystemService {
                     break;
                 case MSG_APPLY_DISPLAY_WHITE_BALANCE:
                     applyTintByCct(mDisplayWhiteBalanceTintController, false);
-                    break;
-                case MSG_APPLY_UPDATE_DISPLAY_ENGINE:
-                    mXRealityEngineController.updateBalance(getContext(), mCurrentUser);
-                    applyTint(mXRealityEngineController, true);
                     break;
             }
         }

@@ -11970,12 +11970,6 @@ public final class Settings {
                 "night_display_last_activated_time";
 
         /**
-         * Control whether X-reality display engine mode is currently enabled.
-         * @hide
-         */
-        public static final String X_REALITY_ENGINE_ENABLED = "x_reality_engine_mode_enabled";
-
-        /**
          * Control whether display white balance is currently enabled.
          * @hide
          */
