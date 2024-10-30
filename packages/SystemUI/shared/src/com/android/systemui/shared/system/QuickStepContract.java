@@ -403,6 +403,9 @@ public class QuickStepContract {
      * scaling. The corner radius may change when folding/unfolding the device.
      */
     public static float getWindowCornerRadius(Context context) {
+        if (com.android.internal.util.custom.BypassUtils.isNexusLauncher(context)) {
+            return 0f;
+        }
         return ScreenDecorationsUtils.getWindowCornerRadius(context);
     }
 

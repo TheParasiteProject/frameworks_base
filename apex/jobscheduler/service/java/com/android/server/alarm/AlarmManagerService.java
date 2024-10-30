@@ -172,8 +172,6 @@ import com.android.server.pm.pkg.AndroidPackage;
 import com.android.server.usage.AppStandbyInternal;
 import com.android.server.usage.AppStandbyInternal.AppIdleStateChangeListener;
 
-import com.android.internal.util.custom.PixelPropsUtils;
-
 import dalvik.annotation.optimization.NeverCompile;
 
 import java.io.FileDescriptor;
@@ -2240,7 +2238,7 @@ public class AlarmManagerService extends SystemService {
                         + " interval=" + interval + " flags=0x" + Integer.toHexString(flags));
             }
             if (mAlarmsPerUid.get(callingUid, 0) >= mConstants.MAX_ALARMS_PER_UID
-                    && !PixelPropsUtils.shouldBypassAlarmManagerValidation(callingPackage)) {
+                    && !com.android.internal.util.custom.BypassUtils.shouldBypassAlarmManagerValidation(callingPackage)) {
                 final String errorMsg =
                         "Maximum limit of concurrent alarms " + mConstants.MAX_ALARMS_PER_UID
                                 + " reached for uid: " + UserHandle.formatUid(callingUid)

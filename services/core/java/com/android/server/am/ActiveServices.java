@@ -248,8 +248,6 @@ import com.android.server.uri.NeededUriGrants;
 import com.android.server.utils.AnrTimer;
 import com.android.server.wm.ActivityServiceConnectionsHolder;
 
-import com.android.internal.util.custom.PixelPropsUtils;
-
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -2853,7 +2851,7 @@ public final class ActiveServices {
         final ForegroundServiceTypePolicyInfo policyInfo =
                 policy.getForegroundServiceTypePolicyInfo(type, defaultToType);
 
-        if (PixelPropsUtils.shouldBypassFGSValidation(r.packageName)) {
+        if (com.android.internal.util.custom.BypassUtils.shouldBypassFGSValidation(r.packageName)) {
             return Pair.create(FGS_TYPE_POLICY_CHECK_OK, null);
         }
 

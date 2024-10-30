@@ -41,6 +41,9 @@ public class ScreenDecorationsUtils {
      * If the associated display is not internal, will return 0.
      */
     public static float getWindowCornerRadius(Context context) {
+        if (com.android.internal.util.custom.BypassUtils.isNexusLauncher(context)) {
+            return 32f;
+        }
         final Resources resources = context.getResources();
         if (!supportsRoundedCornersOnWindows(resources)) {
             return 0f;
