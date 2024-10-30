@@ -46,8 +46,6 @@ import android.util.proto.ProtoOutputStream;
 
 import com.android.i18n.timezone.ZoneInfoDb;
 
-import com.android.internal.util.custom.PixelPropsUtils;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -1052,7 +1050,7 @@ public class AlarmManager {
             String listenerTag, Executor targetExecutor, WorkSource workSource,
             AlarmClockInfo alarmClock) {
 
-        if (PixelPropsUtils.shouldBypassAlarmManagerValidation(mPackageName)) {
+        if (com.android.internal.util.custom.BypassUtils.shouldBypassAlarmManagerValidation(mPackageName)) {
             if (windowMillis == WINDOW_EXACT && !canScheduleExactAlarms()) {
                 windowMillis = WINDOW_HEURISTIC;
             }

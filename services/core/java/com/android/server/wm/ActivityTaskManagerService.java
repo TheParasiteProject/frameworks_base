@@ -285,7 +285,6 @@ import com.android.server.wm.utils.WindowStyleCache;
 import com.android.wm.shell.Flags;
 
 import org.lineageos.internal.applications.LineageActivityManager;
-import com.android.internal.util.custom.PixelPropsUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -2027,9 +2026,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
     @Override
     public RootTaskInfo getFocusedRootTaskInfo() throws RemoteException {
-        if (!PixelPropsUtils.shouldBypassTaskPermission(mContext)) {
-            enforceTaskPermission("getFocusedRootTaskInfo()");
-        }
+        enforceTaskPermission("getFocusedRootTaskInfo()");
         final long ident = Binder.clearCallingIdentity();
         try {
             synchronized (mGlobalLock) {
@@ -3190,9 +3187,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     /** Sets the task stack listener that gets callbacks when a task stack changes. */
     @Override
     public void registerTaskStackListener(ITaskStackListener listener) {
-        if (!PixelPropsUtils.shouldBypassTaskPermission(mContext)) {
-            enforceTaskPermission("registerTaskStackListener()");
-        }
+        enforceTaskPermission("registerTaskStackListener()");
         mTaskChangeNotificationController.registerTaskStackListener(listener);
     }
 
@@ -3412,6 +3407,9 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     }
 
     static void enforceTaskPermission(String func) {
+        if (com.android.internal.util.custom.BypassUtils.shouldBypassTaskPermission(Binder.getCallingUid())) {
+            return;
+        }
         if (checkCallingPermission(MANAGE_ACTIVITY_TASKS) == PackageManager.PERMISSION_GRANTED) {
             return;
         }

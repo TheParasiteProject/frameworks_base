@@ -55,8 +55,11 @@ public interface ExternalInterfaceBinder {
         if (controllerInstance == null) return;
 
         final RemoteCallable<T> controller = controllerInstance;
-        controllerInstance.getContext().enforceCallingPermission(
-                Manifest.permission.MANAGE_ACTIVITY_TASKS, log);
+        if (!com.android.internal.util.custom.BypassUtils.shouldBypassManageActivityTaskPermission(
+                controllerInstance.getContext())) {
+            controllerInstance.getContext().enforceCallingPermission(
+                    Manifest.permission.MANAGE_ACTIVITY_TASKS, log);
+        }
         if (blocking) {
             try {
                 controllerInstance.getRemoteCallExecutor().executeBlocking(() -> {
