@@ -423,6 +423,9 @@ public class QuickStepContract {
      * @param context A display associated context.
      */
     public static float getWindowCornerRadius(Context context) {
+        if (com.android.internal.util.custom.BypassUtils.isNexusLauncher(context)) {
+            return 0f;
+        }
         return ScreenDecorationsUtils.getWindowCornerRadius(context);
     }
 
