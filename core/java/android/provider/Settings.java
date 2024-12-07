@@ -12984,6 +12984,13 @@ public final class Settings {
         public static final String HIDE_DEVELOPER_STATUS = "hide_developer_status";
 
         /**
+         * Control which apps to hide from other user apps.
+         * @hide
+         */
+        @Readable
+        public static final String HIDE_APPLIST = "hide_applist";
+
+        /**
          * Whether to turn on black theme
          * @hide
          */
