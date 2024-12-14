@@ -144,6 +144,7 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         state.icon = ResourceIcon.get(R.drawable.ic_qs_powershare);
+        state.hasLongClickEffect = false;
         state.label = getTileLabel();
         if (arg instanceof Boolean) {
             boolean value = (Boolean) arg;
