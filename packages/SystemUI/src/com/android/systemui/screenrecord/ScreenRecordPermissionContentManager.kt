@@ -35,8 +35,8 @@ import android.view.View.VISIBLE
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.CompoundButton
 import android.widget.Spinner
-import android.widget.Switch
 import androidx.annotation.LayoutRes
 import com.android.systemui.mediaprojection.MediaProjectionCaptureTarget
 import com.android.systemui.mediaprojection.MediaProjectionMetricsLogger
@@ -105,8 +105,8 @@ class ScreenRecordPermissionContentManager(
         ): ScreenRecordPermissionContentManager
     }
 
-    private lateinit var tapsSwitch: Switch
-    private lateinit var audioSwitch: Switch
+    private lateinit var tapsSwitch: CompoundButton
+    private lateinit var audioSwitch: CompoundButton
     private lateinit var tapsView: View
     private lateinit var options: Spinner
 
