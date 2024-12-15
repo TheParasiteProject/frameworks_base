@@ -61,7 +61,7 @@ class ConfigurationControllerImpl @Inject constructor(
     override fun notifyThemeChanged() {
         val listeners = ArrayList(listeners)
 
-        listeners.filterForEach({ this.listeners.contains(it) }) {
+        listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
             it.onThemeChanged()
         }
     }
@@ -70,7 +70,7 @@ class ConfigurationControllerImpl @Inject constructor(
         // Avoid concurrent modification exception
         val listeners = ArrayList(listeners)
 
-        listeners.filterForEach({ this.listeners.contains(it) }) {
+        listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
             it.onConfigChanged(newConfig)
         }
         val fontScale = newConfig.fontScale
@@ -79,7 +79,7 @@ class ConfigurationControllerImpl @Inject constructor(
         val uiModeChanged = uiMode != this.uiMode
         if (density != this.density || fontScale != this.fontScale ||
                 inCarMode && uiModeChanged) {
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onDensityOrFontScaleChanged()
             }
             this.density = density
@@ -89,7 +89,7 @@ class ConfigurationControllerImpl @Inject constructor(
         val smallestScreenWidth = newConfig.smallestScreenWidthDp
         if (smallestScreenWidth != this.smallestScreenWidth) {
             this.smallestScreenWidth = smallestScreenWidth
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onSmallestScreenWidthChanged()
             }
         }
@@ -101,7 +101,7 @@ class ConfigurationControllerImpl @Inject constructor(
             // would be a direct reference to windowConfiguration.maxBounds, so the if statement
             // above would always fail. See b/245799099 for more information.
             this.maxBounds.set(maxBounds)
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onMaxBoundsChanged()
             }
         }
@@ -109,7 +109,7 @@ class ConfigurationControllerImpl @Inject constructor(
         val localeList = newConfig.locales
         if (localeList != this.localeList) {
             this.localeList = localeList
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onLocaleListChanged()
             }
         }
@@ -120,20 +120,20 @@ class ConfigurationControllerImpl @Inject constructor(
             context.theme.applyStyle(context.themeResId, true)
 
             this.uiMode = uiMode
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onUiModeChanged()
             }
         }
 
         if (layoutDirection != newConfig.layoutDirection) {
             layoutDirection = newConfig.layoutDirection
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onLayoutDirectionChanged(layoutDirection == LAYOUT_DIRECTION_RTL)
             }
         }
 
         if (lastConfig.updateFrom(newConfig) and ActivityInfo.CONFIG_ASSETS_PATHS != 0) {
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onThemeChanged()
             }
         }
@@ -141,7 +141,7 @@ class ConfigurationControllerImpl @Inject constructor(
         val newOrientation = newConfig.orientation
         if (orientation != newOrientation) {
             orientation = newOrientation
-            listeners.filterForEach({ this.listeners.contains(it) }) {
+            listeners.filterForEach({ this.listeners.filterNotNull().contains(it) }) {
                 it.onOrientationChanged(orientation)
             }
         }
