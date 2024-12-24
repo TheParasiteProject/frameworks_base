@@ -69,11 +69,13 @@ namespace android {
 
 using ui::DisplayMode;
 
+static const char OEM_BOOTANIMATION_DIR[] = "/oem/media/";
 static const char OEM_BOOTANIMATION_FILE[] = "/oem/media/bootanimation.zip";
 static const char PRODUCT_BOOTANIMATION_DIR[] = "/product/media/";
-static const char PRODUCT_BOOTANIMATION_MONET_FILE[] = "bootanimation-monet.zip";
-static const char PRODUCT_BOOTANIMATION_DARK_FILE[] = "bootanimation-dark.zip";
-static const char PRODUCT_BOOTANIMATION_FILE[] = "bootanimation.zip";
+static const char BOOTANIMATION_MONET_FILE[] = "bootanimation-monet.zip";
+static const char BOOTANIMATION_DARK_FILE[] = "bootanimation-dark.zip";
+static const char BOOTANIMATION_FILE[] = "bootanimation.zip";
+static const char SYSTEM_BOOTANIMATION_DIR[] = "/system/media/";
 static const char SYSTEM_BOOTANIMATION_FILE[] = "/system/media/bootanimation.zip";
 static const char APEX_BOOTANIMATION_FILE[] = "/apex/com.android.bootanimation/etc/bootanimation.zip";
 static const char OEM_SHUTDOWNANIMATION_FILE[] = "/oem/media/shutdownanimation.zip";
@@ -769,13 +771,13 @@ void BootAnimation::findBootAnimationFile() {
     ATRACE_CALL();
     const bool playMonetAnim = android::base::GetBoolProperty("persist.sys.boot.theme.monet", false);
     const bool playDarkAnim = android::base::GetIntProperty("persist.sys.boot.theme", 0) == 1;
-    const std::string productBootanimationFile = PRODUCT_BOOTANIMATION_DIR +
+    const std::string bootanimationFile =
         android::base::GetProperty("ro.product.bootanim.file",
-        playMonetAnim ? PRODUCT_BOOTANIMATION_MONET_FILE :
-        playDarkAnim ? PRODUCT_BOOTANIMATION_DARK_FILE : PRODUCT_BOOTANIMATION_FILE);
+        playMonetAnim ? BOOTANIMATION_MONET_FILE :
+        playDarkAnim ? BOOTANIMATION_DARK_FILE : BOOTANIMATION_FILE);
     static const std::vector<std::string> bootFiles = {
-        APEX_BOOTANIMATION_FILE, productBootanimationFile,
-        OEM_BOOTANIMATION_FILE, SYSTEM_BOOTANIMATION_FILE
+        APEX_BOOTANIMATION_FILE, PRODUCT_BOOTANIMATION_DIR + bootanimationFile,
+        OEM_BOOTANIMATION_DIR + bootanimationFile, SYSTEM_BOOTANIMATION_DIR + bootanimationFile
     };
     static const std::vector<std::string> shutdownFiles = {
         PRODUCT_SHUTDOWNANIMATION_FILE, OEM_SHUTDOWNANIMATION_FILE, SYSTEM_SHUTDOWNANIMATION_FILE, ""
