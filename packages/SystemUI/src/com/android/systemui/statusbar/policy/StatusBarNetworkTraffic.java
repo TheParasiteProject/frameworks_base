@@ -326,7 +326,6 @@ public class StatusBarNetworkTraffic extends TextView implements DarkReceiver,
             case NETWORK_TRAFFIC_ENABLED:
                 mEnabled =
                         TunerService.parseIntegerSwitch(newValue, false);
-                onEnableChange();
                 if (mEnabled) {
                     setLines(2);
                     String txtFont = getResources().getString(R.string.config_bodyFontFamily);
@@ -460,22 +459,6 @@ public class StatusBarNetworkTraffic extends TextView implements DarkReceiver,
                 mSystemIconVisible = false;
                 break;
         }
-    }
-
-    private void onEnableChange() {
-        if (mEnabled && !isClockOnLeft()) {
-            moveClockToLeft();
-        }
-    }
-
-    private boolean isClockOnLeft() {
-        return Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_CLOCK, 2) == 2;
-    }
-
-    private void moveClockToLeft() {
-        Settings.System.putInt(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_CLOCK, 2);
     }
 
     private void updateVisibility() {
