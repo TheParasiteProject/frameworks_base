@@ -1108,4 +1108,10 @@ interface IWindowManager
      * Notifies DisplayPolicy that overlays changed.
      */
     void onOverlayChanged();
+
+    /**
+     * Send performKeyActionFromIntSafe commands to WindowManager.
+     * @hide
+     */
+    void performKeyActionFromIntSafe(int actionCode);
 }
