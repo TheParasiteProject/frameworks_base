@@ -2212,6 +2212,31 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         im.injectInputEvent(upEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
     }
 
+    /**
+     * Send performKeyActionFromIntSafe commands to WindowManager.
+     * @hide
+     */
+    @Override
+    public void performKeyActionFromIntSafe(int actionCode) {
+        final long when = SystemClock.uptimeMillis();
+        // Dummy KeyEvent
+        final KeyEvent event =
+                new KeyEvent(
+                        when,
+                        when,
+                        KeyEvent.ACTION_DOWN,
+                        KeyEvent.KEYCODE_UNKNOWN,
+                        0,
+                        0,
+                        KeyCharacterMap.VIRTUAL_KEYBOARD,
+                        0,
+                        KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY,
+                        InputDevice.SOURCE_KEYBOARD);
+
+        final Action action = Action.fromIntSafe(actionCode);
+        performKeyAction(action, event);
+    }
+
     private void performKeyAction(Action action, KeyEvent event) {
         // By default, pass INVOCATION_TYPE_UNKNOWN to launch assistant.
         performKeyAction(action, event, AssistUtils.INVOCATION_TYPE_UNKNOWN);
