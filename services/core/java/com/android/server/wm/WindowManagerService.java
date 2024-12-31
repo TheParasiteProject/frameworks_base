@@ -10988,4 +10988,14 @@ public class WindowManagerService extends IWindowManager.Stub
             }
         }
     }
+
+    /**
+     * Send performKeyActionFromIntSafe commands to WindowManager.
+     * @hide
+     */
+    @Override
+    public void performKeyActionFromIntSafe(int actionCode) {
+        mPolicy.performKeyActionFromIntSafe(actionCode);
+    }
+
 }
