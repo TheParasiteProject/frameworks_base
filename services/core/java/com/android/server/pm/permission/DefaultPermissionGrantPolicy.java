@@ -932,6 +932,8 @@ final class DefaultPermissionGrantPolicy {
         String commonServiceAction = "android.adservices.AD_SERVICES_COMMON_SERVICE";
         grantPermissionsToSystemPackage(pm, getDefaultSystemHandlerServicePackage(pm,
                         commonServiceAction, userId), userId, NOTIFICATION_PERMISSIONS);
+        
+        grantDefaultPermissionsToCustomPackages(pm, userId);
     }
 
     private String getDefaultSystemHandlerActivityPackageForCategory(PackageManagerWrapper pm,
@@ -2019,4 +2021,9 @@ final class DefaultPermissionGrantPolicy {
             this.whitelisted = whitelisted;
         }
     }
+
+    private void grantDefaultPermissionsToCustomPackages(PackageManagerWrapper pm, int userId) {
+        
+    }
+
 }
