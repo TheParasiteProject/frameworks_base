@@ -22,14 +22,14 @@ import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.AttributeSet;
 
-import androidx.preference.DropDownPreference;
+import androidx.preference.ListPreference;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.systemui.Dependency;
 import com.android.systemui.statusbar.phone.ui.StatusBarIconController;
 
-public class BatteryPreference extends DropDownPreference implements TunerService.Tunable {
+public class BatteryPreference extends ListPreference implements TunerService.Tunable {
 
     private static final String PERCENT = "percent";
     private static final String DEFAULT = "default";
