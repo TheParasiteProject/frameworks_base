@@ -112,6 +112,7 @@ import com.android.internal.statusbar.LetterboxDetails;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.RegisterStatusBarResult;
 import com.android.internal.statusbar.StatusBarIcon;
+import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.DumpUtils;
 import com.android.internal.util.GcUtils;
 import com.android.internal.view.AppearanceRegion;
@@ -2435,7 +2436,13 @@ public class StatusBarManagerService extends IStatusBarService.Stub implements D
     }
 
     public String[] getStatusBarIcons() {
-        return mContext.getResources().getStringArray(R.array.config_statusBarIcons);
+        // config_statusBarIconsCustom must be added first
+        // to add to the last of status bar icons from the right side first
+        return ArrayUtils.concat(String.class,
+            mContext.getResources().getStringArray(
+                org.lineageos.platform.internal.R.array.config_statusBarIconsCustom),
+            mContext.getResources().getStringArray(R.array.config_statusBarIcons)
+        );
     }
 
     /**

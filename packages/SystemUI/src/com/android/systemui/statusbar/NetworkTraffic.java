@@ -38,7 +38,6 @@ import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.provider.Settings;
 import android.text.Spanned;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -58,6 +57,8 @@ import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
 
 import com.android.systemui.tuner.TunerService;
+
+import lineageos.providers.LineageSettings;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -87,19 +88,19 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
     private static final int Giga = Mega * Kilo;
 
     private static final String NETWORK_TRAFFIC_ENABLED =
-            "system:" + Settings.System.NETWORK_TRAFFIC_ENABLED;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_ENABLED;
     private static final String NETWORK_TRAFFIC_MODE =
-            "system:" + Settings.System.NETWORK_TRAFFIC_MODE;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_MODE;
     private static final String NETWORK_TRAFFIC_AUTOHIDE =
-            "system:" + Settings.System.NETWORK_TRAFFIC_AUTOHIDE;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_AUTOHIDE;
     private static final String NETWORK_TRAFFIC_AUTOHIDE_THRESHOLD =
-            "system:" + Settings.System.NETWORK_TRAFFIC_AUTOHIDE_THRESHOLD;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_AUTOHIDE_THRESHOLD;
     private static final String NETWORK_TRAFFIC_UNITS =
-            "system:" + Settings.System.NETWORK_TRAFFIC_UNITS;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_UNITS;
     private static final String NETWORK_TRAFFIC_REFRESH_INTERVAL =
-            "system:" + Settings.System.NETWORK_TRAFFIC_REFRESH_INTERVAL;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_REFRESH_INTERVAL;
     private static final String NETWORK_TRAFFIC_HIDEARROW =
-            "system:" + Settings.System.NETWORK_TRAFFIC_HIDEARROW;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_HIDEARROW;
 
     private int mMode = MODE_UPSTREAM_AND_DOWNSTREAM;
     private int mSubMode = MODE_UPSTREAM_AND_DOWNSTREAM;
@@ -532,7 +533,7 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
                         TunerService.parseIntegerSwitch(newValue, false);
                 if (mEnabled) {
                     setLines(2);
-                    String txtFont = getResources().getString(com.android.internal.R.string.config_bodyFontFamily);
+                    String txtFont = getResources().getString(R.string.config_bodyFontFamily);
                     setTypeface(Typeface.create(txtFont, Typeface.BOLD));
                     setLineSpacing(0.80f, 0.80f);
                 }

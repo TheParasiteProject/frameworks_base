@@ -85,6 +85,8 @@ import com.android.systemui.util.RingerModeTracker;
 import com.android.systemui.util.kotlin.JavaAdapter;
 import com.android.systemui.util.time.DateFormatUtil;
 
+import lineageos.providers.LineageSettings;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
@@ -112,7 +114,7 @@ public class PhoneStatusBarPolicy
     private static final String BLUETOOTH_SHOW_BATTERY =
             "system:" + Settings.System.BLUETOOTH_SHOW_BATTERY;
     private static final String NETWORK_TRAFFIC_ENABLED =
-            "system:" + Settings.System.NETWORK_TRAFFIC_ENABLED;
+            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_ENABLED;
 
     private final String mSlotCast;
     private final String mSlotHotspot;
@@ -253,7 +255,7 @@ public class PhoneStatusBarPolicy
                 com.android.internal.R.string.status_bar_screen_record);
         mSlotNfc = resources.getString(com.android.internal.R.string.status_bar_nfc);
         mCurrentUserSetup = mProvisionedController.isDeviceProvisioned();
-        mSlotNetworkTraffic = resources.getString(com.android.internal.R.string.status_bar_network_traffic);
+        mSlotNetworkTraffic = resources.getString(org.lineageos.platform.internal.R.string.status_bar_network_traffic);
 
         mDisplayId = displayId;
         mSharedPreferences = sharedPreferences;
@@ -351,7 +353,7 @@ public class PhoneStatusBarPolicy
         updateNfc();
 
         // network traffic
-        mShowNetworkTraffic = Settings.System.getIntForUser(mContext.getContentResolver(),
+        mShowNetworkTraffic = LineageSettings.Secure.getIntForUser(mContext.getContentResolver(),
             NETWORK_TRAFFIC_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
         updateNetworkTraffic();
 
