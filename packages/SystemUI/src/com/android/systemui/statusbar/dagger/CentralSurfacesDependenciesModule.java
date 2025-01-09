@@ -26,6 +26,7 @@ import android.util.Log;
 
 import com.android.internal.jank.InteractionJankMonitor;
 import com.android.internal.statusbar.IStatusBarService;
+import com.android.internal.util.ArrayUtils;
 import com.android.systemui.CoreStartable;
 import com.android.systemui.animation.ActivityTransitionAnimator;
 import com.android.systemui.animation.AnimationFeatureFlags;
@@ -175,9 +176,15 @@ public interface CentralSurfacesDependenciesModule {
     @Provides
     @SysUISingleton
     static StatusBarIconList provideStatusBarIconList(Context context) {
+        // config_statusBarIconsCustom must be added first
+        // to add to the last of status bar icons from the right side first
         return new StatusBarIconList(
+            ArrayUtils.concat(String.class,
                 context.getResources().getStringArray(
-                        com.android.internal.R.array.config_statusBarIcons));
+                        org.lineageos.platform.internal.R.array.config_statusBarIconsCustom),
+                context.getResources().getStringArray(
+                        com.android.internal.R.array.config_statusBarIcons)
+        ));
     }
 
     /**
