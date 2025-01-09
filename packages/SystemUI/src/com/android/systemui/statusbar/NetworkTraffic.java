@@ -43,7 +43,6 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -85,22 +84,16 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
     private static final int Mega = Kilo * Kilo;
     private static final int Giga = Mega * Kilo;
 
+    private static final long AUTOHIDE_THRESHOLD = 10 * Kilo;
+    private static final int REFRESH_INTERVAL = 2;
+
     private static final String NETWORK_TRAFFIC_ENABLED =
             "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_ENABLED;
-    private static final String NETWORK_TRAFFIC_MODE =
-            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_MODE;
     private static final String NETWORK_TRAFFIC_AUTOHIDE =
             "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_AUTOHIDE;
-    private static final String NETWORK_TRAFFIC_AUTOHIDE_THRESHOLD =
-            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_AUTOHIDE_THRESHOLD;
     private static final String NETWORK_TRAFFIC_UNITS =
             "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_UNITS;
-    private static final String NETWORK_TRAFFIC_REFRESH_INTERVAL =
-            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_REFRESH_INTERVAL;
-    private static final String NETWORK_TRAFFIC_HIDEARROW =
-            "lineagesecure:" + LineageSettings.Secure.NETWORK_TRAFFIC_HIDEARROW;
 
-    private int mMode = MODE_UPSTREAM_AND_DOWNSTREAM;
     private int mSubMode = MODE_UPSTREAM_AND_DOWNSTREAM;
     private boolean mIsActive;
     private boolean mTrafficActive;
@@ -110,17 +103,13 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
     private long mLastRxBytes;
     private long mLastUpdateTime;
     private boolean mAutoHide;
-    private long mAutoHideThreshold;
     private int mUnits;
     private int mIconTint = 0;
     private int newTint = Color.WHITE;
 
     private Drawable mDrawable;
 
-    private int mRefreshInterval = 2;
-
     private boolean mAttached;
-    private boolean mHideArrows;
 
     private boolean mVisible = true;
 
@@ -196,7 +185,7 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
             final long now = SystemClock.elapsedRealtime();
             long timeDelta = now - mLastUpdateTime; /* ms */
 
-            if (timeDelta < mRefreshInterval * 1000 * 0.95f) {
+            if (timeDelta < REFRESH_INTERVAL * 1000 * 0.95f) {
                 return;
             }
             // Sum tx and rx bytes from all sources of interest
@@ -232,12 +221,8 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
         }
 
         private void displayStatsAndReschedule() {
-            final boolean showUpstream =
-                    mMode == MODE_UPSTREAM_ONLY || mMode == MODE_UPSTREAM_AND_DOWNSTREAM;
-            final boolean showDownstream =
-                    mMode == MODE_DOWNSTREAM_ONLY || mMode == MODE_UPSTREAM_AND_DOWNSTREAM;
-            final boolean aboveThreshold = (showUpstream && mTxBytes > mAutoHideThreshold)
-                    || (showDownstream && mRxBytes > mAutoHideThreshold);
+            final boolean aboveThreshold = (mTxBytes > AUTOHIDE_THRESHOLD)
+                    || (mRxBytes > AUTOHIDE_THRESHOLD);
             mIsActive = mAttached && mConnectionAvailable && (!mAutoHide || aboveThreshold);
             int submode = MODE_UPSTREAM_AND_DOWNSTREAM;
             final boolean trafficactive = (mTxBytes > 0 || mRxBytes > 0);
@@ -246,21 +231,15 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
 
             if (mEnabled && mIsActive) {
                 CharSequence output = "";
-                if (showUpstream && showDownstream) {
-                    if (mTxBytes > mRxBytes) {
-                        output = formatOutput(mTxBytes);
-                        submode = MODE_UPSTREAM_ONLY;
-                    } else if (mTxBytes < mRxBytes) {
-                        output = formatOutput(mRxBytes);
-                        submode = MODE_DOWNSTREAM_ONLY;
-                    } else {
-                        output = formatOutput(mRxBytes);
-                        submode = MODE_UPSTREAM_AND_DOWNSTREAM;
-                    }
-                } else if (showDownstream) {
-                    output = formatOutput(mRxBytes);
-                } else if (showUpstream) {
+                if (mTxBytes > mRxBytes) {
                     output = formatOutput(mTxBytes);
+                    submode = MODE_UPSTREAM_ONLY;
+                } else if (mTxBytes < mRxBytes) {
+                    output = formatOutput(mRxBytes);
+                    submode = MODE_DOWNSTREAM_ONLY;
+                } else {
+                    output = formatOutput(mRxBytes);
+                    submode = MODE_UPSTREAM_AND_DOWNSTREAM;
                 }
 
                 // Update view if there's anything new to show
@@ -281,7 +260,7 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
             // Schedule periodic refresh
             if (mEnabled && mAttached) {
                 mTrafficHandler.sendEmptyMessageDelayed(MESSAGE_TYPE_PERIODIC_REFRESH,
-                        mRefreshInterval * 1000);
+                        REFRESH_INTERVAL * 1000);
             }
         }
 
@@ -447,12 +426,8 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
         mAttached = true;
         final TunerService tunerService = Dependency.get(TunerService.class);
         tunerService.addTunable(this, NETWORK_TRAFFIC_ENABLED);
-        tunerService.addTunable(this, NETWORK_TRAFFIC_MODE);
         tunerService.addTunable(this, NETWORK_TRAFFIC_AUTOHIDE);
-        tunerService.addTunable(this, NETWORK_TRAFFIC_AUTOHIDE_THRESHOLD);
         tunerService.addTunable(this, NETWORK_TRAFFIC_UNITS);
-        tunerService.addTunable(this, NETWORK_TRAFFIC_REFRESH_INTERVAL);
-        tunerService.addTunable(this, NETWORK_TRAFFIC_HIDEARROW);
 
         mConnectivityManager.registerNetworkCallback(mRequest, mNetworkCallback);
         mConnectivityManager.registerDefaultNetworkCallback(mDefaultNetworkCallback);
@@ -539,42 +514,15 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
                 }
                 updateViews();
                 break;
-            case NETWORK_TRAFFIC_MODE:
-                mMode =
-                        TunerService.parseInteger(newValue, 0);
-                updateViews();
-                setTrafficDrawable();
-                break;
             case NETWORK_TRAFFIC_AUTOHIDE:
                 mAutoHide =
                         TunerService.parseIntegerSwitch(newValue, false);
-                updateViews();
-                break;
-            case NETWORK_TRAFFIC_AUTOHIDE_THRESHOLD:
-                int autohidethreshold =
-                        TunerService.parseInteger(newValue, 0);
-                mAutoHideThreshold = autohidethreshold * Kilo; /* Convert kB to Bytes */
                 updateViews();
                 break;
             case NETWORK_TRAFFIC_UNITS:
                 mUnits =
                         TunerService.parseInteger(newValue, 1);
                 updateViews();
-                break;
-            case NETWORK_TRAFFIC_REFRESH_INTERVAL:
-                mRefreshInterval =
-                        TunerService.parseInteger(newValue, 2);
-                updateViews();
-                break;
-            case NETWORK_TRAFFIC_HIDEARROW:
-                mHideArrows =
-                        TunerService.parseIntegerSwitch(newValue, false);
-                if (!mHideArrows) {
-                    setGravity(Gravity.END|Gravity.CENTER_VERTICAL);
-                } else {
-                    setGravity(Gravity.CENTER);
-                }
-                setTrafficDrawable();
                 break;
             default:
                 break;
@@ -601,18 +549,14 @@ public class NetworkTraffic extends TextView implements TunerService.Tunable,
         final int drawableResId;
         final Drawable drawable;
 
-        if (mHideArrows) {
-            drawableResId = 0;
-        } else if (!mTrafficActive) {
+        if (!mTrafficActive) {
             drawableResId = R.drawable.stat_sys_network_traffic;
-        } else if (mMode == MODE_UPSTREAM_ONLY || mSubMode == MODE_UPSTREAM_ONLY) {
+        } else if (mSubMode == MODE_UPSTREAM_ONLY) {
             drawableResId = R.drawable.stat_sys_network_traffic_up;
-        } else if (mMode == MODE_DOWNSTREAM_ONLY || mSubMode == MODE_DOWNSTREAM_ONLY) {
+        } else if (mSubMode == MODE_DOWNSTREAM_ONLY) {
             drawableResId = R.drawable.stat_sys_network_traffic_down;
-        } else if (mMode == MODE_UPSTREAM_AND_DOWNSTREAM) {
-            drawableResId = R.drawable.stat_sys_network_traffic_updown;
         } else {
-            drawableResId = 0;
+            drawableResId = R.drawable.stat_sys_network_traffic_updown;
         }
         drawable = drawableResId != 0 ? getResources().getDrawable(drawableResId) : null;
         if (mDrawable == drawable && mIconTint == newTint) return;
