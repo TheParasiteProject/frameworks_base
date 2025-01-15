@@ -74,32 +74,39 @@ object ActionIntentCreator {
      *   available.
      */
     fun createEdit(rawUri: Uri, context: Context): Intent {
-        return createEditOrView(rawUri, context, Intent(Intent.ACTION_EDIT))
-    }
-
-    /**
-     * @return an ACTION_VIEW intent for the given URI, directed to config_screenshotEditor if
-     *   available.
-     */
-    fun createView(rawUri: Uri, context: Context): Intent {
-        return createEditOrView(rawUri, context, Intent(Intent.ACTION_VIEW))
-    }
-
-    private fun createEditOrView(rawUri: Uri, context: Context, intent: Intent): Intent {
         val uri = uriWithoutUserId(rawUri)
+        val editIntent = Intent(Intent.ACTION_EDIT)
 
         val editor = context.getString(R.string.config_screenshotEditor)
         if (editor.isNotEmpty()) {
-            intent.component = ComponentName.unflattenFromString(editor)
+            editIntent.component = ComponentName.unflattenFromString(editor)
         }
 
-        return intent
+        return editIntent
             .setDataAndType(uri, "image/png")
             .putExtra(EXTRA_EDIT_SOURCE, EDIT_SOURCE_SCREENSHOT)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    }
+
+    /** @return an ACTION_VIEW intent for the given URI */
+    fun createView(rawUri: Uri, context: Context): Intent {
+        val uri = uriWithoutUserId(rawUri)
+        val viewIntent = Intent(Intent.ACTION_VIEW)
+
+        val viewer = context.getString(R.string.config_screenshotViewer)
+        if (viewer.isNotEmpty()) {
+            viewIntent.component = ComponentName.unflattenFromString(viewer)
+        }
+
+        return viewIntent
+            .setDataAndType(uri, "image/png")
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
     }
 
     /** @return an Intent to start the LongScreenshotActivity */
