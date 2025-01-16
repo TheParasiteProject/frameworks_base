@@ -46,7 +46,7 @@ public class LensScreenshotReceiver extends BroadcastReceiver {
     private static final String LENS_ACTIVITY = "com.google.android.apps.lens.MainActivity";
     private static final String LENS_SHARE_ACTIVITY = "com.google.android.apps.search.lens.LensShareEntryPointActivity";
     private static final String LENS_URI = "google://lens";
-    protected static final String EXTRA_SCREENSHOT_USER_HANDLE = "screenshot-userhandle";
+    protected static final String EXTRA_SCREENSHOT_USER_HANDLE = "lens_screenshot_userhandle";
 
     private final ActionIntentExecutor mActionExecutor;
     private final Executor mBackgroundExecutor;
