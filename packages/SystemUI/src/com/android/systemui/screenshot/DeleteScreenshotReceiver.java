@@ -19,7 +19,6 @@ package com.android.systemui.screenshot;
 import static com.android.systemui.screenshot.SmartActionsReceiver.EXTRA_ACTION_TYPE;
 import static com.android.systemui.screenshot.SmartActionsReceiver.EXTRA_ID;
 import static com.android.systemui.screenshot.SmartActionsReceiver.EXTRA_SMART_ACTIONS_ENABLED;
-import static com.android.systemui.screenshot.LegacyScreenshotController.SCREENSHOT_URI_ID;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -38,6 +37,7 @@ import javax.inject.Inject;
  */
 public class DeleteScreenshotReceiver extends BroadcastReceiver {
 
+    protected static final String EXTRA_DELETE_SCREENSHOT_URI_ID = "delete_screenshot_uri_id";
     private final ScreenshotSmartActions mScreenshotSmartActions;
     private final Executor mBackgroundExecutor;
 
@@ -50,12 +50,12 @@ public class DeleteScreenshotReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (!intent.hasExtra(SCREENSHOT_URI_ID)) {
+        if (!intent.hasExtra(EXTRA_DELETE_SCREENSHOT_URI_ID)) {
             return;
         }
 
         // And delete the image from the media store
-        final Uri uri = Uri.parse(intent.getStringExtra(SCREENSHOT_URI_ID));
+        final Uri uri = Uri.parse(intent.getStringExtra(EXTRA_DELETE_SCREENSHOT_URI_ID));
         mBackgroundExecutor.execute(() -> {
             ContentResolver resolver = context.getContentResolver();
             resolver.delete(uri, null, null);

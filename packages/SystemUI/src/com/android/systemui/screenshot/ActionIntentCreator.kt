@@ -113,7 +113,9 @@ object ActionIntentCreator {
     fun createDelete(rawUri: Uri, context: Context): PendingIntent {
         return PendingIntent.getBroadcast(context, rawUri.toString().hashCode(),
                 Intent(context, DeleteScreenshotReceiver::class.java)
-                        .putExtra(ScreenshotController.SCREENSHOT_URI_ID, rawUri.toString())
+                        .putExtra(
+                            DeleteScreenshotReceiver.EXTRA_DELETE_SCREENSHOT_URI_ID,
+                            rawUri.toString())
                         .addFlags(Intent.FLAG_RECEIVER_FOREGROUND),
                         (PendingIntent.FLAG_CANCEL_CURRENT
                         or PendingIntent.FLAG_ONE_SHOT
