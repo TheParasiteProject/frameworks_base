@@ -44,7 +44,7 @@
 
         <activity
             android:name="com.android.systemui.statusbar.phone.LeftBackSwipeCustomApp"
-            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth"
+            android:theme="@style/Theme.DeviceDefault.Dialog.MinWidth.DayNight"
             android:label="@string/app_picker_dialog_title"
             android:exported="true">
             <intent-filter>
@@ -55,7 +55,7 @@
 
         <activity
             android:name="com.android.systemui.statusbar.phone.RightBackSwipeCustomApp"
-            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth"
+            android:theme="@style/Theme.DeviceDefault.Dialog.MinWidth.DayNight"
             android:label="@string/app_picker_dialog_title"
             android:exported="true">
             <intent-filter>
@@ -66,7 +66,7 @@
 
         <activity
             android:name="com.android.systemui.statusbar.phone.LeftBackVerticalSwipeCustomApp"
-            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth"
+            android:theme="@style/Theme.DeviceDefault.Dialog.MinWidth.DayNight"
             android:label="@string/app_picker_dialog_title"
             android:exported="true">
             <intent-filter>
@@ -77,7 +77,7 @@
 
         <activity
             android:name="com.android.systemui.statusbar.phone.RightBackVerticalSwipeCustomApp"
-            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth"
+            android:theme="@style/Theme.DeviceDefault.Dialog.MinWidth.DayNight"
             android:label="@string/app_picker_dialog_title"
             android:exported="true" >
             <intent-filter>

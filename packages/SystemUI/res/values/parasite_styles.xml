@@ -4,4 +4,7 @@
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
     </style>
+
+    <style name="Theme.DeviceDefault.Dialog.MinWidth.DayNight"
+        parent="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth" />
 </resources>
