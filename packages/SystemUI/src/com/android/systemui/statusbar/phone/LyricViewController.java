@@ -38,6 +38,7 @@ import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.util.ContrastColorUtil;
 import com.android.systemui.Dependency;
 import com.android.systemui.res.R;
+import com.android.systemui.DualToneHandler;
 import com.android.systemui.plugins.DarkIconDispatcher;
 import com.android.systemui.statusbar.NotificationListener;
 import com.android.systemui.statusbar.StatusBarIconView;
@@ -60,8 +61,11 @@ public abstract class LyricViewController implements
 
     private final ContrastColorUtil mNotificationColorUtil;
 
+    private DualToneHandler mDualToneHandler;
+
     private boolean mEnabled;
     private boolean mStarted;
+    private boolean mColorIsStatic;
 
     private String mCurrentNotificationPackage = null;
     private int mCurrentNotificationId;
@@ -96,6 +100,10 @@ public abstract class LyricViewController implements
 
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(this);
         Dependency.get(NotificationListener.class).addNotificationHandler(this);
+
+        mDualToneHandler = new DualToneHandler(context);
+        // Init to not dark at all.
+        onDarkChanged(new ArrayList<Rect>(), 0, DarkIconDispatcher.DEFAULT_ICON_TINT);
     }
 
     public void setEnabled(boolean enabled) {
@@ -209,8 +217,11 @@ public abstract class LyricViewController implements
     }
 
     @Override
-    public void onDarkChanged(ArrayList<Rect> area, float darkIntensity, int tint) {
-        int tintColor = DarkIconDispatcher.getTint(area, mLyricContainer, tint);
+    public void onDarkChanged(ArrayList<Rect> areas, float darkIntensity, int tint) {
+        if (mDualToneHandler == null) return;
+
+        float intensity = DarkIconDispatcher.isInAreas(areas, mLyricContainer) ? darkIntensity : 0;
+        int tintColor = mDualToneHandler.getSingleColor(intensity);
 
         ((TextView) mTextSwitcher.getCurrentView()).setTextColor(tintColor);
         ((TextView) mTextSwitcher.getNextView()).setTextColor(tintColor);
