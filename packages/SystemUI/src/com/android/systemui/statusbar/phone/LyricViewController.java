@@ -19,6 +19,7 @@ package com.android.systemui.statusbar.phone;
 import android.app.Notification;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.service.notification.NotificationListenerService;
@@ -62,6 +63,7 @@ public abstract class LyricViewController implements
 
     private boolean mEnabled;
     private boolean mStarted;
+    private boolean mColorIsStatic;
 
     private String mCurrentNotificationPackage = null;
     private int mCurrentNotificationId;
@@ -96,6 +98,9 @@ public abstract class LyricViewController implements
 
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(this);
         Dependency.get(NotificationListener.class).addNotificationHandler(this);
+
+        // Init to not dark at all.
+        onDarkChanged(new ArrayList<Rect>(), 0, DarkIconDispatcher.DEFAULT_ICON_TINT);
     }
 
     public void setEnabled(boolean enabled) {
@@ -209,8 +214,18 @@ public abstract class LyricViewController implements
     }
 
     @Override
-    public void onDarkChanged(ArrayList<Rect> area, float darkIntensity, int tint) {
-        int tintColor = DarkIconDispatcher.getTint(area, mLyricContainer, tint);
+    public void onDarkChanged(ArrayList<Rect> areas, float darkIntensity, int tint) {
+        final int tintColor;
+
+        if (DarkIconDispatcher.isInAreas(areas, mLyricContainer)) {
+            if (darkIntensity < 0.5) {
+                tintColor = Color.WHITE;
+            } else {
+                tintColor = Color.BLACK;
+            }
+        } else  {
+            tintColor = Color.WHITE;
+        }
 
         ((TextView) mTextSwitcher.getCurrentView()).setTextColor(tintColor);
         ((TextView) mTextSwitcher.getNextView()).setTextColor(tintColor);
