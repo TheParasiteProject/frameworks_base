@@ -21,7 +21,7 @@ filegroup {
         "**/*.aidl",
         ":framework-nfc-non-updatable-sources",
         ":messagequeue-gen",
-        ":custom-utils-srcs",
+        ":custom-sdk-srcs",
     ],
     // Exactly one MessageQueue.java will be added to srcs by messagequeue-gen
     exclude_srcs: [
