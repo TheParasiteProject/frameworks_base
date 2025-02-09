@@ -1988,6 +1988,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                         new ActivityManagerStructured(this),
                         /* allowIsolated= */ true);
             }
+            ServiceManager.addService("boost_framework", new BoostFrameworkService());
 
             ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(
                     "android", STOCK_PM_FLAGS | MATCH_SYSTEM_ONLY);
