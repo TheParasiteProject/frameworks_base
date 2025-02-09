@@ -202,6 +202,7 @@ import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.statusbar.policy.SplitShadeStateController;
 import com.android.systemui.unfold.SysUIUnfoldComponent;
 import com.android.systemui.util.Compile;
+import com.android.systemui.util.SystemUIBoostFramework;
 import com.android.systemui.util.Utils;
 import com.android.systemui.util.time.SystemClock;
 import com.android.systemui.wallpapers.ui.viewmodel.WallpaperFocalAreaViewModel;
@@ -1493,6 +1494,7 @@ public final class NotificationPanelViewController implements
             @Override
             public void onAnimationCancel(Animator animation) {
                 mCancelled = true;
+                SystemUIBoostFramework.getInstance().animationBoostOff(SystemUIBoostFramework.REQUEST_ANIMATION_BOOST_TYPE_FLING_NOTIFICATION_PANEL_VIEW);
             }
 
             @Override
@@ -1504,6 +1506,7 @@ public final class NotificationPanelViewController implements
                 } else {
                     onFlingEnd(mCancelled);
                 }
+                SystemUIBoostFramework.getInstance().animationBoostOff(SystemUIBoostFramework.REQUEST_ANIMATION_BOOST_TYPE_FLING_NOTIFICATION_PANEL_VIEW);
             }
         });
         if (!mScrimController.isScreenOn()) {
@@ -1511,6 +1514,7 @@ public final class NotificationPanelViewController implements
         }
         setAnimator(animator);
         animator.start();
+        SystemUIBoostFramework.getInstance().animationBoostOn(SystemUIBoostFramework.REQUEST_ANIMATION_BOOST_TYPE_FLING_NOTIFICATION_PANEL_VIEW);
     }
 
     @VisibleForTesting
@@ -2109,6 +2113,7 @@ public final class NotificationPanelViewController implements
     }
 
     private void onTrackingStarted() {
+        SystemUIBoostFramework.getInstance().animationBoostOn(SystemUIBoostFramework.REQUEST_ANIMATION_BOOST_TYPE_TRACKING_NOTIFICATION_PANEL_VIEW);
         endClosing();
         mShadeRepository.setLegacyShadeTracking(true);
         if (mTrackingStartedListener != null) {
@@ -2138,6 +2143,7 @@ public final class NotificationPanelViewController implements
         // If we unlocked from a swipe, the user's finger might still be down after the
         // unlock animation ends. We need to wait until ACTION_UP to enable blurs again.
         mDepthController.setBlursDisabledForUnlock(false);
+        SystemUIBoostFramework.getInstance().animationBoostOff(SystemUIBoostFramework.REQUEST_ANIMATION_BOOST_TYPE_TRACKING_NOTIFICATION_PANEL_VIEW);
     }
 
     private void updateMaxHeadsUpTranslation() {
@@ -2857,6 +2863,7 @@ public final class NotificationPanelViewController implements
             mIsExpandingOrCollapsing = true;
             mQsController.onExpandingStarted(mQsController.getFullyExpanded());
         }
+        SystemUIBoostFramework.getInstance().animationBoostOn(SystemUIBoostFramework.REQUEST_ANIMATION_BOOST_TYPE_SPEED_UP_QS_EXPANSION_ANIMATION);
     }
 
     void notifyExpandingFinished() {
@@ -2865,6 +2872,7 @@ public final class NotificationPanelViewController implements
             mExpanding = false;
             onExpandingFinished();
         }
+        SystemUIBoostFramework.getInstance().animationBoostOff(SystemUIBoostFramework.REQUEST_ANIMATION_BOOST_TYPE_SPEED_UP_QS_EXPANSION_ANIMATION);
     }
 
     float getTouchSlop(MotionEvent event) {
