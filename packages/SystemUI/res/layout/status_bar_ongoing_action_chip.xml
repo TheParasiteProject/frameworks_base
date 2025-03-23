@@ -27,7 +27,7 @@
     android:padding="4sp"
     android:layout_marginLeft="3dp"
     android:visibility="gone"
-    android:background="@drawable/action_chip_container_background"
+    android:background="@drawable/ongoing_action_chip_container_background"
     android:clickable="true"
     android:focusable="true"
     android:foreground="@drawable/ripple_chip_background">
