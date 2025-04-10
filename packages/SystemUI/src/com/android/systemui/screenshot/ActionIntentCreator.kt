@@ -101,31 +101,20 @@ constructor(
      *   if enabled, falling back to config_screenshotEditor if that's non-empty.
      */
     suspend fun createEdit(rawUri: Uri): Intent {
-        return createEditOrView(rawUri, Intent(Intent.ACTION_EDIT))
-    }
-
-    /**
-     * @return an ACTION_VIEW intent for the given URI, directed to config_screenshotEditor if
-     *   available.
-     */
-    suspend fun createView(rawUri: Uri): Intent {
-        return createEditOrView(rawUri, Intent(Intent.ACTION_VIEW))
-    }
-
-    suspend fun createEditOrView(rawUri: Uri, intent: Intent): Intent {
         val uri = uriWithoutUserId(rawUri)
+        val editIntent = Intent(Intent.ACTION_EDIT)
 
         if (usePreferredImageEditor()) {
             // Use the preferred editor if it's available, otherwise fall back to the default editor
-            intent.component = preferredEditor() ?: defaultEditor()
+            editIntent.component = preferredEditor() ?: defaultEditor()
         } else {
             val editor = context.getString(R.string.config_screenshotEditor)
             if (editor.isNotEmpty()) {
-                intent.component = ComponentName.unflattenFromString(editor)
+                editIntent.component = ComponentName.unflattenFromString(editor)
             }
         }
 
-        return intent
+        return editIntent
             .setDataAndType(uri, "image/png")
             .putExtra(EXTRA_EDIT_SOURCE, EDIT_SOURCE_SCREENSHOT)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -142,6 +131,24 @@ constructor(
                         (PendingIntent.FLAG_CANCEL_CURRENT
                         or PendingIntent.FLAG_ONE_SHOT
                         or PendingIntent.FLAG_IMMUTABLE))
+    }
+
+    /** @return an ACTION_VIEW intent for the given URI */
+    fun createView(rawUri: Uri, context: Context): Intent {
+        val uri = uriWithoutUserId(rawUri)
+        val viewIntent = Intent(Intent.ACTION_VIEW)
+
+        val viewer = context.getString(R.string.config_screenshotViewer)
+        if (viewer.isNotEmpty()) {
+            viewIntent.component = ComponentName.unflattenFromString(viewer)
+        }
+
+        return viewIntent
+            .setDataAndType(uri, "image/png")
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
     }
 
     /** @return an Intent to start the LongScreenshotActivity */
