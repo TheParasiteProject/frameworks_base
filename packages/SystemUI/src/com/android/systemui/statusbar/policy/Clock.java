@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.database.ContentObserver;
 import android.graphics.Rect;
 import android.icu.lang.UCharacter;
 import android.icu.text.DateTimePatternGenerator;
@@ -61,6 +62,8 @@ import com.android.systemui.statusbar.core.StatusBarRootModernization;
 import com.android.systemui.statusbar.phone.ui.StatusBarIconController;
 import com.android.systemui.tuner.TunerService;
 import com.android.systemui.tuner.TunerService.Tunable;
+
+import lineageos.providers.LineageSettings;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -106,6 +109,7 @@ public class Clock extends TextView implements
     private static final int AM_PM_STYLE_GONE    = 2;
 
     private final int mAmPmStyle;
+    private ContentObserver mContentObserver;
     private boolean mShowSeconds;
     private Handler mSecondsHandler;
 
@@ -242,6 +246,7 @@ public class Clock extends TextView implements
         if (mAttached) {
             mBroadcastDispatcher.unregisterReceiver(mIntentReceiver);
             mAttached = false;
+            mContext.getContentResolver().unregisterContentObserver(mContentObserver);
             Dependency.get(TunerService.class).removeTunable(this);
             mCommandQueue.removeCallback(this);
             mUserTracker.removeCallback(mUserChangedCallback);
