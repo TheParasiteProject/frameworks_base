@@ -157,7 +157,9 @@ constructor(
                     1
                 else 0
             tunerService.addTunable(
-                { key, _ -> bypassEnabledBiometric = tunerService.getValue(key, dismissByDefault) != 0 },
+                { key, _ -> bypassEnabled = tunerService.getValue(key, dismissByDefault) != 0
+                    bypassEnabledBiometric = tunerService.getValue(key, dismissByDefault) != 0
+                },
                 Settings.Secure.FACE_UNLOCK_DISMISSES_KEYGUARD,
             )
             lockscreenUserManager.addUserChangedListener(
@@ -200,7 +202,7 @@ constructor(
         biometricSourceType: BiometricSourceType,
         isStrongBiometric: Boolean,
     ): Boolean {
-        if (bypassEnabledBiometric) {
+        if (bypassEnabled) {
             val can = biometricSourceType != BiometricSourceType.FACE || canBypass()
             if (!can && (isPulseExpanding || qsExpanded)) {
                 pendingUnlock = PendingUnlock(biometricSourceType, isStrongBiometric)
