@@ -263,12 +263,13 @@ public class ThemeOverlayApplier implements Dumpable {
                 Log.e(TAG, "setEnabled failed", e);
             }
 
-            checkDarkUserOverlays(currentUser, onComplete, isBlackMode);
+            checkDarkUserOverlays(currentUser, managedProfiles, onComplete, isBlackMode);
         });
     }
 
     private void checkDarkUserOverlays(
             int currentUser,
+            Set<UserHandle> managedProfiles,
             Runnable onComplete,
             boolean isBlackMode
     ) {
@@ -276,6 +277,12 @@ public class ThemeOverlayApplier implements Dumpable {
         try {
             transaction.setEnabled(getOverlayID(OVERLAY_BLACK_THEME), isBlackMode, currentUser);
             transaction.setEnabled(getOverlayID("android:neutral"), !isBlackMode, currentUser);
+            for (UserHandle userHandle : managedProfiles) {
+                transaction.setEnabled(
+                        getOverlayID(OVERLAY_BLACK_THEME), isBlackMode, userHandle.getIdentifier());
+                transaction.setEnabled(
+                        getOverlayID("android:neutral"), !isBlackMode, userHandle.getIdentifier());
+            }
             mOverlayManager.commit(transaction.build());
             if (onComplete != null) {
                 Log.d(TAG, "Executing onComplete runnable");
