@@ -106,9 +106,7 @@ public class AODTile extends QSTileImpl<BooleanState> implements
 
     @Override
     public BooleanState newTileState() {
-        BooleanState state = new BooleanState();
-        state.handlesLongClick = false;
-        return state;
+        return new BooleanState();
     }
 
     @Override
@@ -130,7 +128,7 @@ public class AODTile extends QSTileImpl<BooleanState> implements
 
     @Override
     public Intent getLongClickIntent() {
-        return null;
+        return new Intent(Settings.ACTION_LOCKSCREEN_SETTINGS);
     }
 
     @Override
@@ -148,7 +146,6 @@ public class AODTile extends QSTileImpl<BooleanState> implements
         state.icon = mIcon;
         state.value = enable;
         state.label = mContext.getString(R.string.quick_settings_aod_label);
-        state.hasLongClickEffect = false;
         if (mBatteryController.isAodPowerSave()) {
             state.state = Tile.STATE_UNAVAILABLE;
         } else {
