@@ -148,11 +148,17 @@ constructor(@Assisted private val context: Context) :
     }
 
     override fun addCallback(listener: ConfigurationListener) {
+        val maybeNullListener = listener as? ConfigurationListener
+        maybeNullListener ?: return
+
         synchronized(listeners) { listeners.add(listener) }
         listener.onDensityOrFontScaleChanged()
     }
 
     override fun removeCallback(listener: ConfigurationListener) {
+        val maybeNullListener = listener as? ConfigurationListener
+        maybeNullListener ?: return
+
         synchronized(listeners) { listeners.remove(listener) }
     }
 
