@@ -18,6 +18,7 @@ package com.android.internal.os;
 
 import android.view.KeyEvent;
 
+/** @hide */
 public interface DeviceKeyHandler {
 
     /**
