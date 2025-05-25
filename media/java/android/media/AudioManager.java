@@ -8037,6 +8037,68 @@ public class AudioManager {
         return externalDeviceTypes;
     }
 
+    private Set<String> mFmTunerInputBlacklist;
+    private Set<String> mFmOutputBlacklist;
+
+    private Set<String> getFmTunerInputBlacklist() {
+        if (mFmTunerInputBlacklist == null) {
+            mFmTunerInputBlacklist =
+                    new HashSet<>(
+                            Arrays.asList(
+                                    getContext()
+                                            .getResources()
+                                            .getStringArray(
+                                                    org.lineageos.platform.internal.R.array
+                                                            .config_fmTunerInputBlacklist)));
+        }
+        return mFmTunerInputBlacklist;
+    }
+
+    private Set<String> getFmOutputBlacklist() {
+        if (mFmOutputBlacklist == null) {
+            mFmOutputBlacklist =
+                    new HashSet<>(
+                            Arrays.asList(
+                                    getContext()
+                                            .getResources()
+                                            .getStringArray(
+                                                    org.lineageos.platform.internal.R.array
+                                                            .config_fmOutputBlacklist)));
+        }
+        return mFmOutputBlacklist;
+    }
+
+    private boolean shouldFilterFmTunerInput() {
+        return getFmTunerInputBlacklist().contains(getContext().getPackageName());
+    }
+
+    private boolean shouldFilterFmOutput() {
+        return getFmOutputBlacklist().contains(getContext().getPackageName());
+    }
+
+    private AudioDeviceInfo[] maybeFilterFmDevices(AudioDeviceInfo[] infos) {
+        final boolean filterFmTunerInput = shouldFilterFmTunerInput();
+        final boolean filterFmOutput = shouldFilterFmOutput();
+
+        if (!filterFmTunerInput && !filterFmOutput) {
+            return infos;
+        }
+
+        return Arrays.stream(infos)
+                .filter(
+                        info -> {
+                            if (filterFmTunerInput
+                                    && info.getType() == AudioDeviceInfo.TYPE_FM_TUNER) {
+                                return false;
+                            }
+                            if (filterFmOutput && info.getType() == AudioDeviceInfo.TYPE_FM) {
+                                return false;
+                            }
+                            return true;
+                        })
+                .toArray(AudioDeviceInfo[]::new);
+    }
+
      /**
      * Returns an array of {@link AudioDeviceInfo} objects corresponding to the audio devices
      * currently connected to the system and meeting the criteria specified in the
@@ -8052,7 +8114,8 @@ public class AudioManager {
      * @return A (possibly zero-length) array of AudioDeviceInfo objects.
      */
     public AudioDeviceInfo[] getDevices(@AudioDeviceRole int flags) {
-        return getDevicesStatic(flags);
+        AudioDeviceInfo[] ret = getDevicesStatic(flags);
+        return maybeFilterFmDevices(ret);
     }
 
     /**
@@ -8379,6 +8442,24 @@ public class AudioManager {
     // of the ports that exist at the time of the last notification.
     private ArrayList<AudioDevicePort> mPreviousPorts = new ArrayList<AudioDevicePort>();
 
+    private void maybeFilterFmPorts(ArrayList<AudioDevicePort> ports) {
+        final boolean filterFmTunerInput = shouldFilterFmTunerInput();
+        final boolean filterFmOutput = shouldFilterFmOutput();
+
+        if (!filterFmTunerInput && !filterFmOutput) {
+            return;
+        }
+
+        Iterator<AudioDevicePort> iterator = ports.iterator();
+        while (iterator.hasNext()) {
+            AudioDevicePort port = iterator.next();
+            if ((filterFmTunerInput && port.type() == DEVICE_IN_FM_TUNER)
+                    || (filterFmOutput && port.type() == DEVICE_OUT_FM)) {
+                iterator.remove();
+            }
+        }
+    }
+
     /**
      * Internal method to compute and generate add/remove messages and then send to any
      * registered callbacks. Must be called synchronized on mDeviceCallbacks.
@@ -8392,6 +8473,8 @@ public class AudioManager {
         if (status != AudioManager.SUCCESS) {
             return;
         }
+
+        maybeFilterFmPorts(current_ports);
 
         if (handler != null) {
             // This is the callback for the registration, so send the current list
