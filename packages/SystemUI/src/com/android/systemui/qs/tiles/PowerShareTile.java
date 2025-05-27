@@ -64,6 +64,8 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
     private static final String CHANNEL_ID = TILE_SPEC;
     private static final int NOTIFICATION_ID = 273298;
 
+    private boolean mLowPowerMode;
+
     @Inject
     public PowerShareTile(
             QSHost host,
@@ -106,37 +108,36 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
 
     @Override
     public void onPowerSaveChanged(boolean isPowerSave) {
+        if (isPowerSave) {
+            setEnabled(false);
+        }
+        mLowPowerMode = isPowerSave;
         refreshState();
     }
 
-    @Override
-    public void refreshState() {
-        updatePowerShareState();
-
-        super.refreshState();
-    }
-
-    private void updatePowerShareState() {
-        if (!isAvailable()) {
-            return;
-        }
-
-        if (mBatteryController.isPowerSave()) {
-            try {
-                mPowerShare.setEnabled(false);
-            } catch (RemoteException | ServiceSpecificException ex) {
-                ex.printStackTrace();
-            }
-        }
-
+    private boolean isPowerShareEnabled() {
         try {
-            if (mPowerShare.isEnabled()) {
-                mNotificationManager.notify(NOTIFICATION_ID, mNotification);
-            } else {
-                mNotificationManager.cancel(NOTIFICATION_ID);
-            }
+            return mPowerShare.isEnabled();
         } catch (RemoteException | ServiceSpecificException ex) {
             ex.printStackTrace();
+        }
+
+        return false;
+    }
+
+    private void setEnabled(boolean enable) {
+        try {
+            mPowerShare.setEnabled(enable);
+        } catch (RemoteException | ServiceSpecificException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void handleNotification(boolean enable) {
+        if (enable) {
+            mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+        } else {
+            mNotificationManager.cancel(NOTIFICATION_ID);
         }
     }
 
@@ -154,12 +155,12 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
 
     @Override
     public void handleClick(@Nullable Expandable expandable) {
-        try {
-            mPowerShare.setEnabled(!mPowerShare.isEnabled());
-            refreshState();
-        } catch (RemoteException | ServiceSpecificException ex) {
-            ex.printStackTrace();
+        if (getState().state == Tile.STATE_UNAVAILABLE) {
+            return;
         }
+        final boolean prevState = isPowerShareEnabled();
+        refreshState(!prevState);
+        setEnabled(!prevState);
     }
 
     @Override
@@ -169,12 +170,10 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
 
     @Override
     public CharSequence getTileLabel() {
-        if (mBatteryController.isPowerSave()) {
+        if (mLowPowerMode) {
             return mContext.getString(R.string.quick_settings_powershare_off_powersave_label);
-        } else {
-            if (getBatteryLevel() < getMinBatteryLevel()) {
-                return mContext.getString(R.string.quick_settings_powershare_off_low_battery_label);
-            }
+        } else if (getBatteryLevel() < getMinBatteryLevel()) {
+            return mContext.getString(R.string.quick_settings_powershare_off_low_battery_label);
         }
 
         return mContext.getString(R.string.quick_settings_powershare_label);
@@ -182,26 +181,23 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        if (!isAvailable()) {
-            return;
-        }
-
         state.icon = ResourceIcon.get(R.drawable.ic_qs_powershare);
         state.hasLongClickEffect = false;
-        try {
-            state.value = mPowerShare.isEnabled();
-        } catch (RemoteException | ServiceSpecificException ex) {
-            state.value = false;
-            ex.printStackTrace();
-        }
-        state.label = mContext.getString(R.string.quick_settings_powershare_label);
-
-        if (mBatteryController.isPowerSave() || getBatteryLevel() < getMinBatteryLevel()) {
-            state.state = Tile.STATE_UNAVAILABLE;
-        } else if (!state.value) {
-            state.state = Tile.STATE_INACTIVE;
+        state.label = getTileLabel();
+        if (arg instanceof Boolean) {
+            boolean value = (Boolean) arg;
+            if (value != state.value) {
+                state.value = value;
+            }
         } else {
-            state.state = Tile.STATE_ACTIVE;
+            state.value = isPowerShareEnabled();
+        }
+        if (mLowPowerMode || getBatteryLevel() < getMinBatteryLevel()) {
+            state.state = Tile.STATE_UNAVAILABLE;
+            handleNotification(false);
+        } else {
+            state.state = state.value ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
+            handleNotification(state.value);
         }
     }
 
