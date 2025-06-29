@@ -2440,7 +2440,7 @@ public final class NotificationPanelViewController implements
             if (!animate || mStatusBarStateControllerImpl.mDozeAmountTarget != dozeAmount) {
                 mStatusBarStateControllerImpl.mDarkAnimator.cancel();
             }
-            updateKeyguardStatusViewAlignment(animate);
+            updateKeyguardStatusViewAlignment();
         }
 
         final View view = mStatusBarStateControllerImpl.mView;
