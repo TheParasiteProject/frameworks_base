@@ -71,41 +71,43 @@ public class GroupExpansionManagerImpl implements GroupExpansionManager, Dumpabl
      * Cleanup entries from internal tracking that no longer exist in the pipeline.
      */
     private final OnBeforeRenderListListener mNotifTracker = (entries) -> {
-        if (NotificationBundleUi.isEnabled())  {
-            if (mExpandedCollections.isEmpty()) {
-                return; // nothing to do
+        synchronized (this) {
+            if (NotificationBundleUi.isEnabled())  {
+                if (mExpandedCollections.isEmpty()) {
+                    return; // nothing to do
+                }
+            } else {
+                if (mExpandedGroups.isEmpty()) {
+                    return; // nothing to do
+                }
             }
-        } else {
-            if (mExpandedGroups.isEmpty()) {
-                return; // nothing to do
-            }
-        }
 
-        final Set<NotificationEntry> renderingSummaries = new HashSet<>();
-        for (PipelineEntry entry : entries) {
-            if (entry instanceof GroupEntry) {
-                renderingSummaries.add(entry.getRepresentativeEntry());
+            final Set<NotificationEntry> renderingSummaries = new HashSet<>();
+            for (PipelineEntry entry : entries) {
+                if (entry instanceof GroupEntry) {
+                    renderingSummaries.add(entry.getRepresentativeEntry());
+                }
             }
-        }
 
-        if (NotificationBundleUi.isEnabled()) {
-            for (EntryAdapter entryAdapter : mExpandedCollections) {
-                boolean isInPipeline = false;
-                for (NotificationEntry entry : renderingSummaries) {
-                    if (entry.getKey().equals(entryAdapter.getKey())) {
-                        isInPipeline = true;
-                        break;
+            if (NotificationBundleUi.isEnabled()) {
+                for (EntryAdapter entryAdapter : mExpandedCollections) {
+                    boolean isInPipeline = false;
+                    for (NotificationEntry entry : renderingSummaries) {
+                        if (entry.getKey().equals(entryAdapter.getKey())) {
+                            isInPipeline = true;
+                            break;
+                        }
+                    }
+                    if (!isInPipeline) {
+                        setGroupExpanded(entryAdapter, false);
                     }
                 }
-                if (!isInPipeline) {
-                    setGroupExpanded(entryAdapter, false);
+            } else {
+                // If a group is in mExpandedGroups but not in the pipeline entries, collapse it.
+                final var groupsToRemove = setDifference(mExpandedGroups, renderingSummaries);
+                for (NotificationEntry entry : groupsToRemove) {
+                    setGroupExpanded(entry, false);
                 }
-            }
-        } else {
-            // If a group is in mExpandedGroups but not in the pipeline entries, collapse it.
-            final var groupsToRemove = setDifference(mExpandedGroups, renderingSummaries);
-            for (NotificationEntry entry : groupsToRemove) {
-                setGroupExpanded(entry, false);
             }
         }
     };
