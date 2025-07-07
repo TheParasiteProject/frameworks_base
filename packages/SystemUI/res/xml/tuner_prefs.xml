@@ -27,6 +27,10 @@
             android:title="@string/status_bar_settings_auto_rotation" />
 
         <com.android.systemui.tuner.StatusBarSwitch
+            android:key="network_speed"
+            android:title="@string/status_bar_settings_network_speed" />
+
+        <com.android.systemui.tuner.StatusBarSwitch
             android:key="headset"
             android:title="@string/headset" />
 
