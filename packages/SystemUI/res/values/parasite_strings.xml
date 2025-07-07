@@ -35,4 +35,8 @@
     <!-- Content description of the Now Playing button for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_now_playing_button">Now Playing</string>
 
+    <!-- Internet -->
+    <string name="status_bar_settings_network_speed">Internet speed</string>
+    <string name="status_bar_network_speed">network_speed</string>
+
 </resources>
