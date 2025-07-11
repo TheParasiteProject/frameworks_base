@@ -85,6 +85,7 @@ import android.util.SparseBooleanArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.app.IAppOpsCallback;
 import com.android.internal.app.IAppOpsService;
+import com.android.internal.util.ClonedAppsUtils;
 import com.android.internal.util.IntPair;
 import com.android.internal.util.function.pooled.PooledLambda;
 import com.android.server.FgThread;
@@ -1023,6 +1024,11 @@ public final class PermissionPolicyService extends SystemService {
             if (uid == Process.ROOT_UID || uid == Process.SYSTEM_UID) {
                 // Root and system server always pass permission checks, so don't touch their app
                 // ops to keep compatibility.
+                return;
+            }
+            
+            final int userId = mPackageManager.getUserId();
+            if (ClonedAppsUtils.isClonedUser(userId) && userId != UserHandle.getUserHandleForUid(uid).getIdentifier()) {
                 return;
             }
 
