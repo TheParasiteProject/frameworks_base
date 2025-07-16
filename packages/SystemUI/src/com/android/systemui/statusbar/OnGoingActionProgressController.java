@@ -33,6 +33,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -64,8 +66,6 @@ import com.android.systemui.util.IconFetcher;
 import com.android.systemui.statusbar.OnGoingActionProgressGroup;
 import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.util.MediaSessionManagerHelper;
-
-import com.android.internal.util.evolution.VibrationUtils;
 
 import java.util.HashMap;
 import java.util.concurrent.Executor;
@@ -110,6 +110,13 @@ public class OnGoingActionProgressController implements NotificationListener.Not
     private static final int EXPAND_ANIMATION_DURATION = 350;
     private static final float ENTRY_TRANSLATION_Y = 50f;
 
+    private static final VibrationEffect EFFECT_CLICK =
+            VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
+    private static final VibrationEffect EFFECT_HEAVY_CLICK =
+            VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK);
+    private static final VibrationEffect EFFECT_DOUBLE_CLICK =
+            VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK);
+
     private final Context mContext;
     private final ContentResolver mContentResolver;
     private final Handler mHandler;
@@ -131,6 +138,8 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             }
         }
     };
+
+    private final Vibrator mVibrator;
 
     private final ProgressBar mProgressBar;
     private final ProgressBar mCircularProgressBar;
@@ -241,6 +250,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         mHandler = new Handler(Looper.getMainLooper());
         mSettingsObserver = new SettingsObserver(mHandler);
         mBackgroundExecutor = Executors.newSingleThreadExecutor();
+        mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
         mProgressBar = progressGroup.progressBarView;
         mCircularProgressBar = progressGroup.circularProgressBarView;
@@ -283,7 +293,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             } else {
                 openTrackedApp();
             }
-            VibrationUtils.triggerVibration(mContext, 3);
+            triggerVibration(EFFECT_CLICK);
         });
         
         mMediaSessionHelper.addMediaMetadataListener(mMediaMetadataListener);
@@ -305,6 +315,11 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         if (mCircularProgressBar != null) {
             mCircularProgressBar.setProgressTintList(ColorStateList.valueOf(mAccentColor));
         }
+    }
+
+    private void triggerVibration(VibrationEffect effect) {
+        mVibrator.cancel();
+        mVibrator.vibrate(effect);
     }
 
     private void expandCompactView() {
@@ -354,7 +369,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             } else {
                 openTrackedApp();
             }
-            VibrationUtils.triggerVibration(mContext, 3);
+            triggerVibration(EFFECT_CLICK);
             return true;
         }
 
@@ -363,7 +378,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             if (mShowMediaProgress && mMediaSessionHelper.isMediaPlaying()) {
                 toggleMediaPlaybackState();
             }
-            VibrationUtils.triggerVibration(mContext, 4);
+            triggerVibration(EFFECT_DOUBLE_CLICK);
             return true;
         }
 
@@ -372,7 +387,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             if (mShowMediaProgress && mMediaSessionHelper.isMediaPlaying()) {
                 openMediaApp();
             }
-            VibrationUtils.triggerVibration(mContext, 5);
+            triggerVibration(EFFECT_HEAVY_CLICK);
         }
 
         @Override
