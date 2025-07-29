@@ -6830,56 +6830,108 @@ public final class Settings {
         public static final String BACK_SWIPE_EXTENDED = "back_swipe_extended";
 
         /**
-         * Gestures nav: left long back swipe action
+         * Gestures nav: left long back swipe up action
          * @hide
          */
-        public static final String LEFT_VERTICAL_BACK_SWIPE_ACTION = "left_vertical_back_swipe_action";
+        public static final String LEFT_VERTICAL_BACK_SWIPE_UP_ACTION = "left_vertical_back_swipe_up_action";
 
         /**
-         * Gestures nav: left long back swipe app action
+         * Gestures nav: left long back swipe up app action
          * @hide
          */
-        public static final String LEFT_VERTICAL_BACK_SWIPE_APP_ACTION = "left_vertical_back_swipe_app_action";
-
-        /**
-         * Display friendly name of custom application launched when
-         * using the long left back swipe app action
-         * @hide
-         */
-        public static final String LEFT_VERTICAL_BACK_SWIPE_APP_FR_ACTION = "left_vertical_back_swipe_app_fr_action";
-
-        /**
-         * Launch custom activity when using the long left back swipe app action
-         *
-         * @hide
-         */
-        public static final String LEFT_VERTICAL_BACK_SWIPE_APP_ACTIVITY_ACTION = "left_vertical_back_swipe_app_activity_action";
-
-        /**
-         * Gestures nav: right long back swipe action
-         * @hide
-         */
-        public static final String RIGHT_VERTICAL_BACK_SWIPE_ACTION = "right_vertical_back_swipe_action";
-
-        /**
-         * Gestures nav: right long back swipe app action
-         * @hide
-         */
-        public static final String RIGHT_VERTICAL_BACK_SWIPE_APP_ACTION = "right_vertical_back_swipe_app_action";
+        public static final String LEFT_VERTICAL_BACK_SWIPE_UP_APP_ACTION = "left_vertical_back_swipe_up_app_action";
 
         /**
          * Display friendly name of custom application launched when
-         * using the long right back swipe app action
+         * using the long left back swipe up app action
          * @hide
          */
-        public static final String RIGHT_VERTICAL_BACK_SWIPE_APP_FR_ACTION = "right_vertical_back_swipe_app_fr_action";
+        public static final String LEFT_VERTICAL_BACK_SWIPE_UP_APP_FR_ACTION = "left_vertical_back_swipe_up_app_fr_action";
 
         /**
-         * Launch custom activity when using the long right back swipe app action
+         * Launch custom activity when using the long left back swipe up app action
          *
          * @hide
          */
-        public static final String RIGHT_VERTICAL_BACK_SWIPE_APP_ACTIVITY_ACTION = "right_vertical_back_swipe_app_activity_action";
+        public static final String LEFT_VERTICAL_BACK_SWIPE_UP_APP_ACTIVITY_ACTION = "left_vertical_back_swipe_up_app_activity_action";
+
+        /**
+         * Gestures nav: left long back swipe down action
+         * @hide
+         */
+        public static final String LEFT_VERTICAL_BACK_SWIPE_DOWN_ACTION = "left_vertical_back_swipe_down_action";
+
+        /**
+         * Gestures nav: left long back swipe down app action
+         * @hide
+         */
+        public static final String LEFT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTION = "left_vertical_back_swipe_down_app_action";
+
+        /**
+         * Display friendly name of custom application launched when
+         * using the long left back swipe down app action
+         * @hide
+         */
+        public static final String LEFT_VERTICAL_BACK_SWIPE_DOWN_APP_FR_ACTION = "left_vertical_back_swipe_down_app_fr_action";
+
+        /**
+         * Launch custom activity when using the long left back swipe down app action
+         *
+         * @hide
+         */
+        public static final String LEFT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTIVITY_ACTION = "left_vertical_back_swipe_down_app_activity_action";
+
+        /**
+         * Gestures nav: right long back swipe up action
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_UP_ACTION = "right_vertical_back_swipe_up_action";
+
+        /**
+         * Gestures nav: right long back swipe up app action
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_UP_APP_ACTION = "right_vertical_back_swipe_up_app_action";
+
+        /**
+         * Display friendly name of custom application launched when
+         * using the long right back swipe up app action
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_UP_APP_FR_ACTION = "right_vertical_back_swipe_up_app_fr_action";
+
+        /**
+         * Launch custom activity when using the long right back swipe up app action
+         *
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_UP_APP_ACTIVITY_ACTION = "right_vertical_back_swipe_up_app_activity_action";
+
+        /**
+         * Gestures nav: right long back swipe down action
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_DOWN_ACTION = "right_vertical_back_swipe_down_action";
+
+        /**
+         * Gestures nav: right long back swipe down app action
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTION = "right_vertical_back_swipe_down_app_action";
+
+        /**
+         * Display friendly name of custom application launched when
+         * using the long right back swipe down app action
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_DOWN_APP_FR_ACTION = "right_vertical_back_swipe_down_app_fr_action";
+
+        /**
+         * Launch custom activity when using the long right back swipe down app action
+         *
+         * @hide
+         */
+        public static final String RIGHT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTIVITY_ACTION = "right_vertical_back_swipe_down_app_activity_action";
 
         /**
          * GameSpace: List of added games by user
