@@ -286,8 +286,10 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
     private int mLeftLongSwipeAction;
     private int mRightLongSwipeAction;
     private boolean mIsExtendedSwipe;
-    private int mLeftVerticalSwipeAction;
-    private int mRightVerticalSwipeAction;
+    private int mLeftVerticalSwipeUpAction;
+    private int mLeftVerticalSwipeDownAction;
+    private int mRightVerticalSwipeUpAction;
+    private int mRightVerticalSwipeDownAction;
     private Handler mHandler;
     private boolean mImeVisible;
     private float mStartX;
@@ -594,8 +596,10 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
         mLeftLongSwipeAction = mGestureNavigationSettingsObserver.getLeftLongSwipeAction();
         mRightLongSwipeAction = mGestureNavigationSettingsObserver.getRightLongSwipeAction();
         mIsExtendedSwipe = mGestureNavigationSettingsObserver.getIsExtendedSwipe();
-        mLeftVerticalSwipeAction = mGestureNavigationSettingsObserver.getLeftLSwipeAction();
-        mRightVerticalSwipeAction = mGestureNavigationSettingsObserver.getRightLSwipeAction();
+        mLeftVerticalSwipeUpAction = mGestureNavigationSettingsObserver.getLeftLSwipeUpAction();
+        mLeftVerticalSwipeDownAction = mGestureNavigationSettingsObserver.getLeftLSwipeDownAction();
+        mRightVerticalSwipeUpAction = mGestureNavigationSettingsObserver.getRightLSwipeUpAction();
+        mRightVerticalSwipeDownAction = mGestureNavigationSettingsObserver.getRightLSwipeDownAction();
         if (mEdgeBackPlugin != null) {
             mEdgeBackPlugin.setLongSwipeEnabled(mIsExtendedSwipe);
         }
@@ -1306,13 +1310,13 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
             boolean almostLongSwipe = mIsExtendedSwipe && (touchTranslation > longSwipeThreshold);
             if (isMove && almostLongSwipe) {
                 float deltaX = Math.abs(ev.getX() - mDownPoint.x);
-                float deltaY = Math.abs(ev.getY() - mDownPoint.y);
+                float deltaY = ev.getY() - mDownPoint.y;
                 // give priority to horizontal (X) swipe
-                if (deltaX  > (int)((mDisplaySize.x / 4) * 2.5f)) {
-                    mLongSwipeAction.setIsVertical(false);
+                if (deltaX > (int)((mDisplaySize.x / 4) * 2.5f)) {
+                    mLongSwipeAction.setIsVertical(0f);
                 }
-                if (deltaY  > (mDisplaySize.y / 4)) {
-                    mLongSwipeAction.setIsVertical(true);
+                if (Math.abs(deltaY) > (mDisplaySize.y / 4)) {
+                    mLongSwipeAction.setIsVertical(deltaY);
                 }
             }
             if (isUp && almostLongSwipe) {
@@ -1363,15 +1367,15 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
 
     private SwipeRunnable mLongSwipeAction = new SwipeRunnable();
     private class SwipeRunnable implements Runnable {
-        private boolean mIsVertical;
+        private float mPosition = 0.0f;
 
-        public void setIsVertical(boolean vertical) {
-            mIsVertical = vertical;
+        public void setIsVertical(float position) {
+            mPosition = position;
         }
 
         @Override
         public void run() {
-            triggerAction(mIsVertical);
+            triggerAction(mPosition);
         }
     }
 
@@ -1384,9 +1388,20 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
         vibrateBack();
     }
 
-    private void triggerAction(boolean isVertical) {
-        int action = mIsOnLeftEdge ? (isVertical ? mLeftVerticalSwipeAction : mLeftLongSwipeAction)
-                : (isVertical ? mRightVerticalSwipeAction : mRightLongSwipeAction);
+    private void triggerAction(float position) {
+        final boolean isVertical = position != 0.0f;
+        final boolean isSwipeUp = isVertical && position < 0.0f;
+        int action = mIsOnLeftEdge
+                ? (isVertical
+                    ? (isSwipeUp
+                        ? mLeftVerticalSwipeUpAction
+                        : mLeftVerticalSwipeDownAction)
+                    : mLeftLongSwipeAction)
+                : (isVertical
+                        ? (isSwipeUp
+                            ? mRightVerticalSwipeUpAction
+                            : mRightVerticalSwipeDownAction)
+                    : mRightLongSwipeAction);
 
         if (action < 0 || action > DeviceKeysConstants.Action.values().length) {
             return;
@@ -1396,24 +1411,28 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
 
         // launchApp action always followed after DeviceKeysConstants.Action
         if (action == DeviceKeysConstants.Action.values().length) {
-            launchApp(mContext, mIsOnLeftEdge, isVertical);
+            launchApp(mContext, mIsOnLeftEdge, isVertical, isSwipeUp);
             return;
         }
 
         CustomUtils.performKeyActionFromIntSafe(mContext, action);
     }
 
-    private void launchApp(Context context, boolean leftEdgeApp, boolean isVerticalSwipe) {
+    private void launchApp(Context context, boolean leftEdgeApp, boolean isVerticalSwipe, boolean isSwipeUp) {
         Intent intent = null;
         String packageName =
                 Settings.System.getStringForUser(
                         context.getContentResolver(),
                         leftEdgeApp
                                 ? (isVerticalSwipe
-                                        ? Settings.System.LEFT_VERTICAL_BACK_SWIPE_APP_ACTION
+                                        ? (isSwipeUp
+                                            ? Settings.System.LEFT_VERTICAL_BACK_SWIPE_UP_APP_ACTION
+                                            : Settings.System.LEFT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTION)
                                         : Settings.System.LEFT_LONG_BACK_SWIPE_APP_ACTION)
                                 : (isVerticalSwipe
-                                        ? Settings.System.RIGHT_VERTICAL_BACK_SWIPE_APP_ACTION
+                                        ? (isSwipeUp
+                                            ? Settings.System.RIGHT_VERTICAL_BACK_SWIPE_UP_APP_ACTION
+                                            : Settings.System.RIGHT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTION)
                                         : Settings.System.RIGHT_LONG_BACK_SWIPE_APP_ACTION),
                         UserHandle.USER_CURRENT);
         String activity =
@@ -1421,14 +1440,15 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
                         context.getContentResolver(),
                         leftEdgeApp
                                 ? (isVerticalSwipe
-                                        ? Settings.System
-                                                .LEFT_VERTICAL_BACK_SWIPE_APP_ACTIVITY_ACTION
+                                        ? (isSwipeUp
+                                            ? Settings.System.LEFT_VERTICAL_BACK_SWIPE_UP_APP_ACTIVITY_ACTION
+                                            : Settings.System.LEFT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTIVITY_ACTION)
                                         : Settings.System.LEFT_LONG_BACK_SWIPE_APP_ACTIVITY_ACTION)
                                 : (isVerticalSwipe
-                                        ? Settings.System
-                                                .RIGHT_VERTICAL_BACK_SWIPE_APP_ACTIVITY_ACTION
-                                        : Settings.System
-                                                .RIGHT_LONG_BACK_SWIPE_APP_ACTIVITY_ACTION),
+                                        ? (isSwipeUp
+                                            ? Settings.System.RIGHT_VERTICAL_BACK_SWIPE_UP_APP_ACTIVITY_ACTION
+                                            : Settings.System.RIGHT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTIVITY_ACTION)
+                                        : Settings.System.RIGHT_LONG_BACK_SWIPE_APP_ACTIVITY_ACTION),
                         UserHandle.USER_CURRENT);
         boolean launchActivity = activity != null && !TextUtils.equals("NONE", activity);
         try {

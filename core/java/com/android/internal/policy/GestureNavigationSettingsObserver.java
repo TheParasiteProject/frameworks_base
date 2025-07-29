@@ -87,52 +87,82 @@ public class GestureNavigationSettingsObserver extends ContentObserver {
                 String rightPackageName = Settings.System.getStringForUser(context.getContentResolver(),
                         Settings.System.RIGHT_LONG_BACK_SWIPE_APP_ACTION,
                         UserHandle.USER_CURRENT);
-                String verticalLeftPackageName = Settings.System.getStringForUser(context.getContentResolver(),
-                        Settings.System.LEFT_VERTICAL_BACK_SWIPE_APP_ACTION,
+                String verticalLeftUpPackageName = Settings.System.getStringForUser(context.getContentResolver(),
+                        Settings.System.LEFT_VERTICAL_BACK_SWIPE_UP_APP_ACTION,
                         UserHandle.USER_CURRENT);
-                String verticalRightPackageName = Settings.System.getStringForUser(context.getContentResolver(),
-                        Settings.System.RIGHT_VERTICAL_BACK_SWIPE_APP_ACTION,
+                String verticalLeftDownPackageName = Settings.System.getStringForUser(context.getContentResolver(),
+                        Settings.System.LEFT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTION,
+                        UserHandle.USER_CURRENT);
+                String verticalRightUpPackageName = Settings.System.getStringForUser(context.getContentResolver(),
+                        Settings.System.RIGHT_VERTICAL_BACK_SWIPE_UP_APP_ACTION,
+                        UserHandle.USER_CURRENT);
+                String verticalRightDownPackageName = Settings.System.getStringForUser(context.getContentResolver(),
+                        Settings.System.RIGHT_VERTICAL_BACK_SWIPE_DOWN_APP_ACTION,
                         UserHandle.USER_CURRENT);
                 // if the package name equals to some set value
-                if(packageName.equals(leftPackageName)) {
+                if (packageName.equals(leftPackageName)) {
                     // The short application action has to be reset
-                    resetApplicationAction(true, false);
+                    resetApplicationAction(true, false, false);
                 }
                 if (packageName.equals(rightPackageName)) {
                     // The long application action has to be reset
-                    resetApplicationAction(false, false);
+                    resetApplicationAction(false, false, false);
                 }
-                if(packageName.equals(verticalLeftPackageName)) {
+                if (packageName.equals(verticalLeftUpPackageName)) {
                     // The short application action has to be reset
-                    resetApplicationAction(true, true);
+                    resetApplicationAction(true, true, true);
                 }
-                if (packageName.equals(verticalRightPackageName)) {
+                if (packageName.equals(verticalLeftDownPackageName)) {
+                    // The short application action has to be reset
+                    resetApplicationAction(true, true, false);
+                }
+                if (packageName.equals(verticalRightUpPackageName)) {
                     // The long application action has to be reset
-                    resetApplicationAction(false, true);
+                    resetApplicationAction(false, true, true);
+                }
+                if (packageName.equals(verticalRightDownPackageName)) {
+                    // The long application action has to be reset
+                    resetApplicationAction(false, true, false);
                 }
             }
         }
     };
 
-    private void resetApplicationAction(boolean isLeftAction, boolean isVertical) {
+    private void resetApplicationAction(boolean isLeftAction, boolean isVertical, boolean isSwipeUp) {
         if (isLeftAction) {
             // Remove stored values
             Settings.System.putIntForUser(mContext.getContentResolver(),
-                    isVertical ? Settings.System.LEFT_VERTICAL_BACK_SWIPE_ACTION : Settings.System.LEFT_LONG_BACK_SWIPE_ACTION,
+                    isVertical
+                        ? (isSwipeUp
+                            ? Settings.System.LEFT_VERTICAL_BACK_SWIPE_UP_ACTION
+                            : Settings.System.LEFT_VERTICAL_BACK_SWIPE_DOWN_ACTION)
+                        : Settings.System.LEFT_LONG_BACK_SWIPE_ACTION,
                     /* no action */ 0,
                     UserHandle.USER_CURRENT);
             Settings.System.putStringForUser(mContext.getContentResolver(),
-                    isVertical ? Settings.System.LEFT_VERTICAL_BACK_SWIPE_APP_FR_ACTION : Settings.System.LEFT_LONG_BACK_SWIPE_APP_FR_ACTION,
+                    isVertical
+                        ? (isSwipeUp
+                            ? Settings.System.LEFT_VERTICAL_BACK_SWIPE_UP_APP_FR_ACTION
+                            : Settings.System.LEFT_VERTICAL_BACK_SWIPE_DOWN_APP_FR_ACTION)
+                        : Settings.System.LEFT_LONG_BACK_SWIPE_APP_FR_ACTION,
                     /* none */ "",
                     UserHandle.USER_CURRENT);
         } else {
             // Remove stored values
             Settings.System.putIntForUser(mContext.getContentResolver(),
-                    isVertical ? Settings.System.RIGHT_VERTICAL_BACK_SWIPE_ACTION : Settings.System.RIGHT_LONG_BACK_SWIPE_ACTION,
+                    isVertical
+                        ? (isSwipeUp
+                            ? Settings.System.RIGHT_VERTICAL_BACK_SWIPE_UP_ACTION
+                            : Settings.System.RIGHT_VERTICAL_BACK_SWIPE_DOWN_ACTION)
+                        : Settings.System.RIGHT_LONG_BACK_SWIPE_ACTION,
                     /* no action */ 0,
                     UserHandle.USER_CURRENT);
             Settings.System.putStringForUser(mContext.getContentResolver(),
-                    isVertical ? Settings.System.RIGHT_VERTICAL_BACK_SWIPE_APP_FR_ACTION : Settings.System.RIGHT_LONG_BACK_SWIPE_APP_FR_ACTION,
+                    isVertical
+                        ? (isSwipeUp
+                            ? Settings.System.RIGHT_VERTICAL_BACK_SWIPE_UP_APP_FR_ACTION
+                            : Settings.System.RIGHT_VERTICAL_BACK_SWIPE_DOWN_APP_FR_ACTION)
+                        : Settings.System.RIGHT_LONG_BACK_SWIPE_APP_FR_ACTION,
                     /* none */ "",
                     UserHandle.USER_CURRENT);
         }
@@ -168,10 +198,16 @@ public class GestureNavigationSettingsObserver extends ContentObserver {
                     Settings.System.getUriFor(Settings.System.BACK_SWIPE_EXTENDED),
                     false, this, UserHandle.USER_ALL);
             r.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.LEFT_VERTICAL_BACK_SWIPE_ACTION),
+                    Settings.System.getUriFor(Settings.System.LEFT_VERTICAL_BACK_SWIPE_UP_ACTION),
                     false, this, UserHandle.USER_ALL);
             r.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.RIGHT_VERTICAL_BACK_SWIPE_ACTION),
+                    Settings.System.getUriFor(Settings.System.LEFT_VERTICAL_BACK_SWIPE_DOWN_ACTION),
+                    false, this, UserHandle.USER_ALL);
+            r.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.RIGHT_VERTICAL_BACK_SWIPE_UP_ACTION),
+                    false, this, UserHandle.USER_ALL);
+            r.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.RIGHT_VERTICAL_BACK_SWIPE_DOWN_ACTION),
                     false, this, UserHandle.USER_ALL);
             r.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.LOCK_GESTURE_STATUS),
@@ -301,15 +337,27 @@ public class GestureNavigationSettingsObserver extends ContentObserver {
             UserHandle.USER_CURRENT) != 0;
     }
 
-    public int getLeftLSwipeAction() {
+    public int getLeftLSwipeUpAction() {
         return Settings.System.getIntForUser(mContext.getContentResolver(),
-            Settings.System.LEFT_VERTICAL_BACK_SWIPE_ACTION, 0,
+            Settings.System.LEFT_VERTICAL_BACK_SWIPE_UP_ACTION, 0,
             UserHandle.USER_CURRENT);
     }
 
-    public int getRightLSwipeAction() {
+    public int getLeftLSwipeDownAction() {
         return Settings.System.getIntForUser(mContext.getContentResolver(),
-            Settings.System.RIGHT_VERTICAL_BACK_SWIPE_ACTION, 0,
+            Settings.System.LEFT_VERTICAL_BACK_SWIPE_DOWN_ACTION, 0,
+            UserHandle.USER_CURRENT);
+    }
+
+    public int getRightLSwipeUpAction() {
+        return Settings.System.getIntForUser(mContext.getContentResolver(),
+            Settings.System.RIGHT_VERTICAL_BACK_SWIPE_UP_ACTION, 0,
+            UserHandle.USER_CURRENT);
+    }
+
+    public int getRightLSwipeDownAction() {
+        return Settings.System.getIntForUser(mContext.getContentResolver(),
+            Settings.System.RIGHT_VERTICAL_BACK_SWIPE_DOWN_ACTION, 0,
             UserHandle.USER_CURRENT);
     }
 }
