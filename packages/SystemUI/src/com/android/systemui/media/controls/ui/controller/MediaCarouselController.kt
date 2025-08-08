@@ -268,7 +268,7 @@ constructor(
             }
 
             override fun onThemeChanged() {
-                updatePlayers(recreateMedia = false)
+                updatePlayers(recreateMedia = true)
                 inflateSettingsButton()
             }
 
