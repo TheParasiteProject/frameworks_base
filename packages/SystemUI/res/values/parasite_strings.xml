@@ -32,4 +32,7 @@
     <string name="quick_settings_refresh_rate_label">Refresh rate</string>
     <string name="quick_settings_refresh_rate_auto_mode_label">Auto</string>
 
+    <!-- Content description of the Now Playing button for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_now_playing_button">Now Playing</string>
+
 </resources>
