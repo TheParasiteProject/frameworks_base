@@ -118,7 +118,7 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
     private boolean isPowerShareEnabled() {
         try {
             return mPowerShare.isEnabled();
-        } catch (RemoteException | ServiceSpecificException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -128,7 +128,7 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
     private void setEnabled(boolean enable) {
         try {
             mPowerShare.setEnabled(enable);
-        } catch (RemoteException | ServiceSpecificException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -225,7 +225,7 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
     private int getMinBatteryLevel() {
         try {
             return mPowerShare.getMinBattery();
-        } catch (RemoteException | ServiceSpecificException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
