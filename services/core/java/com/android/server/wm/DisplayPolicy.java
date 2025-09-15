@@ -97,6 +97,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.Trace;
@@ -1428,6 +1429,18 @@ public class DisplayPolicy {
     public void layoutWindowLw(WindowState win, WindowState attached, DisplayFrames displayFrames) {
         if (win.skipLayout()) {
             return;
+        }
+
+        // Fullscreen cutout app [3/3]
+        final WindowManager.LayoutParams lp = win.mAttrs;
+        String pkg = win.getOwningPackage();
+        try {
+            if (lp != null && pkg != null && ActivityManager.getService().shouldForceLongScreen(pkg)) {
+                lp.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+            }
+        } catch (RemoteException e) {
+            Slog.d(TAG, "Failed to override layoutInDisplayCutoutMode");
         }
 
         // This window might be in the simulated environment.
