@@ -1463,6 +1463,18 @@ public class DisplayPolicy {
             return;
         }
 
+        // Fullscreen cutout app [3/3]
+        final WindowManager.LayoutParams lp = win.mAttrs;
+        String pkg = win.getOwningPackage();
+        try {
+            if (lp != null && pkg != null && ActivityManager.getService().shouldForceLongScreen(pkg)) {
+                lp.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+            }
+        } catch (RemoteException e) {
+            Slog.d(TAG, "Failed to override layoutInDisplayCutoutMode");
+        }
+
         // This window might be in the simulated environment.
         // We invoke this to get the proper DisplayFrames.
         displayFrames = win.getDisplayFrames(displayFrames);
