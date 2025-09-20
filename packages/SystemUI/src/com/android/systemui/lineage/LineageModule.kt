@@ -283,8 +283,8 @@ interface LineageModule {
             return QSTileConfig(
                 tileSpec = TileSpec.create(RefreshRateTile.TILE_SPEC),
                 uiConfig = QSTileUIConfig.Resource(
-                    iconRes = R.drawable.ic_refresh_rate,
-                    labelRes = R.string.refresh_rate_tile_label
+                    iconRes = R.drawable.ic_qs_refresh_rate,
+                    labelRes = R.string.quick_settings_refresh_rate_label
                 ),
                 instanceId = uiEventLogger.getNewInstanceId(),
                 category = TileCategory.DISPLAY

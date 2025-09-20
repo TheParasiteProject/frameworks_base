@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: TheParasiteProject
+  SPDX-License-Identifier: Apache-2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+  <path
+      android:pathData="m480,597.31q-100.18,0 -169.71,-69.53 -69.53,-69.53 -69.53,-169.71 0,-100.18 69.53,-169.71 69.53,-69.53 169.71,-69.53 51.59,0 98.69,21.31 47.1,21.31 80.74,60.93v-82.24h59.81V328.16H509.91v-59.81h125.6Q611.58,226.48 570.09,202.56 528.6,178.63 480,178.63q-74.76,0 -127.1,52.33 -52.33,52.33 -52.33,127.1 0,74.76 52.33,127.1 52.33,52.33 127.1,52.33 57.57,0 103.92,-32.9 46.35,-32.9 65.04,-86.73h62.8Q690.83,497.13 626.54,547.22 562.24,597.31 480,597.31Z"
+      android:strokeWidth="0.747639"
+      android:fillColor="#ffffff"/>
+  <path
+      android:pathData="M120,880L120,680h80v200zM280,880L280,680h80v200zM440,880L440,680h80v200zM600,880L600,680h240v200z"
+      android:fillColor="#ffffff"/>
+</vector>
