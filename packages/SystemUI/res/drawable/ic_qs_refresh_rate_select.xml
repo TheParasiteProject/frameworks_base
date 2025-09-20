@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: TheParasiteProject
+  SPDX-License-Identifier: Apache-2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M120,880L120,680L200,680L200,880L120,880ZM280,880L280,680L360,680L360,880L280,880ZM440,880L440,680L520,680L520,880L440,880ZM600,880L600,680L840,680L840,880L600,880Z"/>
+</vector>
