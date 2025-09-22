@@ -82,6 +82,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.DeviceConfig;
 import android.provider.DeviceConfig.Properties;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.AtomicFile;
@@ -117,10 +118,12 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service to manage game related features.
@@ -1043,6 +1046,21 @@ public final class GameManagerService extends IGameManagerService.Stub {
     }
 
     private boolean isPackageGame(String packageName, @UserIdInt int userId) {
+        final String gameList = Settings.System.getStringForUser(
+                mContext.getContentResolver(),
+                Settings.System.GAMESPACE_GAME_LIST,
+                userId);
+
+        final Set<String> gamePkgs = (gameList == null || gameList.isEmpty())
+                ? Collections.emptySet()
+                : Arrays.stream(gameList.split(";"))
+                        .map(entry -> entry.split("=")[0])
+                        .collect(Collectors.toSet());
+
+        if (gamePkgs.contains(packageName)) {
+            return true;
+        }
+
         try {
             final ApplicationInfo applicationInfo = mPackageManager
                     .getApplicationInfoAsUser(packageName, PackageManager.MATCH_ALL, userId);
