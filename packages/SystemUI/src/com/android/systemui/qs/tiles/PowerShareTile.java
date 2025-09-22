@@ -221,6 +221,12 @@ public class PowerShareTile extends QSTileImpl<BooleanState>
     }
 
     @Override
+    public void destroy() {
+        mBatteryController.removeCallback(this);
+        super.destroy();
+    }
+
+    @Override
     public void handleSetListening(boolean listening) {
     }
 
