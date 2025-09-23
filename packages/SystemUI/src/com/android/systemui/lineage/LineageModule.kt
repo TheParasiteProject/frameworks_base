@@ -178,7 +178,7 @@ interface LineageModule {
             return QSTileConfig(
                 tileSpec = TileSpec.create(HeadsUpTile.TILE_SPEC),
                 uiConfig = QSTileUIConfig.Resource(
-                    iconRes = R.drawable.ic_qs_heads_up,
+                    iconRes = R.drawable.ic_qs_heads_up_on,
                     labelRes = R.string.quick_settings_heads_up_label
                 ),
                 instanceId = uiEventLogger.getNewInstanceId(),

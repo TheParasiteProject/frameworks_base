@@ -52,7 +52,8 @@ public class HeadsUpTile extends QSTileImpl<BooleanState> {
 
     public static final String TILE_SPEC = "heads_up";
 
-    private final Icon mIcon = ResourceIcon.get(R.drawable.ic_qs_heads_up);
+    private final Icon mIconOn = ResourceIcon.get(R.drawable.ic_qs_heads_up_on);
+    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_qs_heads_up_off);
 
     private static final Intent NOTIFICATION_SETTINGS =
             new Intent("android.settings.NOTIFICATION_SETTINGS");
@@ -113,12 +114,13 @@ public class HeadsUpTile extends QSTileImpl<BooleanState> {
         final boolean headsUp = value != 0;
         state.value = headsUp;
         state.label = mContext.getString(R.string.quick_settings_heads_up_label);
-        state.icon = mIcon;
         if (headsUp) {
+            state.icon = mIconOn;
             state.contentDescription =  mContext.getString(
                     R.string.accessibility_quick_settings_heads_up_on);
             state.state = Tile.STATE_ACTIVE;
         } else {
+            state.icon = mIconOff;
             state.contentDescription =  mContext.getString(
                     R.string.accessibility_quick_settings_heads_up_off);
             state.state = Tile.STATE_INACTIVE;
