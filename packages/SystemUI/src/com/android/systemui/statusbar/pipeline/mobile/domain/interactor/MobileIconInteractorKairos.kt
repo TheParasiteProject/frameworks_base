@@ -137,6 +137,9 @@ interface MobileIconInteractorKairos {
 
     /** Whether to show the exclamation mark on [SignalDrawable]. */
     val shouldShowExclamationMark: State<Boolean>
+
+    /** Whether to show the 4G icon instead of LTE. */
+    val shouldShowFourgIcon: State<Boolean>
 }
 
 /** Interactor for a single mobile connection. This connection _should_ have one subscription ID */
@@ -396,6 +399,27 @@ class MobileIconInteractorKairosImpl(
                         }
                     }
                 Dependency.get(TunerService::class.java).addTunable(callback, DATA_DISABLED_ICON)
+
+                awaitClose { Dependency.get(TunerService::class.java).removeTunable(callback) }
+            }
+            .toState(initialValue = false)
+    }
+
+    private val SHOW_FOURG_ICON: String =
+            "system:" + Settings.System.SHOW_FOURG_ICON
+
+    override val shouldShowFourgIcon: State<Boolean> = buildState {
+        callbackFlow {
+                val callback =
+                    object : TunerService.Tunable {
+                        override fun onTuningChanged(key: String, newValue: String?) {
+                            when (key) {
+                                SHOW_FOURG_ICON ->
+                                    trySend(TunerService.parseIntegerSwitch(newValue, false))
+                            }
+                        }
+                    }
+                Dependency.get(TunerService::class.java).addTunable(callback, SHOW_FOURG_ICON)
 
                 awaitClose { Dependency.get(TunerService::class.java).removeTunable(callback) }
             }

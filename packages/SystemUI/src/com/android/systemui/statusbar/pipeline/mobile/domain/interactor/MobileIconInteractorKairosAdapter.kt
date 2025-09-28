@@ -149,6 +149,12 @@ fun BuildScope.MobileIconInteractorKairosAdapter(
                         "MobileIconInteractorKairosAdapter(subId=$subscriptionId).shouldShowExclamationMark"
                     }
                 ),
+            shouldShowFourgIcon = 
+                shouldShowFourgIcon.toStateFlow(
+                    nameTag {
+                        "MobileIconInteractorKairosAdapter(subId=$subscriptionId).shouldShowFourgIcon"
+                    }
+                ),
         )
     }
 
@@ -174,4 +180,5 @@ private class MobileIconInteractorKairosAdapter(
     override val isAllowedDuringAirplaneMode: StateFlow<Boolean>,
     override val carrierNetworkChangeActive: StateFlow<Boolean>,
     override val shouldShowExclamationMark: StateFlow<Boolean>,
+    override val shouldShowFourgIcon: StateFlow<Boolean>,
 ) : MobileIconInteractor
