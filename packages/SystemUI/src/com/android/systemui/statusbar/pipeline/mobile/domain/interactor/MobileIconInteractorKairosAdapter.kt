@@ -53,6 +53,7 @@ fun BuildScope.MobileIconInteractorKairosAdapter(
             isAllowedDuringAirplaneMode = isAllowedDuringAirplaneMode.toStateFlow(),
             carrierNetworkChangeActive = carrierNetworkChangeActive.toStateFlow(),
             shouldShowExclamationMark = shouldShowExclamationMark.toStateFlow(),
+            shouldShowFourgIcon = shouldShowFourgIcon.toStateFlow(),
         )
     }
 
@@ -77,4 +78,5 @@ private class MobileIconInteractorKairosAdapter(
     override val isAllowedDuringAirplaneMode: StateFlow<Boolean>,
     override val carrierNetworkChangeActive: StateFlow<Boolean>,
     override val shouldShowExclamationMark: StateFlow<Boolean>,
+    override val shouldShowFourgIcon: StateFlow<Boolean>,
 ) : MobileIconInteractor
