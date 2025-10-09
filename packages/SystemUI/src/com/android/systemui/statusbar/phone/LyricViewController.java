@@ -19,6 +19,7 @@ package com.android.systemui.statusbar.phone;
 import android.app.Notification;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.service.notification.NotificationListenerService;
@@ -38,7 +39,6 @@ import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.util.ContrastColorUtil;
 import com.android.systemui.Dependency;
 import com.android.systemui.res.R;
-import com.android.systemui.DualToneHandler;
 import com.android.systemui.plugins.DarkIconDispatcher;
 import com.android.systemui.statusbar.NotificationListener;
 import com.android.systemui.statusbar.StatusBarIconView;
@@ -60,8 +60,6 @@ public abstract class LyricViewController implements
     private final View mLyricContainer;
 
     private final ContrastColorUtil mNotificationColorUtil;
-
-    private DualToneHandler mDualToneHandler;
 
     private boolean mEnabled;
     private boolean mStarted;
@@ -101,7 +99,6 @@ public abstract class LyricViewController implements
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(this);
         Dependency.get(NotificationListener.class).addNotificationHandler(this);
 
-        mDualToneHandler = new DualToneHandler(context);
         // Init to not dark at all.
         onDarkChanged(new ArrayList<Rect>(), 0, DarkIconDispatcher.DEFAULT_ICON_TINT);
     }
@@ -218,10 +215,17 @@ public abstract class LyricViewController implements
 
     @Override
     public void onDarkChanged(ArrayList<Rect> areas, float darkIntensity, int tint) {
-        if (mDualToneHandler == null) return;
+        final int tintColor;
 
-        float intensity = DarkIconDispatcher.isInAreas(areas, mLyricContainer) ? darkIntensity : 0;
-        int tintColor = mDualToneHandler.getSingleColor(intensity);
+        if (DarkIconDispatcher.isInAreas(areas, mLyricContainer)) {
+            if (darkIntensity < 0.5) {
+                tintColor = Color.WHITE;
+            } else {
+                tintColor = Color.BLACK;
+            }
+        } else  {
+            tintColor = Color.WHITE;
+        }
 
         ((TextView) mTextSwitcher.getCurrentView()).setTextColor(tintColor);
         ((TextView) mTextSwitcher.getNextView()).setTextColor(tintColor);
