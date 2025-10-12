@@ -268,7 +268,9 @@ final class InstallPackageHelper {
             createSignatures(mContext.getResources().getStringArray(
                 org.lineageos.platform.internal.R.array.config_googlePlatformSignaturesExtra)),
             createSignatures(mContext.getResources().getStringArray(
-                org.lineageos.platform.internal.R.array.config_sonyPlatformSignatures))
+                org.lineageos.platform.internal.R.array.config_sonyPlatformSignatures)),
+            createSignatures(mContext.getResources().getStringArray(
+                org.lineageos.platform.internal.R.array.config_sonyPlatformSignaturesExtra))
         };
     }
 
