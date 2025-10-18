@@ -117,6 +117,7 @@ cc_library_shared_for_libandroid_runtime {
     ],
 
     defaults: [
+        "libcorejni_lto",
         "aconfig_lib_cc_shared_link.defaults",
         "latest_android_media_audio_common_types_cpp_target_shared",
     ],
@@ -515,6 +516,7 @@ cc_library_shared_for_libandroid_runtime {
 
 cc_library_shared {
     name: "libvintf_jni",
+    defaults: ["libcorejni_lto"],
 
     cpp_std: "gnu++20",
 
@@ -537,6 +539,7 @@ cc_library_shared {
 
 cc_library_shared {
     name: "libmedia_jni_utils",
+    defaults: ["libcorejni_lto"],
     srcs: [
         ":libgui_frame_event_aidl",
         "android_media_Utils.cpp",
@@ -565,4 +568,23 @@ cc_library_shared {
         "-Wunused",
         "-Wunreachable-code",
     ],
+}
+
+// Build core jni libraries with ThinLTO by default.
+cc_defaults {
+    name: "libcorejni_lto",
+    target: {
+        android: {
+            lto: {
+                thin: true,
+            },
+        },
+    },
+    cflags: [
+        "-O3",
+    ],
+    whole_program_vtables: true,
+
+    // TODO(b/330503129) Workaround build breakage.
+    lto_O0: true,
 }
