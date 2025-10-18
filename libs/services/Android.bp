@@ -25,6 +25,9 @@ package {
 
 cc_library_shared {
     name: "libservices",
+    defaults: [
+        "libservices_lto",
+    ],
     srcs: [
         "src/content/ComponentName.cpp",
         "src/os/DropBoxManager.cpp",
@@ -102,4 +105,21 @@ cc_test {
         "libutils",
     ],
     require_root: true,
+}
+
+// Build services library with ThinLTO by default.
+cc_defaults {
+    name: "libservices_lto",
+    target: {
+        android: {
+            lto: {
+                thin: true,
+            },
+        },
+    },
+    cflags: [
+        "-O3",
+    ],
+    whole_program_vtables: true,
+    lto_Instr100: true,
 }
