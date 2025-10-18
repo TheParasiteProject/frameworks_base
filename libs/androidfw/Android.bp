@@ -39,6 +39,9 @@ cc_aconfig_library {
 
 cc_defaults {
     name: "libandroidfw_defaults",
+    defaults: [
+        "libandroidfw_lto",
+    ],
     cpp_std: "gnu++2b",
     cflags: [
         "-Werror",
@@ -160,6 +163,23 @@ cc_library {
     sanitize: {
         blocklist: "libandroidfw_blocklist.txt",
     },
+}
+
+// Build androidfw library with ThinLTO by default.
+cc_defaults {
+    name: "libandroidfw_lto",
+    target: {
+        android: {
+            lto: {
+                thin: true,
+            },
+        },
+    },
+    cflags: [
+        "-O3",
+    ],
+    whole_program_vtables: true,
+    lto_Instr100: true,
 }
 
 cc_library_static {
