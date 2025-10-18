@@ -17,6 +17,9 @@ license {
 
 cc_library_static {
     name: "libstorage",
+    defaults: [
+        "libstorage_lto",
+    ],
 
     srcs: [
         "IMountServiceListener.cpp",
@@ -34,4 +37,21 @@ cc_library_static {
     ],
 
     shared_libs: ["libbinder"],
+}
+
+// Build storage library with ThinLTO by default.
+cc_defaults {
+    name: "libstorage_lto",
+    target: {
+        android: {
+            lto: {
+                thin: true,
+            },
+        },
+    },
+    cflags: [
+        "-O3",
+    ],
+    whole_program_vtables: true,
+    lto_Instr100: true,
 }
