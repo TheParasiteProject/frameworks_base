@@ -204,6 +204,7 @@ cc_defaults {
         "-O3",
     ],
     whole_program_vtables: true,
+    lto_Instr100: true,
 }
 
 // ------------------------
