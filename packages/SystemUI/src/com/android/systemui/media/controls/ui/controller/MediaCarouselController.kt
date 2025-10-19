@@ -290,6 +290,11 @@ constructor(
                     inflateSettingsButton()
                 }
             }
+
+            override fun onOrientationChanged(orientation: Int) {
+                updatePlayers(recreateMedia = false)
+                inflateSettingsButton()
+            }
         }
 
     private val keyguardUpdateMonitorCallback =
