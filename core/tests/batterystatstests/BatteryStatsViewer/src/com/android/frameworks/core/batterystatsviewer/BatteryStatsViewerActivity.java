@@ -436,6 +436,7 @@ public class BatteryStatsViewerActivity extends CollapsingToolbarBaseActivity {
         private void setTitleIconAndBackground(ViewHolder viewHolder, String title, int icon) {
             viewHolder.titleTextView.setText(title);
             viewHolder.iconImageView.setImageResource(icon);
+            viewHolder.itemView.setBackgroundResource(R.color.background);
         }
 
         private void setProportionText(TextView textView, BatteryConsumerData.Entry entry) {
