@@ -982,6 +982,11 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     }
 
     @Override
+    public void onThemeChanged() {
+        onRefresh();
+    }
+
+    @Override
     public void onUiModeChanged() {
         onRefresh();
     }
