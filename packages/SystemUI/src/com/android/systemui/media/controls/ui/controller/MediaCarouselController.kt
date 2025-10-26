@@ -292,7 +292,7 @@ constructor(
             }
 
             override fun onOrientationChanged(orientation: Int) {
-                updatePlayers(recreateMedia = false)
+                updatePlayers(recreateMedia = true)
                 inflateSettingsButton()
             }
         }
