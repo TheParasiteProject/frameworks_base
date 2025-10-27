@@ -185,7 +185,8 @@ internal constructor(
         screenshotHandler.resetTimeout()
 
         packageLabel = runCatching {
-            val info = packageManager.getApplicationInfo(screenshot.packageNameString, 0)
+            val info = packageManager.getApplicationInfoAsUser(
+                    screenshot.packageNameString, 0, screenshot.userHandle)
             info.loadLabel(packageManager).toString()
         }.getOrDefault("")
         scrollCaptureExecutor.longScreenshotHolder.foregroundAppName = packageLabel
