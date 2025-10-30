@@ -258,18 +258,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         
         mProgressRootView.setOnTouchListener((v, event) -> mGestureDetector.onTouchEvent(event));
         mCompactRootView.setOnTouchListener((v, event) -> mGestureDetector.onTouchEvent(event));
-        
-        mCompactRootView.setOnClickListener(v -> {
-            if (mIsCompactModeEnabled && !mIsExpanded) {
-                expandCompactView();
-            } else if (mShowMediaProgress && mMediaSessionHelper.isMediaPlaying()) {
-                showMediaPopup(mProgressRootView);
-            } else {
-                openTrackedApp();
-            }
-            triggerVibration(EFFECT_CLICK);
-        });
-        
+
         mMediaSessionHelper.addMediaMetadataListener(mMediaMetadataListener);
         
         mIsViewAttached = true;
@@ -335,10 +324,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (mIsCompactModeEnabled && !mIsExpanded) {
                 expandCompactView();
-                return true;
-            }
-            
-            if (mShowMediaProgress && mMediaSessionHelper.isMediaPlaying()) {
+            } else if (mShowMediaProgress && mMediaSessionHelper.isMediaPlaying()) {
                 showMediaPopup(mProgressRootView);
             } else {
                 openTrackedApp();
