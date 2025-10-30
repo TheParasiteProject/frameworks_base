@@ -41,7 +41,6 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,8 +49,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
@@ -77,29 +74,14 @@ public class OnGoingActionProgressController implements NotificationListener.Not
     private static final String TAG = "OngoingActionProgressController";
     private static final String ONGOING_ACTION_CHIP_ENABLED = "ongoing_action_chip";
     private static final String SHOW_MEDIA_PROGRESS = "show_media_progress";
-    private static final String PROGRESS_BAR_OPACITY = "progress_bar_opacity";
     private static final String COMPACT_MODE_ENABLED = "compact_progress_mode";
-    
-    private static final String CHIP_POSITION_X = "chip_position_x";
-    private static final String CHIP_POSITION_Y = "chip_position_y";
-    private static final String CIRCULAR_CHIP_SIZE = "circular_chip_size";
-    private static final String CIRCULAR_POSITION_X = "circular_position_x";
-    private static final String CIRCULAR_POSITION_Y = "circular_position_y";
     
     private static final int SWIPE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-    private static final int DEFAULT_OPACITY = 255;
-    private static final int DEFAULT_OPACITY_PERCENTAGE = 100;
     private static final int MEDIA_UPDATE_INTERVAL_MS = 1000;
     private static final int DEBOUNCE_DELAY_MS = 150;
     private static final int MAX_ICON_CACHE_SIZE = 20;
-    
-    private static final int DEFAULT_CIRCULAR_SIZE = 28;
-    private static final int DEFAULT_POSITION_X = 0;
-    private static final int DEFAULT_POSITION_Y = 0;
-    private static final int MIN_CIRCULAR_SIZE = 20;
-    private static final int MAX_CIRCULAR_SIZE = 100;
-    
+
     private static final int STALE_PROGRESS_CHECK_INTERVAL_MS = 5000;
     private static final int PROGRESS_TIMEOUT_MS = 30000;
     
@@ -170,7 +152,6 @@ public class OnGoingActionProgressController implements NotificationListener.Not
     private boolean mIsCompactModeEnabled = false;
     private int mCurrentProgress = 0;
     private int mCurrentProgressMax = 0;
-    private int mProgressBarOpacity = DEFAULT_OPACITY;
     private String mTrackedNotificationKey;
     private String mTrackedPackageName;
     private PopupWindow mMediaPopup;
@@ -178,14 +159,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
     private boolean mNeedsFullUiUpdate = true;
     private boolean mIsViewAttached = false;
     private boolean mIsExpanded = false;
-    
-    // Position & Size variables (simplified)
-    private int mChipPositionX = DEFAULT_POSITION_X;
-    private int mChipPositionY = DEFAULT_POSITION_Y;
-    private int mCircularChipSize = DEFAULT_CIRCULAR_SIZE;
-    private int mCircularPositionX = DEFAULT_POSITION_X;
-    private int mCircularPositionY = DEFAULT_POSITION_Y;
-    
+
     private boolean mUpdatePending = false;
     private long mLastUpdateTime = 0;
 
@@ -425,9 +399,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
 
     private void updateViews() {
         if (!mIsViewAttached) return;
-        
-        float opacity = mProgressBarOpacity / 255f;
-        
+
         // Always hide both views if force hidden or heads up is pinned
         if (mIsForceHidden || mHeadsUpPinned) {
             animateExit(mProgressRootView);
@@ -458,7 +430,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             }
             
             // Then show compact view
-            animateEntry(mCompactRootView, opacity);
+            animateEntry(mCompactRootView);
             
             if (isMediaPlaying) {
                 updateMediaProgressCompact();
@@ -473,7 +445,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             
             // Then show normal view
             if (isMediaPlaying) {
-                animateEntry(mProgressRootView, opacity);
+                animateEntry(mProgressRootView);
 
                 if (mNeedsFullUiUpdate) {
                     updateMediaProgressFull();
@@ -482,12 +454,12 @@ public class OnGoingActionProgressController implements NotificationListener.Not
                     updateMediaProgressOnly();
                 }
             } else {
-                updateNotificationProgress(opacity);
+                updateNotificationProgress();
             }
         }
     }
 
-    private void animateEntry(View view, float targetAlpha) {
+    private void animateEntry(View view) {
         if (view.getVisibility() == View.VISIBLE && !mIsAnimatingEntry) {
             return;
         }
@@ -503,7 +475,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         mIsAnimatingEntry = true;
 
         view.animate()
-                .alpha(targetAlpha)
+                .alpha(1f)
                 .translationY(0f)
                 .setDuration(ENTRY_ANIMATION_DURATION)
                 .setInterpolator(new PathInterpolator(0f, 0f, 0.2f, 1f))
@@ -684,7 +656,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         }
     }
 
-    private void updateNotificationProgress(float opacity) {
+    private void updateNotificationProgress() {
         if (!mIsViewAttached) return;
         
         if (!mIsEnabled || !mIsTrackingProgress) {
@@ -693,7 +665,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             return;
         }
 
-        animateEntry(mProgressRootView, opacity);
+        animateEntry(mProgressRootView);
         
         if (mCurrentProgressMax <= 0) {
             Log.w(TAG, "updateViews: invalid max progress " + mCurrentProgressMax + ", using 100");
@@ -1029,65 +1001,6 @@ public void onConfigurationChanged(Configuration newConfig) {
         }
     }
 
-    // Position Control Methods (Simplified - Working ones only)
-    
-    private void applyLayoutChanges() {
-        if (!mIsViewAttached) return;
-        
-        mHandler.post(() -> {
-            applyChipLayout(mProgressRootView, mChipPositionX, mChipPositionY);
-            applyCircularChipLayout(mCompactRootView, mCircularChipSize, 
-                                   mCircularPositionX, mCircularPositionY);
-        });
-    }
-
-    private void applyChipLayout(View view, int offsetXDp, int offsetYDp) {
-        if (view == null) return;
-        
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        if (params instanceof ViewGroup.MarginLayoutParams) {
-            ViewGroup.MarginLayoutParams marginParams = 
-                    (ViewGroup.MarginLayoutParams) params;
-            
-            float density = mContext.getResources().getDisplayMetrics().density;
-            int offsetX = (int) (offsetXDp * density);
-            int offsetY = (int) (offsetYDp * density);
-            
-            marginParams.setMarginStart(offsetX);
-            marginParams.topMargin = offsetY;
-            
-            view.setLayoutParams(marginParams);
-        }
-    }
-
-    private void applyCircularChipLayout(View view, int sizeDp, int offsetXDp, int offsetYDp) {
-        if (view == null) return;
-        
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        if (params instanceof ViewGroup.MarginLayoutParams) {
-            ViewGroup.MarginLayoutParams marginParams = 
-                    (ViewGroup.MarginLayoutParams) params;
-            
-            float density = mContext.getResources().getDisplayMetrics().density;
-            int size = (int) (sizeDp * density);
-            int offsetX = (int) (offsetXDp * density);
-            int offsetY = (int) (offsetYDp * density);
-            
-            marginParams.width = size;
-            marginParams.height = size;
-            
-            marginParams.setMarginStart(offsetX);
-            marginParams.topMargin = offsetY;
-            
-            view.setLayoutParams(marginParams);
-        }
-    }
-
-    private int dpToPx(int dp) {
-        float density = mContext.getResources().getDisplayMetrics().density;
-        return (int) (dp * density);
-    }
-
     @Override
     public void onNotificationPosted(StatusBarNotification sbn, NotificationListenerService.RankingMap _rankingMap) {
         onNotificationPosted(sbn);
@@ -1130,13 +1043,7 @@ public void onConfigurationChanged(Configuration newConfig) {
             super.onChange(selfChange, uri);
             if (uri.equals(Settings.System.getUriFor(ONGOING_ACTION_CHIP_ENABLED)) ||
                     uri.equals(Settings.System.getUriFor(SHOW_MEDIA_PROGRESS)) ||
-                    uri.equals(Settings.System.getUriFor(PROGRESS_BAR_OPACITY)) ||
-                    uri.equals(Settings.System.getUriFor(COMPACT_MODE_ENABLED)) ||
-                    uri.equals(Settings.System.getUriFor(CHIP_POSITION_X)) ||
-                    uri.equals(Settings.System.getUriFor(CHIP_POSITION_Y)) ||
-                    uri.equals(Settings.System.getUriFor(CIRCULAR_CHIP_SIZE)) ||
-                    uri.equals(Settings.System.getUriFor(CIRCULAR_POSITION_X)) ||
-                    uri.equals(Settings.System.getUriFor(CIRCULAR_POSITION_Y))) {
+                    uri.equals(Settings.System.getUriFor(COMPACT_MODE_ENABLED))) {
                 updateSettings();
             }
         }
@@ -1146,22 +1053,9 @@ public void onConfigurationChanged(Configuration newConfig) {
                     false, this, UserHandle.USER_ALL);
             mContentResolver.registerContentObserver(Settings.System.getUriFor(SHOW_MEDIA_PROGRESS), 
                     false, this, UserHandle.USER_ALL);
-            mContentResolver.registerContentObserver(Settings.System.getUriFor(PROGRESS_BAR_OPACITY), 
-                    false, this, UserHandle.USER_ALL);
             mContentResolver.registerContentObserver(Settings.System.getUriFor(COMPACT_MODE_ENABLED), 
                     false, this, UserHandle.USER_ALL);
-            
-            mContentResolver.registerContentObserver(Settings.System.getUriFor(CHIP_POSITION_X), 
-                    false, this, UserHandle.USER_ALL);
-            mContentResolver.registerContentObserver(Settings.System.getUriFor(CHIP_POSITION_Y), 
-                    false, this, UserHandle.USER_ALL);
-            mContentResolver.registerContentObserver(Settings.System.getUriFor(CIRCULAR_CHIP_SIZE), 
-                    false, this, UserHandle.USER_ALL);
-            mContentResolver.registerContentObserver(Settings.System.getUriFor(CIRCULAR_POSITION_X), 
-                    false, this, UserHandle.USER_ALL);
-            mContentResolver.registerContentObserver(Settings.System.getUriFor(CIRCULAR_POSITION_Y), 
-                    false, this, UserHandle.USER_ALL);
-                    
+
             updateSettings();
         }
 
@@ -1181,34 +1075,13 @@ public void onConfigurationChanged(Configuration newConfig) {
                 SHOW_MEDIA_PROGRESS, 0, UserHandle.USER_CURRENT) == 1;
         mIsCompactModeEnabled = Settings.System.getIntForUser(mContentResolver, 
                 COMPACT_MODE_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
-        
-        int opacityPercentage = Settings.System.getIntForUser(mContentResolver, 
-                PROGRESS_BAR_OPACITY, DEFAULT_OPACITY_PERCENTAGE, UserHandle.USER_CURRENT);
-        
-        opacityPercentage = Math.max(0, Math.min(100, opacityPercentage));
-        mProgressBarOpacity = (int)(opacityPercentage * 2.55f);
-        
-        mChipPositionX = Settings.System.getIntForUser(mContentResolver, 
-                CHIP_POSITION_X, DEFAULT_POSITION_X, UserHandle.USER_CURRENT);
-        mChipPositionY = Settings.System.getIntForUser(mContentResolver, 
-                CHIP_POSITION_Y, DEFAULT_POSITION_Y, UserHandle.USER_CURRENT);
-        
-        int newCircularSize = Settings.System.getIntForUser(mContentResolver, 
-                CIRCULAR_CHIP_SIZE, DEFAULT_CIRCULAR_SIZE, UserHandle.USER_CURRENT);
-        mCircularChipSize = Math.max(MIN_CIRCULAR_SIZE, Math.min(MAX_CIRCULAR_SIZE, newCircularSize));
-        
-        mCircularPositionX = Settings.System.getIntForUser(mContentResolver, 
-                CIRCULAR_POSITION_X, DEFAULT_POSITION_X, UserHandle.USER_CURRENT);
-        mCircularPositionY = Settings.System.getIntForUser(mContentResolver, 
-                CIRCULAR_POSITION_Y, DEFAULT_POSITION_Y, UserHandle.USER_CURRENT);
-        
+
         if (wasEnabled != mIsEnabled || wasShowingMedia != mShowMediaProgress || 
                 wasCompactMode != mIsCompactModeEnabled) {
             mNeedsFullUiUpdate = true;
             mIsExpanded = false;
         }
         
-        applyLayoutChanges();
         requestUiUpdate();
         updateAccentColor();
         applySystemTheming();
