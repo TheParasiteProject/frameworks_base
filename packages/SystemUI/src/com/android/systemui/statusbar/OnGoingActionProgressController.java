@@ -16,10 +16,6 @@
 
 package com.android.systemui.statusbar;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.Notification;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -45,8 +41,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.PathInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -84,13 +78,6 @@ public class OnGoingActionProgressController implements NotificationListener.Not
 
     private static final int STALE_PROGRESS_CHECK_INTERVAL_MS = 5000;
     private static final int PROGRESS_TIMEOUT_MS = 30000;
-    
-    // Animation constants
-    private static final int PROGRESS_ANIMATION_DURATION = 300;
-    private static final int ENTRY_ANIMATION_DURATION = 400;
-    private static final int EXIT_ANIMATION_DURATION = 300;
-    private static final int EXPAND_ANIMATION_DURATION = 350;
-    private static final float ENTRY_TRANSLATION_Y = 50f;
 
     private static final VibrationEffect EFFECT_CLICK =
             VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
@@ -131,18 +118,9 @@ public class OnGoingActionProgressController implements NotificationListener.Not
     private final ImageView mCompactIconView;
 
     private final HashMap<String, IconFetcher.AdaptiveDrawableResult> mIconCache = new HashMap<>();
-    
-    // Animation related
-    private ObjectAnimator mProgressAnimator;
-    private ObjectAnimator mCircularProgressAnimator;
-    private ObjectAnimator mEntryAnimator;
-    private ObjectAnimator mExitAnimator;
-    private ObjectAnimator mCompactEntryAnimator;
-    private ObjectAnimator mCompactExitAnimator;
+
     private int mAccentColor;
-    private boolean mIsAnimatingEntry = false;
-    private boolean mIsAnimatingExit = false;
-    
+
     private boolean mShowMediaProgress = true;
     private boolean mIsTrackingProgress = false;
     private boolean mIsForceHidden = false;
@@ -242,15 +220,6 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         updateAccentColor();
         applySystemTheming();
 
-        // Initialize views with invisible state for entry animation
-        mProgressRootView.setAlpha(0f);
-        mProgressRootView.setTranslationY(ENTRY_TRANSLATION_Y);
-        mProgressRootView.setVisibility(View.GONE);
-        
-        mCompactRootView.setAlpha(0f);
-        mCompactRootView.setTranslationY(ENTRY_TRANSLATION_Y);
-        mCompactRootView.setVisibility(View.GONE);
-
         mKeyguardStateController.addCallback(this);
         mHeadsUpManager.addListener(this);
         mNotificationListener.addNotificationHandler(this);
@@ -287,7 +256,8 @@ public class OnGoingActionProgressController implements NotificationListener.Not
 
     private void expandCompactView() {
         mIsExpanded = true;
-        animateViewTransition(mCompactRootView, mProgressRootView, true);
+        mCompactRootView.setVisibility(View.GONE);
+        mProgressRootView.setVisibility(View.VISIBLE);
         
         mHandler.postDelayed(() -> {
             if (mIsCompactModeEnabled && mIsExpanded) {
@@ -295,28 +265,6 @@ public class OnGoingActionProgressController implements NotificationListener.Not
                 requestUiUpdate();
             }
         }, 5000);
-    }
-
-    private void animateViewTransition(View fromView, View toView, boolean isExpanding) {
-        // Exit animation for fromView
-        fromView.animate()
-                .alpha(0f)
-                .translationY(isExpanding ? -ENTRY_TRANSLATION_Y : ENTRY_TRANSLATION_Y)
-                .setDuration(EXPAND_ANIMATION_DURATION)
-                .setInterpolator(new PathInterpolator(0.4f, 0f, 0.2f, 1f))
-                .withEndAction(() -> fromView.setVisibility(View.GONE))
-                .start();
-
-        // Entry animation for toView
-        toView.setVisibility(View.VISIBLE);
-        toView.setAlpha(0f);
-        toView.setTranslationY(isExpanding ? ENTRY_TRANSLATION_Y : -ENTRY_TRANSLATION_Y);
-        toView.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(EXPAND_ANIMATION_DURATION)
-                .setInterpolator(new PathInterpolator(0.4f, 0f, 0.2f, 1f))
-                .start();
     }
 
     private class MediaGestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -388,8 +336,8 @@ public class OnGoingActionProgressController implements NotificationListener.Not
 
         // Always hide both views if force hidden or heads up is pinned
         if (mIsForceHidden || mHeadsUpPinned) {
-            animateExit(mProgressRootView);
-            animateExit(mCompactRootView);
+            mProgressRootView.setVisibility(View.GONE);
+            mCompactRootView.setVisibility(View.GONE);
             return;
         }
 
@@ -398,8 +346,8 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         
         // If nothing to show, hide both views
         if (!shouldShowProgress) {
-            animateExit(mProgressRootView);
-            animateExit(mCompactRootView);
+            mProgressRootView.setVisibility(View.GONE);
+            mCompactRootView.setVisibility(View.GONE);
             return;
         }
         
@@ -412,12 +360,12 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         if (shouldShowCompact) {
             // First, ensure normal view is hidden
             if (mProgressRootView.getVisibility() == View.VISIBLE) {
-                animateExit(mProgressRootView);
+                mProgressRootView.setVisibility(View.GONE);
             }
             
             // Then show compact view
-            animateEntry(mCompactRootView);
-            
+            mCompactRootView.setVisibility(View.VISIBLE);
+
             if (isMediaPlaying) {
                 updateMediaProgressCompact();
             } else {
@@ -426,12 +374,12 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         } else if (shouldShowNormal) {
             // First, ensure compact view is hidden
             if (mCompactRootView.getVisibility() == View.VISIBLE) {
-                animateExit(mCompactRootView);
+                mCompactRootView.setVisibility(View.GONE);
             }
             
             // Then show normal view
             if (isMediaPlaying) {
-                animateEntry(mProgressRootView);
+                mProgressRootView.setVisibility(View.VISIBLE);
 
                 if (mNeedsFullUiUpdate) {
                     updateMediaProgressFull();
@@ -442,101 +390,6 @@ public class OnGoingActionProgressController implements NotificationListener.Not
             } else {
                 updateNotificationProgress();
             }
-        }
-    }
-
-    private void animateEntry(View view) {
-        if (view.getVisibility() == View.VISIBLE && !mIsAnimatingEntry) {
-            return;
-        }
-
-        cancelAnimations(view);
-        
-        if (view.getVisibility() != View.VISIBLE) {
-            view.setVisibility(View.VISIBLE);
-            view.setAlpha(0f);
-            view.setTranslationY(ENTRY_TRANSLATION_Y);
-        }
-
-        mIsAnimatingEntry = true;
-
-        view.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(ENTRY_ANIMATION_DURATION)
-                .setInterpolator(new PathInterpolator(0f, 0f, 0.2f, 1f))
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mIsAnimatingEntry = false;
-                    }
-                })
-                .start();
-    }
-
-    private void animateExit(View view) {
-        if (view.getVisibility() == View.GONE || mIsAnimatingExit) {
-            return;
-        }
-
-        cancelAnimations(view);
-        
-        mIsAnimatingExit = true;
-
-        view.animate()
-                .alpha(0f)
-                .translationY(-ENTRY_TRANSLATION_Y)
-                .setDuration(EXIT_ANIMATION_DURATION)
-                .setInterpolator(new PathInterpolator(0.4f, 0f, 1f, 1f))
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        view.setVisibility(View.GONE);
-                        view.setTranslationY(ENTRY_TRANSLATION_Y);
-                        mIsAnimatingExit = false;
-                    }
-                })
-                .start();
-    }
-
-    private void cancelAnimations(View view) {
-        view.animate().cancel();
-        if (view == mProgressRootView) {
-            if (mProgressAnimator != null && mProgressAnimator.isRunning()) {
-                mProgressAnimator.cancel();
-            }
-        } else if (view == mCompactRootView) {
-            if (mCircularProgressAnimator != null && mCircularProgressAnimator.isRunning()) {
-                mCircularProgressAnimator.cancel();
-            }
-        }
-    }
-
-    private void animateProgress(ProgressBar progressBar, int targetProgress) {
-        if (progressBar == null) return;
-
-        int currentProgress = progressBar.getProgress();
-        
-        if (Math.abs(targetProgress - currentProgress) < 2) {
-            progressBar.setProgress(targetProgress);
-            return;
-        }
-
-        ObjectAnimator animator = progressBar == mProgressBar ? mProgressAnimator : mCircularProgressAnimator;
-        
-        if (animator != null && animator.isRunning()) {
-            animator.cancel();
-        }
-
-        animator = ObjectAnimator.ofInt(progressBar, "progress", currentProgress, targetProgress);
-        animator.setDuration(PROGRESS_ANIMATION_DURATION);
-        animator.setInterpolator(new DecelerateInterpolator());
-        animator.start();
-
-        if (progressBar == mProgressBar) {
-            mProgressAnimator = animator;
-        } else {
-            mCircularProgressAnimator = animator;
         }
     }
 
@@ -615,7 +468,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
                 
         if (totalDuration > 0 && mCircularProgressBar != null) {
             mCircularProgressBar.setMax((int) totalDuration);
-            animateProgress(mCircularProgressBar, (int) currentProgress);
+            mCircularProgressBar.setProgress((int) currentProgress);
         }
 
         Drawable mediaAppIcon = mMediaSessionHelper.getMediaAppIcon();
@@ -646,12 +499,12 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         if (!mIsViewAttached) return;
         
         if (!mIsEnabled || !mIsTrackingProgress) {
-            animateExit(mProgressRootView);
+            mProgressRootView.setVisibility(View.GONE);
             mMediaProgressHandler.removeCallbacks(mMediaProgressRunnable);
             return;
         }
 
-        animateEntry(mProgressRootView);
+        mProgressRootView.setVisibility(View.VISIBLE);
         
         if (mCurrentProgressMax <= 0) {
             Log.w(TAG, "updateViews: invalid max progress " + mCurrentProgressMax + ", using 100");
@@ -660,7 +513,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
 
         if (mProgressBar != null) {
             mProgressBar.setMax(mCurrentProgressMax);
-            animateProgress(mProgressBar, mCurrentProgress);
+            mProgressBar.setProgress(mCurrentProgress);
         }
 
         if (mTrackedPackageName != null) {
@@ -687,7 +540,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
 
         if (mCircularProgressBar != null) {
             mCircularProgressBar.setMax(mCurrentProgressMax);
-            animateProgress(mCircularProgressBar, mCurrentProgress);
+            mCircularProgressBar.setProgress(mCurrentProgress);
         }
 
         if (mTrackedPackageName != null) {
@@ -1078,19 +931,8 @@ public void onConfigurationChanged(Configuration newConfig) {
 
         mHandler.removeCallbacks(mStaleProgressChecker);
 
-        // Cancel all animations
-        cancelAnimations(mProgressRootView);
-        cancelAnimations(mCompactRootView);
-        
-        if (mProgressAnimator != null) {
-            mProgressAnimator.cancel();
-            mProgressAnimator = null;
-        }
-        
-        if (mCircularProgressAnimator != null) {
-            mCircularProgressAnimator.cancel();
-            mCircularProgressAnimator = null;
-        }
+        mProgressRootView.setVisibility(View.GONE);
+        mCompactRootView.setVisibility(View.GONE);
 
         mSettingsObserver.unregister();
         mKeyguardStateController.removeCallback(this);
