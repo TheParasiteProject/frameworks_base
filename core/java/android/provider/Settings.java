@@ -17846,6 +17846,18 @@ public final class Settings {
                 "preferred_network_mode";
 
         /**
+         * Force LTE Carrier Aggregation setting per SIM slot.
+         * Appends _ and SIM slot number to this key.
+         * For example,
+         * Use FORCE_LTE_CA + _0 for SIM slot 0 (first SIM)
+         * Use FORCE_LTE_CA + _1 for SIM slot 1 (second SIM)
+         * 
+         * Type: int (0 = disabled, 1 = enabled)
+         * @hide
+         */
+        public static final String FORCE_LTE_CA = "force_lte_ca";
+
+        /**
          * Name of an application package to be debugged.
          */
         @Readable
