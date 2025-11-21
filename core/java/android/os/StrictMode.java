@@ -1560,6 +1560,8 @@ public final class StrictMode {
         if (targetSdkVersion >= Build.VERSION_CODES.N) {
             builder.detectFileUriExposure();
             builder.penaltyDeathOnFileUriExposure();
+            builder.detectActivityLeaks();
+            builder.detectLeakedRegistrationObjects();
         }
 
         if (Build.IS_USER || Build.IS_USERDEBUG || DISABLE || SystemProperties.getBoolean(DISABLE_PROPERTY, false)) {
@@ -2555,7 +2557,9 @@ public final class StrictMode {
 
     /** @hide */
     public static void onVmPolicyViolation(Violation originStack) {
-        onVmPolicyViolation(originStack, false);
+        boolean forceDeath = originStack instanceof IntentReceiverLeakedViolation 
+            || originStack instanceof ServiceConnectionLeakedViolation;
+        onVmPolicyViolation(originStack, forceDeath);
     }
 
     /** @hide */
