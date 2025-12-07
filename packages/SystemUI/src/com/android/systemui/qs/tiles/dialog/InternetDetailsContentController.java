@@ -585,9 +585,6 @@ public class InternetDetailsContentController implements AccessPointController.A
 
         int tintColor = Utils.getColorAttrDefaultColor(mContext,
                 android.R.attr.textColorTertiary);
-        if (enabled) {
-            tintColor = mContext.getColor(R.color.connected_network_primary_color);
-        }
         drawable.setTint(tintColor);
         return drawable;
     }
