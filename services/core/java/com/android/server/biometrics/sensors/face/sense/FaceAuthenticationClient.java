@@ -85,7 +85,7 @@ class FaceAuthenticationClient
         super(context, lazyDaemon, token, listener, operationId, restricted,
                 options, cookie, requireConfirmation, logger, biometricContext,
                 isStrongBiometric, null /* taskStackListener */,
-                lockoutTracker, allowBackgroundAuthentication, true /* shouldVibrate */,
+                lockoutTracker, allowBackgroundAuthentication, false /* shouldVibrate */,
                 sensorStrength);
         setRequestId(requestId);
         mUsageStats = usageStats;
