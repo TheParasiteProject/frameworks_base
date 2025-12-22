@@ -172,6 +172,8 @@ constructor(
                 latest(false) { carrierNetworkChangeActive }
             override val shouldShowExclamationMark: State<Boolean> =
                 latest(false) { shouldShowExclamationMark }
+            override val shouldShowFourgIcon: State<Boolean> =
+                latest(false) { shouldShowFourgIcon }
         }
 
     private fun trackedCommonViewModel(subId: Int) =
