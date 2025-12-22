@@ -77,11 +77,11 @@ constructor(
     private val settingsObserver = object : ContentObserver(handler) {
         override fun onChange(selfChange: Boolean) {
             micCameraAvailable = isMicCameraEnabled()
-            locationAvailable = isLocationEnabled()
+            locationAvailable = locationIndicatorsEnabled()
             mediaProjectionAvailable = isMediaProjectionEnabled()
-            callbacks.forEach { it.onFlagMicCameraChanged(micCameraAvailable) }
-            callbacks.forEach { it.onFlagLocationChanged(locationAvailable) }
-            callbacks.forEach { it.onFlagMediaProjectionChanged(mediaProjectionAvailable) }
+            callbacks.forEach { it.get()?.onFlagMicCameraChanged(micCameraAvailable) }
+            callbacks.forEach { it.get()?.onFlagLocationChanged(locationAvailable) }
+            callbacks.forEach { it.get()?.onFlagMediaProjectionChanged(mediaProjectionAvailable) }
         }
     }
 
@@ -106,7 +106,7 @@ constructor(
             Settings.Secure.ENABLE_CAMERA_PRIVACY_INDICATOR, 1, UserHandle.USER_CURRENT) == 1
     }
 
-    private fun isLocationEnabled(): Boolean {
+    private fun locationIndicatorsEnabled(): Boolean {
         return secureSettings.getIntForUser(
             Settings.Secure.ENABLE_LOCATION_PRIVACY_INDICATOR, 1, UserHandle.USER_CURRENT) == 1
     }
