@@ -142,7 +142,6 @@ constructor(
             }
 
             private fun update() {
-                updatePrivacyIconSlots()
                 setChipVisibility(privacyChip.privacyList.isNotEmpty())
             }
         }
