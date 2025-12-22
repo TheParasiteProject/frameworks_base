@@ -95,4 +95,8 @@ class OverScrollerWrapper(private val delegate: OverScroller) : OverScrollerInte
     override fun startScroll(startX: Int, startY: Int, dx: Int, dy: Int) {
         delegate.startScroll(startX, startY, dx, dy)
     }
+
+    override fun setFriction(friction: Float) {
+        delegate.setFriction(friction)
+    }
 }

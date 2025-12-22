@@ -156,4 +156,6 @@ interface OverScrollerInterface {
      * @param dy Vertical distance to travel. Positive numbers will scroll the content up.
      */
     fun startScroll(startX: Int, startY: Int, dx: Int, dy: Int)
+
+    fun setFriction(friction: Float)
 }

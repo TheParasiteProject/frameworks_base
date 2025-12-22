@@ -89,4 +89,8 @@ class NoOpOverScroller : OverScrollerInterface {
     override fun startScroll(startX: Int, startY: Int, dx: Int, dy: Int) {
         // No-op
     }
+
+    override fun setFriction(friction: Float) {
+        // No-op
+    }
 }
