@@ -1243,7 +1243,8 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
         @Override
         public boolean onLongPress() {
-            if (!mUserManager.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT)) {
+            if (!mUserManager.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT,
+                    getCurrentUser().getUserHandle())) {
                 rebootAction(true);
                 return true;
             }
