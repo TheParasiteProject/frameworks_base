@@ -164,6 +164,7 @@ constructor(
             override val carrierName: State<String> = latest(defaultName) { carrierName }
             override val isSingleCarrier: State<Boolean> = latest(true) { isSingleCarrier }
             override val isRoaming: State<Boolean> = latest(false) { isRoaming }
+            override val isRoamingForceHidden: State<Boolean> = latest(false) { isRoamingForceHidden }
             override val isForceHidden: State<Boolean> = latest(false) { isForceHidden }
             override val isAllowedDuringAirplaneMode: State<Boolean> =
                 latest(false) { isAllowedDuringAirplaneMode }
