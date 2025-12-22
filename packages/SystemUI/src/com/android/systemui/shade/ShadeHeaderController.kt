@@ -527,11 +527,7 @@ constructor(
             v.pivotY = v.height.toFloat() / 2
         }
         clock.setOnClickListener { launchClockActivity() }
-        batteryIcon.setOnClickListener {
-            activityStarter.postStartActivityDismissingKeyguard(
-                Intent(Intent.ACTION_POWER_USAGE_SUMMARY), 0
-            )
-        }
+        batteryIcon.setOnClickListener { launchBatteryActivity() }
 
         dumpManager.registerDumpable(this)
         configurationController.addCallback(configurationControllerListener)
@@ -569,6 +565,13 @@ constructor(
             .setInterpolator(if (show) Interpolators.ALPHA_OUT else Interpolators.ALPHA_IN)
             .setListener(CustomizerAnimationListener(show))
             .start()
+    }
+
+    @VisibleForTesting
+    internal fun launchBatteryActivity() {
+        activityStarter.postStartActivityDismissingKeyguard(
+            Intent(Intent.ACTION_POWER_USAGE_SUMMARY), 0
+        )
     }
 
     @VisibleForTesting
