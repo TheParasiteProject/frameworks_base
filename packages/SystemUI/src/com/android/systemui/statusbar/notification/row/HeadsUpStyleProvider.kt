@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.notification.row
 
+import android.os.SystemProperties
 import com.android.systemui.statusbar.data.repository.StatusBarModeRepositoryStore
 import javax.inject.Inject
 
