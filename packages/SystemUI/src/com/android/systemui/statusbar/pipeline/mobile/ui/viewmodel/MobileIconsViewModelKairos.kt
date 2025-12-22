@@ -170,6 +170,8 @@ constructor(
                 latest(false) { isAllowedDuringAirplaneMode }
             override val carrierNetworkChangeActive: State<Boolean> =
                 latest(false) { carrierNetworkChangeActive }
+            override val shouldShowExclamationMark: State<Boolean> =
+                latest(false) { shouldShowExclamationMark }
         }
 
     private fun trackedCommonViewModel(subId: Int) =
