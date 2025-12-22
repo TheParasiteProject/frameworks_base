@@ -74,6 +74,7 @@ public class GroupExpansionManagerImpl implements GroupExpansionManager, Dumpabl
      * Cleanup entries from internal tracking that no longer exist in the pipeline.
      */
     private final OnBeforeRenderListListener mNotifTracker = (entries) -> {
+    synchronized (this) {
         if (NotificationBundleUi.isEnabled())  {
             if (mExpandedCollections.isEmpty()) {
                 return; // nothing to do
@@ -114,6 +115,7 @@ public class GroupExpansionManagerImpl implements GroupExpansionManager, Dumpabl
                 setGroupExpanded(entry, false);
             }
         }
+    }
     };
 
     private void findRenderingSummariesRecursive(List<PipelineEntry> entries,
