@@ -35,6 +35,7 @@ import android.graphics.RecordingCanvas;
 import android.graphics.Rect;
 import android.graphics.RenderNode;
 import android.os.Build;
+import android.os.VibrationAttributes;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.animation.AnimationUtils;
@@ -864,6 +865,7 @@ public class EdgeEffect {
                     public void run() {
                         mVibrator.performHapticFeedback(
                             HapticFeedbackConstants.SEGMENT_FREQUENT_TICK,
+                            VibrationAttributes.USAGE_TOUCH,
                             "Scroll Limit Reached",
                             HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING,
                             0);
