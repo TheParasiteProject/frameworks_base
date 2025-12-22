@@ -24,10 +24,8 @@ import android.view.MotionEvent
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.plugins.FalsingManager
 import com.android.systemui.plugins.statusbar.StatusBarStateController
-import com.android.systemui.statusbar.StatusBarState
-import com.android.systemui.statusbar.phone.CentralSurfaces
-import lineageos.providers.LineageSettings
 import javax.inject.Inject
+import lineageos.providers.LineageSettings
 
 @SysUISingleton
 class QQSGestureListener @Inject constructor(
@@ -35,7 +33,6 @@ class QQSGestureListener @Inject constructor(
         private val falsingManager: FalsingManager,
         private val powerManager: PowerManager,
         private val statusBarStateController: StatusBarStateController,
-        private val centralSurfaces: CentralSurfaces,
 ) : GestureDetector.SimpleOnGestureListener() {
 
     private var doubleTapToSleepEnabled = false
@@ -66,9 +63,7 @@ class QQSGestureListener @Inject constructor(
             (e.actionMasked == MotionEvent.ACTION_UP &&
                 !statusBarStateController.isDozing &&
                 e.getY() < quickQsOffsetHeight &&
-                !falsingManager.isFalseDoubleTap) ||
-                (statusBarStateController.getState() == StatusBarState.KEYGUARD &&
-                    !centralSurfaces.isBouncerShowing())
+                !falsingManager.isFalseDoubleTap)
         ) {
             powerManager.goToSleep(e.getEventTime())
             return true
