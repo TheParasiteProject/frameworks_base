@@ -130,6 +130,8 @@ import com.android.internal.os.BackgroundThread;
 import com.android.internal.util.FrameworkStatsLog;
 import com.android.providers.settings.SettingsState.Setting;
 
+import com.android.internal.util.custom.HideDeveloperStatusUtils;
+
 import com.google.android.collect.Sets;
 
 import libcore.util.HexEncoding;
@@ -455,6 +457,10 @@ public class SettingsProvider extends ContentProvider {
                         Context.DEVICE_ID_DEFAULT, setting, isTrackingGeneration(args));
             }
             case Settings.CALL_METHOD_GET_GLOBAL -> {
+                if (HideDeveloperStatusUtils.shouldHideDevStatus(
+                        getContext().getContentResolver(), getCallingPackage(), name)) {
+                    return Bundle.forPair(Settings.NameValueTable.VALUE, "0");
+                }
                 Setting setting = getGlobalSetting(name);
                 // Global settings are applicable only for the default device, hence pass
                 // Context.DEVICE_ID_DEFAULT as the deviceId.
