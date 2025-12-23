@@ -32,6 +32,7 @@ private const val BURN_IN_PREVENTION_PERIOD_PROGRESS = 89f
  * @param amplitude Maximum translation that will be interpolated.
  * @param xAxis If we're moving on X or Y.
  */
+@JvmOverloads
 fun getBurnInOffset(
     amplitude: Int,
     xAxis: Boolean,
