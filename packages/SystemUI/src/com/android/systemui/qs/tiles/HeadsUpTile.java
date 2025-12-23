@@ -53,9 +53,9 @@ public class HeadsUpTile extends QSTileImpl<BooleanState> {
     public static final String TILE_SPEC = "heads_up";
 
     @Nullable
-    private final Icon mIconOn = null;
+    private Icon mIconOn = null;
     @Nullable
-    private final Icon mIconOff = null;
+    private Icon mIconOff = null;
 
     private static final Intent NOTIFICATION_SETTINGS =
             new Intent("android.settings.NOTIFICATION_SETTINGS");
