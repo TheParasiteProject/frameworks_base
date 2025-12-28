@@ -110,7 +110,7 @@
             android:layout_height="@dimen/notification_importance_toggle_size"
             android:layout_centerVertical="true"
             android:background="@drawable/ripple_drawable_20dp"
-            android:contentDescription="@string/notification_app_settings"
+            android:contentDescription="@string/notification_force_stop"
             android:src="@drawable/ic_force_stop"
             android:layout_toStartOf="@id/app_settings"
             android:tint="@androidprv:color/materialColorPrimary"/>

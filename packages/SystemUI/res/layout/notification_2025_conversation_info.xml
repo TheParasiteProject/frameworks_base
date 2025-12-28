@@ -168,6 +168,17 @@
             android:padding="@*android:dimen/notification_2025_margin"
             android:tint="@androidprv:color/materialColorPrimary"/>
 
+        <ImageButton
+            android:id="@+id/force_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_drawable"
+            android:contentDescription="@string/notification_force_stop"
+            android:src="@drawable/ic_force_stop"
+            android:layout_toStartOf="@id/info"
+            android:padding="@*android:dimen/notification_2025_margin"
+            android:tint="@androidprv:color/materialColorPrimary"/>
+
         <!-- System notification settings -->
         <ImageButton
             android:id="@+id/info"
