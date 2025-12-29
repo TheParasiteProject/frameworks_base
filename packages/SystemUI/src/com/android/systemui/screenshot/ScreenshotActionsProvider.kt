@@ -92,7 +92,7 @@ constructor(
                 uiEventLogger.log(SCREENSHOT_PREVIEW_TAPPED, 0, request.packageNameString)
                 onDeferrableActionTapped { result ->
                     actionExecutor.startSharedTransition(
-                        actionIntentCreator.createView(result.uri, context),
+                        actionIntentCreator.createView(result.uri),
                         result.user,
                         true,
                     )

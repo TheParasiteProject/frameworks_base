@@ -135,7 +135,7 @@ constructor(
     }
 
     /** @return an ACTION_VIEW intent for the given URI */
-    fun createView(rawUri: Uri, context: Context): Intent {
+    fun createView(rawUri: Uri): Intent {
         val uri = uriWithoutUserId(rawUri)
         val viewIntent = Intent(Intent.ACTION_VIEW)
 
