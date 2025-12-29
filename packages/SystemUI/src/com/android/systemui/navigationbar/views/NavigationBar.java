@@ -1138,6 +1138,7 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
             return;
         }
 
+        mEdgeBackGestureHandler.setImeVisible(isImeVisible);
         setNavbarFlags(flags);
         checkBarModes();
         updateSystemUiStateFlags();

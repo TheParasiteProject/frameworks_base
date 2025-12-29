@@ -5157,8 +5157,28 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // Handle special keys.
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK: {
+                boolean isLongSwipe = (event.getFlags() & KeyEvent.FLAG_LONG_SWIPE) != 0;
                 notifyKeyGestureCompletedOnActionUp(event,
                         KeyGestureEvent.KEY_GESTURE_TYPE_BACK);
+
+                if (isLongSwipe && !down) {
+                    // Extract action value
+                    int action = event.getFlags();
+                    action &= ~KeyEvent.FLAG_LONG_SWIPE;
+                    action &= ~KeyEvent.FLAG_FROM_SYSTEM;
+                    action &= ~KeyEvent.FLAG_VIRTUAL_HARD_KEY;
+                    // Trigger long swipe action
+                    performKeyAction(Action.fromIntSafe(action), event);
+                    // Don't pass back press to app
+                    result &= ~ACTION_PASS_TO_USER;
+                    break;
+                }
+                if (isLongSwipe && down) {
+                    // Don't pass back press to app
+                    result &= ~ACTION_PASS_TO_USER;
+                    break;
+                }
+
                 if (down) {
                     // There may have other embedded activities on the same Task. Try to move the
                     // focus before processing the back event.

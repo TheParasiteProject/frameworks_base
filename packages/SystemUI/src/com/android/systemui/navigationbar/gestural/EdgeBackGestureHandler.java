@@ -92,7 +92,6 @@ import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.policy.GestureNavigationSettingsObserver;
 import com.android.systemui.LauncherProxyService;
 import com.android.systemui.contextualeducation.GestureType;
-import com.android.internal.util.custom.CustomUtils;
 import com.android.systemui.Dependency;
 import com.android.systemui.dagger.qualifiers.Background;
 import com.android.systemui.model.SysUiState;
@@ -618,9 +617,7 @@ public class EdgeBackGestureHandler {
         mLeftVerticalSwipeDownAction = mGestureNavigationSettingsObserver.getLeftLSwipeDownAction();
         mRightVerticalSwipeUpAction = mGestureNavigationSettingsObserver.getRightLSwipeUpAction();
         mRightVerticalSwipeDownAction = mGestureNavigationSettingsObserver.getRightLSwipeDownAction();
-        if (mEdgeBackPlugin != null) {
-            mEdgeBackPlugin.setLongSwipeEnabled(mIsExtendedSwipe);
-        }
+        updateLongSwipeWidth();
 
         final DisplayMetrics dm = res.getDisplayMetrics();
         final float defaultGestureHeight = res.getDimension(
@@ -887,6 +884,7 @@ public class EdgeBackGestureHandler {
                     for (Display display : mDisplayManager.getDisplays()) {
                         mDisplayBackGestureHandlers.put(display.getDisplayId(),
                                 createDisplayBackGestureHandler(display));
+                        updateLongSwipeWidth(display.getDisplayId());
                     }
                 } else {
                     // Register input event receiver
@@ -897,6 +895,7 @@ public class EdgeBackGestureHandler {
 
                     // Add a nav bar panel window
                     resetEdgeBackPlugin();
+                    updateLongSwipeWidth();
                 }
 
                 // Begin listening to changes in blocked activities list
@@ -926,7 +925,6 @@ public class EdgeBackGestureHandler {
             mEdgeBackPlugin = edgeBackPlugin;
             mEdgeBackPlugin.setBackCallback(mBackCallback);
             mEdgeBackPlugin.setLayoutParams(createLayoutParams());
-            mEdgeBackPlugin.setLongSwipeEnabled(mIsExtendedSwipe);
             updateDisplaySize();
         } finally {
             Trace.endSection();
@@ -939,6 +937,23 @@ public class EdgeBackGestureHandler {
 
     public boolean isButtonForcedVisible() {
         return mIsButtonForcedVisible;
+    }
+
+    private void updateLongSwipeWidth() {
+        if (!mIsEnabled
+                || DesktopExperienceFlags.ENABLE_MULTIDISPLAY_TRACKPAD_BACK_GESTURE.isTrue()
+                || mEdgeBackPlugin == null) {
+            return;
+        }
+        mEdgeBackPlugin.setLongSwipeEnabled(mIsExtendedSwipe);
+    }
+
+    private void updateLongSwipeWidth(int displayId) {
+        if (!mIsEnabled
+                || !DesktopExperienceFlags.ENABLE_MULTIDISPLAY_TRACKPAD_BACK_GESTURE.isTrue()) {
+            return;
+        }
+        mDisplayBackGestureHandlers.get(displayId).setLongSwipeEnabled(mIsExtendedSwipe);
     }
 
     /**
@@ -1154,11 +1169,12 @@ public class EdgeBackGestureHandler {
         // still block extended swipe if keyboard is showing, to avoid conflicts with IME gestures
         if (!mImeVisible && (
                 mIsExtendedSwipe
-                || (mLeftLongSwipeAction != 0 && mIsOnLeftEdge)  || (mRightLongSwipeAction != 0 && !mIsOnLeftEdge))) {
-            isInExcludedRegion= mExcludeRegion.contains(x, y)
+                || (mLeftLongSwipeAction != 0 && mIsOnLeftEdge) 
+                || (mRightLongSwipeAction != 0 && !mIsOnLeftEdge))) {
+            isInExcludedRegion = mExcludeRegion.contains(x, y)
                 && y < ((mDisplaySize.y / 4) * 3);
         } else {
-            isInExcludedRegion= mExcludeRegion.contains(x, y);
+            isInExcludedRegion = mExcludeRegion.contains(x, y);
         }
         if (isInExcludedRegion) {
             if (withinRange) {
@@ -1528,7 +1544,10 @@ public class EdgeBackGestureHandler {
             return;
         }
 
-        CustomUtils.performKeyActionFromIntSafe(mContext, action);
+        sendEventWithFlags(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK,
+                action | KeyEvent.FLAG_LONG_SWIPE);
+        sendEventWithFlags(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK,
+                action | KeyEvent.FLAG_LONG_SWIPE);
     }
 
     private void launchApp(Context context, boolean leftEdgeApp, boolean isVerticalSwipe, boolean isSwipeUp) {
@@ -1628,10 +1647,14 @@ public class EdgeBackGestureHandler {
     }
 
     private boolean sendEvent(int action, int code) {
+        return sendEventWithFlags(action, code, 0);
+    }
+
+    private boolean sendEventWithFlags(int action, int code, int flags) {
         long when = SystemClock.uptimeMillis();
         final KeyEvent ev = new KeyEvent(when, when, action, code, 0 /* repeat */,
                 0 /* metaState */, KeyCharacterMap.VIRTUAL_KEYBOARD, 0 /* scancode */,
-                KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY,
+                flags | KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY,
                 InputDevice.SOURCE_KEYBOARD);
 
         ev.setDisplayId(mContext.getDisplay().getDisplayId());

@@ -722,7 +722,7 @@ constructor(
     override fun setDisplaySize(displaySize: Point) {
         this.displaySize.set(displaySize.x, displaySize.y)
         fullyStretchedThreshold = min(displaySize.x.toFloat(), params.swipeProgressThreshold)
-        longSwipeThreshold = displaySize.x * 0.45f;
+        longSwipeThreshold = displaySize.x * 0.45f
     }
 
     /** Updates resting arrow and background size not accounting for stretch */

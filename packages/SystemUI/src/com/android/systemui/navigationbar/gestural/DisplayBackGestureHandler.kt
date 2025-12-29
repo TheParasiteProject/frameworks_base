@@ -59,6 +59,9 @@ interface DisplayBackGestureHandler {
     fun dispose()
 
     fun dump(prefix: String, writer: PrintWriter)
+
+    fun setLongSwipeEnabled(enabled: Boolean) {}
+
 }
 
 class DisplayBackGestureHandlerImpl
@@ -129,6 +132,9 @@ constructor(
         configurationController.addCallback(configurationListener)
         registerSystemGestureExclusionListener()
     }
+
+    override fun setLongSwipeEnabled(enabled: Boolean) =
+            edgeBackPlugin.setLongSwipeEnabled(enabled)
 
     override fun onMotionEvent(ev: MotionEvent) = edgeBackPlugin.onMotionEvent(ev)
 
