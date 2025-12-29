@@ -152,7 +152,7 @@ constructor(
             .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
     }
 
-    fun createLens(rawUri: Uri, context: Context, owner: UserHandle): PendingIntent {
+    fun createLens(rawUri: Uri, owner: UserHandle): PendingIntent {
         return PendingIntent.getBroadcast(context, rawUri.toString().hashCode(),
                 Intent(context, LensScreenshotReceiver::class.java)
                         .putExtra(

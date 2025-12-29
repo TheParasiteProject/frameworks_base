@@ -173,7 +173,7 @@ constructor(
             uiEventLogger.log(SCREENSHOT_LENS_TAPPED, 0, request.packageNameString)
             onDeferrableActionTapped { result ->
                 actionExecutor.sendPendingIntent(
-                    actionIntentCreator.createLens(result.uri, context, result.user)
+                    actionIntentCreator.createLens(result.uri, result.user)
                 )
             }
         }
