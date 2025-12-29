@@ -1256,10 +1256,4 @@ public interface WindowManagerPolicy extends WindowManagerPolicyConstants {
      * @return {@code true} if the key will be handled globally.
      */
     boolean isGlobalKey(int keyCode);
-
-    /**
-     * Send performKeyActionFromIntSafe commands to WindowManager.
-     * @hide
-     */
-    public void performKeyActionFromIntSafe(int actionCode);
 }

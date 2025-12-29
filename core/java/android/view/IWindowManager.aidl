@@ -1201,11 +1201,4 @@ interface IWindowManager
      * Returns whether the display with {@code displayId} ignores orientation request.
      */
     boolean getIgnoreOrientationRequest(int displayId);
-
-    /**
-     * Send performKeyActionFromIntSafe commands to WindowManager.
-     * @hide
-     */
-    void performKeyActionFromIntSafe(int actionCode);
-
 }

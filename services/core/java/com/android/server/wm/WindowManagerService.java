@@ -11004,15 +11004,6 @@ public class WindowManagerService extends IWindowManager.Stub
         }
     }
 
-    /**
-     * Send performKeyActionFromIntSafe commands to WindowManager.
-     * @hide
-     */
-    @Override
-    public void performKeyActionFromIntSafe(int actionCode) {
-        mPolicy.performKeyActionFromIntSafe(actionCode);
-    }
-
     private boolean shouldHideScreenCapture() {
         return Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.HIDE_SCREEN_CAPTURE_STATUS, 0) != 0;
